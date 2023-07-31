@@ -1,0 +1,1323 @@
+---
+title: Introduction à la modélisation statistique bayésienne
+subtitle: Un cours en R et Stan avec brms
+author: Ladislas Nalborczyk (LPC, LNC, CNRS, Aix-Marseille Univ)
+from: markdown+emoji
+format:
+  revealjs:
+    incremental: true
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IMSB2022"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "Voir le code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+## Planning
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(tidyverse)
+library(brms)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+Cours n°01 : Introduction à l'inférence bayésienne <br> Cours n°02 :
+Modèle Beta-Binomial <br> Cours n°03 : Introduction à brms, modèle de
+régression linéaire <br> **Cours n°04 : Modèle de régression linéaire
+(suite)** <br> Cours n°05 : Markov Chain Monte Carlo <br> Cours n°06 :
+Modèle linéaire généralisé <br> Cours n°07 : Comparaison de modèles <br>
+Cours n°08 : Modèles multi-niveaux <br> Cours n°09 : Modèles
+multi-niveaux généralisés <br> Cours n°10 : Data Hackathon <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## Rappels 
+
+On considère un modèle de régression linéaire gaussien avec un prédicteur continu. Ce modèle contient trois paramètres à estimer : l'intercept $\alpha$, la pente $\beta$, et l'écart-type des "résidus" $\sigma$.
+
+$$
+\begin{aligned}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta x_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(100, 10)} \\
+\color{steelblue}{\beta} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)} \\
+\end{aligned}
+$$
+
+## Rappels 
+
+Ce modèle s'implémente simplement via `brms::brm()`.
+
+```{r rappel-brms, eval = FALSE, echo = TRUE}
+library(brms)
+
+priors <- c(
+  prior(normal(100, 10), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+model <- brm(
+  formula = y ~ 1 + x,
+  family = gaussian(),
+  prior = priors,
+  data = df
+  )
+```
+
+## Régression multiple
+
+On va étendre le modèle précédent en ajoutant plusieurs prédicteurs, continus et/ou catégoriels. Pourquoi ?
+
++ "Contrôle" des facteurs de confusion (e.g., [spurious correlations](http://www.tylervigen.com/spurious-correlations), [simpson's paradox](https://en.wikipedia.org/wiki/Simpson%27s_paradox)). Un facteur de confusion est un facteur (une variable aléatoire) qui "perturbe" l'association entre deux variables d'intérêts.
+
++ Multiples causes : un phénomène peut émerger sous l'influence de multiples causes.
+
++ Interactions : l'influence d'un prédicteur sur la variable observée peut dépendre de la valeur d'un autre prédicteur.
+
+## Associations fortuites
+
+```{r import-waffle, eval = TRUE, echo = TRUE}
+library(tidyverse)
+library(imsb)
+
+df1 <- open_data(waffle) # import des données dans une dataframe
+str(df1) # affiche la structure des données
+```
+
+## Associations fortuites
+
+On observe un lien positif entre le nombre de "waffle houses" et le taux de divorce...
+
+```{r waffle-divorce, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+df1 %>%
+  ggplot(aes(x = WaffleHouses, y = Divorce) ) +
+  geom_text(aes(label = Loc) ) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  labs(x = "Nombre de 'Waffle Houses' (par million d'habitants)", y = "Taux de divorce")
+```
+
+## Associations fortuites
+
+On laisse de côté les Waffle Houses. On observe un lien positif entre le taux de mariage et le taux de divorce... mais est-ce qu'on peut vraiment dire que le mariage "cause" le divorce ?
+
+```{r waffle-divorce-mariage, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+df1$Divorce.s <- scale(x = df1$Divorce, center = TRUE, scale = TRUE)
+df1$Marriage.s <- scale(x = df1$Marriage, center = TRUE, scale = TRUE)
+
+df1 %>%
+  ggplot(aes(x = Marriage, y = Divorce) ) +
+  geom_point(pch = 21, color = "white", fill = "black", size = 5, alpha = 0.8) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  labs(x = "Taux de mariage", y = "Taux de divorce")
+```
+
+## Associations fortuites
+
+On observe l'association inverse entre le taux de divorce et l'âge médian de mariage.
+
+```{r waffle-divorce-median, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+df1$MedianAgeMarriage.s <- scale(x = df1$MedianAgeMarriage, center = TRUE, scale = TRUE)
+
+df1 %>%
+  ggplot(aes(x = MedianAgeMarriage, y = Divorce) ) +
+  geom_point(pch = 21, color = "white", fill = "black", size = 5, alpha = 0.8) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  labs(x = "Age médian de mariage", y = "Taux de divorce")
+```
+
+```{r waffle-divorce-map, eval = FALSE, echo = FALSE, fig.width = 15, fig.height = 5}
+# On peut représenter nos trois variables principales sur une carte des 50 états...s
+# plot from
+# https://bookdown.org/ajkurz/Statistical_Rethinking_recoded/multivariate-linear-models.html
+# devtools::install_github("wmurphyrd/fiftystater")
+
+library(fiftystater)
+
+df1 %>%
+  # first we'll standardize the three variables to put them all on the same scale
+  mutate(
+    Divorce_z = (Divorce - mean(Divorce) )/ sd(Divorce),
+    MedianAgeMarriage_z = (MedianAgeMarriage - mean(MedianAgeMarriage) ) / sd(MedianAgeMarriage),
+    Marriage_z = (Marriage - mean(Marriage) ) / sd(Marriage),
+    # need to make the state names lowercase to match with the map data
+    Location = str_to_lower(Location)
+    ) %>% 
+  # here we select the relevant variables and put them in the long format to
+  # facet with `facet_wrap()`
+  select(Divorce_z:Marriage_z, Location) %>% 
+  gather(key, value, -Location) %>%
+  # plotting it
+  ggplot(aes(map_id = Location)) +
+  geom_map(
+    aes(fill = value), map = fifty_states,
+    # color = "firebrick",
+    size = 1 / 15, show.legend = FALSE
+    ) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  scale_x_continuous(NULL, breaks = NULL) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  coord_map() +
+  facet_wrap(~key)
+```
+
+## Influence du taux de mariage sur le taux de divorce
+
+$$
+\begin{aligned}
+\color{orangered}{D_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{R} R_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\beta_{R}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(1)} \\
+\end{aligned}
+$$
+
+```{r mod1, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 10), class = Intercept),
+  prior(normal(0, 1), class = b),
+  prior(exponential(1), class = sigma)
+  )
+
+mod1 <- brm(
+  formula = Divorce.s ~ 1 + Marriage.s,
+  family = gaussian(),
+  prior = priors,
+  # for prior predictive checking
+  sample_prior = TRUE,
+  data = df1
+  )
+```
+
+## Représentation visuelle des priors
+
+```{r prior-mod1, echo = FALSE, fig.width = 16, fig.height = 8}
+library(patchwork)
+
+p1 <- data.frame(x = c(-40, 40) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dnorm, args = list(mean = 0, sd = 10),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(alpha), y = "Densité de probabilité")
+
+p2 <- data.frame(x = c(0, 7.5) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dexp, args = list(1),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(sigma), y = "Densité de probabilité")
+
+p1 + p2
+```
+
+## Prédictions a priori (pour $\mu$)
+
+```{r ppc1-mod1, eval = TRUE, echo = TRUE}
+# getting the samples from the prior distribution
+prior <- prior_samples(mod1)
+
+# displaying the first six samples
+head(prior)
+```
+
+## Prédictions a priori (pour $\mu$)
+
+```{r ppc2-mod1, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6, `code-line-numbers` = "|5"}
+prior %>% 
+  sample_n(size = 1e2) %>% 
+  rownames_to_column("draw") %>% 
+  expand(nesting(draw, Intercept, b), a = c(-2, 2) ) %>%
+  mutate(d = Intercept + b * a) %>% 
+  ggplot(aes(x = a, y = d) ) +
+  geom_line(aes(group = draw), color = "steelblue", size = 0.5, alpha = 0.5) +
+  labs(x = "Taux de mariage (standardisé)", y = "Taux de divorce (standardisé)")
+```
+
+## Prédictions a priori (pour $D_{i}$)
+
+```{r ppc3-mod1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+pp_check(object = mod1, prefix = "ppd", ndraws = 1e2) + labs(x = "Taux de divorce", y = "Densité")
+```
+
+## Influence du taux de mariage
+
+```{r summary-mod1, eval = TRUE, echo = TRUE}
+summary(mod1)
+```
+
+## Prédictions a posteriori
+
+```{r posterior-mod1, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5, `code-line-numbers` = "|6"}
+nd <- data.frame(Marriage.s = seq(from = -2.5, to = 3.5, length.out = 1e2) )
+
+as_draws_df(x = mod1, pars = "^b_") %>%
+  sample_n(size = 1e2) %>%
+  expand(nesting(.draw, b_Intercept, b_Marriage.s), a = c(-2.5, 3.5) ) %>%
+  mutate(d = b_Intercept + b_Marriage.s * a) %>%
+  ggplot(aes(x = a, y = d) ) +
+  geom_point(data = df1, aes(x = Marriage.s, y = Divorce.s), size = 2) +
+  geom_line(aes(group = .draw), color = "purple", size = 0.5, alpha = 0.5) +
+  labs(x = "Taux de mariage (standardisé)", y = "Taux de divorce (standardisé)")
+```
+
+## Prédictions a posteriori (pour $D_{i}$)
+
+```{r ppc4-mod1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+pp_check(object = mod1, ndraws = 1e2) + labs(x = "Taux de divorce", y = "Densité")
+```
+
+## Influence de l'âge médian de mariage
+
+$$
+\begin{aligned}
+\color{orangered}{D_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{A} A_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\beta_{A}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(1)} \\
+\end{aligned}
+$$
+
+```{r mod2, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 10), class = Intercept),
+  prior(normal(0, 1), class = b),
+  prior(exponential(1), class = sigma)
+  )
+
+mod2 <- brm(
+  formula = Divorce.s ~ 1 + MedianAgeMarriage.s,
+  family = gaussian(),
+  prior = priors,
+  data = df1
+  )
+```
+
+## Influence de l'âge médian de mariage
+
+```{r summary-mod2, eval = TRUE, echo = TRUE}
+summary(mod2)
+```
+
+## Prédictions a posteriori
+
+```{r posterior-mod2, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+nd <- data.frame(MedianAgeMarriage.s = seq(from = -3, to = 3.5, length.out = 1e2) )
+
+as_draws_df(x = mod2, pars = "^b_") %>%
+  sample_n(size = 1e2) %>%
+  expand(nesting(.draw, b_Intercept, b_MedianAgeMarriage.s), a = c(-2.5, 3.5) ) %>%
+  mutate(d = b_Intercept + b_MedianAgeMarriage.s * a) %>%
+  ggplot(aes(x = a, y = d) ) +
+  geom_point(data = df1, aes(x = MedianAgeMarriage.s, y = Divorce.s), size = 2) +
+  geom_line(aes(group = .draw), color = "purple", size = 0.5, alpha = 0.5) +
+  labs(x = "Age médian de mariage (standardisé)", y = "Taux de divorce (standardisé)")
+```
+
+## Régression multiple
+
+Quelle est la valeur prédictive d'une variable, une fois que je connais tous les autres prédicteurs ?
+
+$$
+\begin{aligned}
+\color{orangered}{D_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{R}R_{i} + \beta_{A} A_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\beta_{R}, \beta_{A}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(1)} \\
+\end{aligned}
+$$
+
+. . .
+
+Ce modèle répond à deux questions :
+
++ Une fois connu le taux de mariage, quelle valeur ajoutée apporte la connaissance de l'âge médian de mariage ?
++ Une fois connu l'âge médian de mariage, quelle valeur ajoutée apporte la connaissance du taux de mariage ?
+
+## Régression multiple
+
+```{r mod3, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 10), class = Intercept),
+  prior(normal(0, 1), class = b),
+  prior(exponential(1), class = sigma)
+  )
+
+mod3 <- brm(
+  formula = Divorce.s ~ 1 + Marriage.s + MedianAgeMarriage.s,
+  family = gaussian(),
+  prior = priors,
+  data = df1
+  )
+```
+
+## Régression multiple
+
+Interprétation : Une fois qu'on connait l'âge median de mariage dans un état, connaître le taux de mariage de cet état n'apporte pas vraiment d'information supplémentaire...
+
+```{r summary-mod3, eval = TRUE, echo = TRUE}
+posterior_summary(x = mod3, pars = "^b_")
+```
+
+## Visualiser les prédictions du modèle
+
+En plus de l'interprétation des paramètres, il est important d'évaluer les prédictions du modèle en les comparant aux données observées. Cela nous permet de savoir si le modèle rend bien compte des données et (surtout) où est-ce que le modèle échoue. On peut comparer le taux de divorce observé dans chaque état au taux de divorce prédit par notre modèle (la ligne diagonale représente une prédiction parfaite).
+
+```{r predictions-mod3, eval = TRUE, echo = FALSE, fig.width = 6, fig.height = 6}
+data.frame(fitted(mod3) ) %>%
+  transmute(mu = Estimate, lb = Q2.5, ub = Q97.5) %>%
+  bind_cols(predict(mod3) %>% data.frame() ) %>%
+  bind_cols(df1) %>%
+  ggplot(aes(x = Divorce.s, y = mu) ) +
+  geom_pointrange(
+    aes(ymin = lb, ymax = ub, y = mu),
+    size = 1, shape = 1, col = "steelblue"
+    ) +
+  geom_text(
+    data = . %>% filter(Loc %in% c("ID", "UT") ),
+    aes(label = Loc),
+    size = 5, nudge_x = 0.3, nudge_y = 0.3, col = "steelblue"
+    ) +
+  geom_abline(intercept = 0, slope = 1, lty = 2, lwd = 1) +
+  labs(x = "Taux de divorce observé", y = "Taux de divorce prédit")
+```
+
+## Visualiser les prédictions du modèle
+
+```{r ppc-mod3-1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+pp_check(object = mod3, type = "intervals", ndraws = 1e2, prob = 0.5, prob_outer = 0.95) +
+  labs(x = "État", y = "Taux de divorce (standardisé)")
+```
+
+## Visualiser les prédictions du modèle
+
+```{r ppc-mod3-2, eval = TRUE, echo = FALSE, fig.width = 20, fig.height = 10}
+mod3 %>%
+  # adds the prediction intervals
+  predict(., probs = c(0.025, 0.975) ) %>%
+  data.frame %>%
+  transmute(ll = Q2.5, ul = Q97.5) %>%
+  # adds the fitted intervals
+  bind_cols(fitted(mod3, probs = c(0.025, 0.975) ) %>% data.frame() ) %>%
+  # adds the data
+  bind_cols(mod3$data) %>%
+  mutate(case = 1:nrow(.) ) %>%
+  # plotting it
+  ggplot(aes(x = case) ) +
+  geom_linerange(
+    aes(ymin = ll, ymax = ul),
+    size = 4, alpha = 0.2
+    ) +
+  geom_pointrange(
+    aes(ymin = Q2.5, ymax = Q97.5, y = Estimate),
+    size = 1, shape = 1
+    ) +
+  geom_point(
+    aes(
+      y = Divorce.s,
+      color = ifelse(Divorce.s > ll & Divorce.s < ul, "black", "orangered") ),
+    size = 4, show.legend = FALSE
+    ) +
+  scale_x_continuous(breaks = 1:50, labels = df1$Loc, limits = c(1, 50) ) +
+  scale_color_identity() +
+  labs(x = "État", y = "Taux de divorce (standardisé)")
+```
+
+## Toujours plus de prédicteurs
+
+Pourquoi ne pas simplement construire un modèle incluant tous les prédicteurs et regarder ce qu'il se passe ?
+
++ Raison n°1 : Multicolinéarité
++ Raison n°2 : Post-treatment bias
++ Raison n°3 : Overfitting (cf. Cours n°07)
+
+## Multicolinéarité
+
+Situation dans laquelle certains prédicteurs sont très fortement corrêlés. Par exemple, essayons de prédire la taille d'un individu par la taille de ses jambes.
+
+```{r leg-height, eval = TRUE, echo = TRUE}
+set.seed(666) # afin de pouvoir reproduire les résultats
+
+N <- 100 # nombre d'individus
+height <- rnorm(n = N, mean = 178, sd = 10) # génère N observations
+leg_prop <- runif(n = N, min = 0.4, max = 0.5) # taille des jambes (proportion taille totale)
+leg_left <- leg_prop * height + rnorm(n = N, mean = 0, sd = 1) # taille jambe gauche (+ erreur)
+leg_right <- leg_prop * height + rnorm(n = N, mean = 0, sd = 1) # taille jambe droite (+ erreur)
+df2 <- data.frame(height, leg_left, leg_right) # création d'une dataframe
+
+head(df2) # affiche les six première lignes
+```
+
+## Multicolinéarité
+
+On fit un modèle avec deux prédicteurs : un pour la taille de chaque jambe.
+
+```{r mod4, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(178, 10), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod4 <- brm(
+  formula = height ~ 1 + leg_left + leg_right,
+  prior = priors,
+  family = gaussian,
+  data = df2
+  )
+```
+
+## Multicolinéarité
+
+Les estimations semblent étranges... mais le modèle ne fait que répondre à la question qu'on lui pose : Une fois que je connais la taille de la jambe gauche, quelle est la valeur prédictive de la taille de la jambe droite (et vice versa) ?
+
+```{r summary-mod4, eval = TRUE, echo = TRUE}
+summary(mod4) # look at the SE...
+```
+
+## Multicolinéarité
+
+Comment traquer la colinéarité de deux prédicteurs ? On peut examiner la distribution postérieure de ces deux paramètres.
+
+```{r pairs-mod4, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6}
+pairs(mod4, pars = parnames(mod4)[1:3])
+```
+
+## Multicolinéarité
+
+Comment traquer la colinéarité de deux prédicteurs ? On peut examiner la distribution postérieure de ces deux paramètres.
+
+```{r post-plot-mod4, eval = TRUE, echo = TRUE, fig.width = 7.5, fig.height = 5}
+post <- as_draws_df(x = mod4)
+
+post %>%
+  ggplot(aes(x = b_leg_left, y = b_leg_right) ) +
+  geom_point(pch = 21, size = 4, color = "white", fill = "black", alpha = 0.5) +
+  labs(x = expression(beta[gauche]), y = expression(beta[droite]) )
+```
+
+## Multicolinéarité
+
+Lorsqu'on inclut deux prédicteurs qui contiennent presque exactement la même information dans un modèle, c'est comme si on incluait deux fois le même prédicteur $x_{i}$. Du point de vue du modèle, les deux pentes ne sont pas dissociables, elles agissent sur le même prédicteur. C'est comme si on avait fitté le modèle suivant :
+
+$$
+\begin{aligned}
+y_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i} &= \alpha + (\beta_{1} + \beta_{2}) x_{i}
+\end{aligned}
+$$
+. . .
+
+```{r plotpost-legs, eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+#| fig.width: 6
+#| fig.height: 4
+#| out.width: "50%"
+sum_legs <- post$b_leg_left + post$b_leg_right
+posterior_plot(samples = sum_legs, compval = 0) + labs(x = expression(beta[1] + beta[2]) )
+```
+
+## Multicolinéarité
+
+On crée un nouveau modèle avec seulement une jambe.
+
+```{r mod5, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(178, 10), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod5 <- brm(
+  formula = height ~ 1 + leg_left,
+  prior = priors,
+  family = gaussian,
+  data = df2
+  )
+```
+
+## Régression multiple
+
+En utilisant comme prédicteur une seule jambe, on retrouve l'estimation qui correspondait à la somme des deux pentes dans le modèle précédent.
+
+```{r summary-mod5, eval = TRUE, echo = TRUE}
+posterior_summary(mod5)
+```
+
+. . .
+
+Conclusion : Lorsque deux variables sont fortement corrêlées (conditionnellement aux autres variables du modèle), les inclure toutes les deux dans un même modèle de régression peut produire des estimations aberrantes.
+
+## Post-treatment bias
+
+Problèmes qui arrivent lorsqu'on inclut des prédicteurs qui sont eux-mêmes définis directement ou indirectement par d'autres prédicteurs inclus dans le modèle.
+
+. . .
+
+Supposons par exemple qu'on s'intéresse à la pousse des plantes en serre. On voudrait savoir quel traitement permettant de réduire la présence de champignons améliore la pousse des plantes.
+
+. . .
+
+On commence donc par planter et laisser germer des graines, mesurer la taille initiale des pousses, puis appliquer différents traitements.
+
+. . .
+
+Enfin, on mesure à la fin de l'expérience la taille finale de chaque plante et la présence de champignons.
+
+## Post-treatment bias
+
+```{r fungus-data, eval = TRUE, echo = TRUE}
+# nombre de plantes
+N <- 100
+
+# on simule différentes tailles à l'origine
+h0 <- rnorm(n = N, mean = 10, sd = 2)
+
+# on assigne différents traitements et on
+# simule la présence de fungus et la pousse des plantes
+treatment <- rep(x = 0:1, each = N / 2)
+fungus <- rbinom(n = N, size = 1, prob = 0.5 - treatment * 0.4)
+h1 <- h0 + rnorm(n = N, mean = 5 - 3 * fungus)
+
+# on rassemble les données dans une dataframe
+df3 <- data.frame(h0, h1, treatment, fungus)
+
+# on affiche les six premières lignes
+head(df3)
+```
+
+## Post-treatment bias
+
+$$
+\begin{aligned}
+\color{orangered}{h_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{1} h0_{i} + \beta_{2} T_{i} + \beta_{3} F_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\beta_{1}, \beta_{2}, \beta_{3}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)}
+\end{aligned}
+$$
+
+```{r mod6, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 10), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod6 <- brm(
+  formula = h1 ~ 1 + h0 + treatment + fungus,
+  prior = priors,
+  family = gaussian,
+  data = df3
+  )
+```
+
+## Post-treatment bias
+
+On remarque que l'effet du traitement est négligeable. La présence des champignons (`fungus`) est une conséquence de l'application du `treatment`. On demande au modèle si le traitement a une influence sachant que la plante a (ou n'a pas) développé de champignons...
+
+```{r summary-mo6, eval = TRUE, echo = TRUE}
+posterior_summary(mod6)
+```
+
+## Post-treatment bias
+
+Nous nous intéressons plutôt à l'influence du traitement sur la pousse. Il suffit de fitter un modèle sans la variable `fungus`. Remarque : il fait sens de prendre en compte $h0$, la taille initiale, car les différences de taille initiale pourraient masquer l'effet du traitement.
+
+```{r mod7, eval = TRUE, echo = TRUE, results = "hide"}
+mod7 <- brm(
+  formula = h1 ~ 1 + h0 + treatment,
+  prior = priors,
+  family = gaussian,
+  data = df3
+  )
+```
+
+. . .
+
+Note : on pourrait également utiliser la méthode `update()`.
+
+```{r mod7bis, eval = FALSE, echo = TRUE, results = "hide"}
+mod7 <- update(mod6, formula = h1 ~ 1 + h0 + treatment)
+```
+
+## Post-treatment bias
+
+```{r summary-mod7, eval = TRUE, echo = TRUE}
+summary(mod7)
+```
+
+L'influence du traitement est maintenant forte et positive.
+
+## Prédicteurs catégoriels
+
+```{r data-categ, eval = TRUE, echo = TRUE}
+df4 <- open_data(howell)
+str(df4)
+```
+
+Le sexe est codé comme une **dummy variable**, c'est à dire une variable où chaque modalité est représentée soit par $0$ soit par $1$. On peut imaginer que cette nouvelle variable **active** le paramètre uniquement pour la catégorie codée $1$, et le **désactive** pour la catégorie codée $0$.
+
+## Prédicteurs catégoriels
+
+$$
+\begin{aligned}
+\color{orangered}{h_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{m}m_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(178, 20)} \\
+\color{steelblue}{\beta_{m}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)}
+\end{aligned}
+$$
+
+```{r mod8, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(178, 20), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod8 <- brm(
+  formula = height ~ 1 + male,
+  prior = priors,
+  family = gaussian,
+  data = df4
+  )
+```
+
+## Prédicteurs catégoriels
+
+L'intercept $\alpha$ représente la taille moyenne des femmes, car $\mu_{i} = \alpha + \beta_{m}(m_{i} = 0) = \alpha$.
+
+```{r summary-mod8, eval = TRUE, echo = TRUE}
+fixef(mod8) # récupère les effets "fixes"
+```
+
+. . .
+
+La pente $\beta$ nous indique la différence de taille moyenne entre les hommes et les femmes. Pour obtenir la taille moyenne des hommes, il suffit donc d'ajouter $\alpha$ et $\beta$, car $\mu_{i} = \alpha + \beta_{m}(m_{i} = 1) = \alpha + \beta_{m}$.
+
+```{r summary-female, eval = TRUE, echo = TRUE}
+post <- as_draws_df(x = mod8)
+mu.male <- post$b_Intercept + post$b_male
+quantile(x = mu.male, probs = c(0.025, 0.5, 0.975) )
+```
+
+## Prédicteurs catégoriels
+
+Au lieu d'utiliser un paramètre pour la différence entre les deux catégories, on pourrait estimer un paramètre par catégorie...
+
+$$
+\begin{aligned}
+h_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i} &= \alpha_{f}(1 - m_{i}) + \alpha_{h} m_{i} \\
+\end{aligned}
+$$
+
+. . .
+
+Cette formulation est strictement équivalente à la précedente car :
+
+$$
+\begin{aligned}
+\mu_{i} &= \alpha_{f}(1 - m_{i}) + \alpha_{h} m_{i} \\
+&= \alpha_{f} + (\alpha_{m} - \alpha_{f}) m_{i} \\
+\end{aligned}
+$$
+
+où $(\alpha_{m} - \alpha_{f})$ est égal à la différence entre la moyenne des hommes et la moyenne des femmes (i.e., $\beta_{m}$).
+
+## Prédicteurs catégoriels
+
+```{r mod9, eval = TRUE, echo = TRUE, results = "hide"}
+# on crée une nouvelle colonne pour les femmes
+df4 <- df4 %>% mutate(female = 1 - male)
+
+priors <- c(
+  # il n'y a plus d'intercept dans ce modèle
+  prior(normal(178, 20), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod9 <- brm(
+  formula = height ~ 0 + female + male,
+  prior = priors,
+  family = gaussian,
+  data = df4
+  )
+```
+
+## Prédicteurs catégoriels
+
+```{r summary-mod9, eval = TRUE, echo = TRUE}
+summary(mod9)
+```
+
+## Prédicteurs catégoriels
+
+$$
+\text{Cohen's d} = \frac{\text{différence de moyennes}}{\text{écart-type}}
+$$
+
+```{r cohen, eval = TRUE, echo = TRUE, fig.width = 7.5, fig.height = 5, dev = "png", dpi = 200}
+post <- as_draws_df(x = mod9)
+
+posterior_plot(samples = (post$b_male - post$b_female) / post$sigma) +
+    labs(x = expression(delta) )
+```
+
+## Prédicteurs catégoriels
+
+Nombre de catégories $\geq 3$.
+
+```{r milk-data, eval = TRUE, echo = TRUE}
+df5 <- open_data(milk)
+str(df5)
+```
+
+. . .
+
+Règle : pour $k$ catégories, nous aurons besoin de $k - 1$ dummy variables. Pas la peine de créer une variable pour `ape`, qui sera notre intercept.
+
+```{r categories, eval = TRUE, echo = TRUE}
+df5$clade.NWM <- ifelse(df5$clade == "New World Monkey", 1, 0)
+df5$clade.OWM <- ifelse(df5$clade == "Old World Monkey", 1, 0)
+df5$clade.S <- ifelse(df5$clade == "Strepsirrhine", 1, 0)
+```
+
+## Prédicteurs catégoriels
+
+$$
+\begin{aligned}
+\color{orangered}{k_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{NWM}NWM_{i} + \beta_{OWM}OWM_{i} + \beta_{S}S_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0.6, 10)} \\
+\color{steelblue}{\beta_{NWM}, \beta_{OWM}, \beta_{S}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)}
+\end{aligned}
+$$
+
+<br>
+
+```{r figure-table, eval = TRUE, echo = FALSE}
+#| fig.align: "center"
+#| out.width: "50%"
+knitr::include_graphics("figures/table.png")
+```
+
+## Prédicteurs catégoriels
+
+```{r mod10, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0.6, 10), class = Intercept),
+  prior(normal(0, 1), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod10 <- brm(
+  formula = kcal.per.g ~ 1 + clade.NWM + clade.OWM + clade.S,
+  prior = priors,
+  family = gaussian,
+  data = df5
+  )
+```
+
+## Prédicteurs catégoriels
+
+```{r summary-mod10, eval = TRUE, echo = TRUE}
+summary(mod10)
+```
+
+## Prédicteurs catégoriels
+
+```{r pairs-mod10, eval = TRUE, echo = TRUE}
+# récupère les échantillons de la distribution postérieure
+post <- as_draws_df(x = mod10)
+
+# récupère les échantillons pour chaque clade
+mu.ape <- post$b_Intercept
+mu.NWM <- post$b_Intercept + post$b_clade.NWM
+mu.OWM <- post$b_Intercept + post$b_clade.OWM
+mu.S <- post$b_Intercept + post$b_clade.S
+```
+
+. . .
+
+```{r precis-mod10, eval = TRUE, echo = TRUE}
+# résumé de ces échantillons par clade
+rethinking::precis(data.frame(mu.ape, mu.NWM, mu.OWM, mu.S), prob = 0.95)
+```
+
+## Prédicteurs catégoriels
+
+Si on s'intéresse à la différence entre deux groupes, on peut calculer la distribution postérieure de cette différence.
+
+```{r quantiles-mod10, eval = TRUE, echo = TRUE}
+diff.NWM.OWM <- mu.NWM - mu.OWM
+quantile(diff.NWM.OWM, probs = c(0.025, 0.5, 0.975) )
+```
+
+. . .
+
+```{r plotpost-mod10, eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+#| fig.width: 8
+#| fig.height: 4
+#| out.width: "66%"
+posterior_plot(samples = diff.NWM.OWM, compval = 0)
+```
+
+## Prédicteurs catégoriels
+
+Une autre manière de considérer les variables catégorielles consiste à construire un vecteur d'intercepts, avec un intercept par catégorie.
+
+$$
+\begin{aligned}
+\color{orangered}{k_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{clade}[i]}} \\
+\color{steelblue}{\alpha_{\text{clade}[i]}} \ &\color{steelblue}{\sim \mathrm{Normal}(0.6, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)}
+\end{aligned}
+$$
+
+## Prédicteurs catégoriels
+
+Comme on a vu avec l'exemple du sexe, `brms` "comprend" automatiquement que c'est ce qu'on veut faire lorsqu'on fit un modèle sans intercept et avec un prédicteur catégoriel (codé en facteur).
+
+```{r mod11, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0.6, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod11 <- brm(
+  # modèle sans intercept avec seulement un prédicteur catégoriel (facteur)
+  formula = kcal.per.g ~ 0 + clade,
+  prior = priors,
+  family = gaussian,
+  data = df5
+  )
+```
+
+## Prédicteurs catégoriels
+
+```{r summary-mod11, eval = TRUE, echo = TRUE}
+summary(mod11)
+```
+
+## Interaction
+
+Jusque maintenant, les prédicteurs du modèle entretenaient des relations mutuellement indépendantes. Et si nous souhaitions que ces relations soient **conditionnelles**, ou **dépendantes** les unes des autres ?
+
+. . .
+
+Par exemple : on s'intéresse à la pousse des tulipes selon la quantité de lumière reçue et l'humidité du sol. Il se pourrait que la relation entre quantité de lumière reçue et pousse des tulipes soit différente selon l'humidité du sol. En d'autres termes, il se pourrait que la relation entre quantité de lumière reçue et pousse des tulipes soit **conditionnelle** à l'humidité du sol...
+
+## Interaction
+
+```{r data-tulips, eval = TRUE, echo = TRUE}
+df6 <- open_data(tulips)
+head(df6, 10)
+```
+
+## Interaction
+
+Modèle sans interaction :
+
+$$
+\begin{aligned}
+B_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i} &= \alpha + \beta_{W} W_{i} + \beta_{S} S_{i} \\
+\end{aligned}
+$$
+
+. . .
+
+Modèle avec interaction :
+
+$$
+\begin{aligned}
+B_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i} &= \alpha + \beta_{W} W_{i} + \beta_{S} S_{i} + \beta_{WS} W_{i} S_{i}\\
+\end{aligned}
+$$
+
+. . .
+
+On centre les prédicteurs (pour faciliter l'interprétation des paramètres).
+
+```{r centering, eval = TRUE, echo = TRUE}
+df6$shade.c <- df6$shade - mean(df6$shade)
+df6$water.c <- df6$water - mean(df6$water)
+```
+
+## Interaction
+
+```{r mod12, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(130, 100), class = Intercept),
+  prior(normal(0, 100), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod12 <- brm(
+  formula = blooms ~ 1 + water.c + shade.c,
+  prior = priors,
+  family = gaussian,
+  data = df6
+  )
+```
+
+```{r mod13, eval = TRUE, echo = TRUE, results = "hide"}
+mod13 <- brm(
+  formula = blooms ~ 1 + water.c * shade.c,
+  # équivalent à blooms ~ 1 + water.c + shade.c + water.c:shade.c
+  prior = priors,
+  family = gaussian,
+  data = df6
+  )
+```
+
+## Interaction
+
+On compare les estimations des deux modèles.
+
+```{r model-comp, eval = TRUE, echo = FALSE}
+posterior_summary(mod12) %>%
+  data.frame %>%
+  rownames_to_column("term") %>%
+  select(term, Estimate) %>%
+  mutate(model = "mod12") %>%
+  filter(term != "lp__") %>%
+  bind_rows(
+    posterior_summary(mod13) %>%
+      data.frame %>%
+      rownames_to_column("term") %>%
+      select(term, Estimate) %>%
+      mutate(model = "mod13") %>%
+      filter(term != "lp__")
+    ) %>%
+  pivot_wider(names_from = model, values_from = Estimate) %>%
+  data.frame
+```
+
++ L'intercept $\alpha$ représente la valeur attendue de `blooms` quand `water` et `shade` sont à 0 (i.e., la moyenne générale de la variable dépendante).
+
++ La pente $\beta_{W}$ nous donne la valeur attendue de changement de `blooms` quand `water` augmente d'une unité et `shade` est à sa valeur moyenne. On voit qu'augmenter la quantité d'eau est très bénéfique.
+
++ La pente $\beta_{S}$ nous donne la valeur attendue de changement de `blooms` quand `shade` augmente d'une unité et `water` est à sa valeur moyenne. On voit qu'augmenter la "quantité d'ombre" (diminuer l'exposition à la lumière) est plutôt délétère.
+
++ La pente $\beta_{WS}$ nous renseigne sur l'effet attendu de `water` sur `blooms` quand `shade` augmente d'une unité (et réciproquement).
+
+## Interaction
+
+Dans un modèle qui inclut un effet d'interaction, l'effet d'un prédicteur sur la mesure va dépendre de la valeur de l'autre prédicteur. La meilleure manière de représenter cette dépendance est de représenter visuellement la relation entre un prédicteur et la mesure, à différentes valeurs de l'autre prédicteur.
+
+```{r plot-models, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12}
+# `fitted()` for model b7.8
+fitted(mod12) %>%
+  as_tibble() %>%
+  # add `fitted()` for model b7.9
+  bind_rows(
+    fitted(mod13) %>% 
+      as_tibble()
+  ) %>% 
+  # we'll want to index the models
+  mutate(fit = rep(c("mod12", "mod13"), each = 27) ) %>%
+  # here we add the data, `d`
+  bind_cols(bind_rows(df6, df6) ) %>%
+  # these will come in handy for `ggplot2::facet_grid()`
+  mutate(
+    x_grid = paste("Water.c =", water.c),
+    y_grid = paste("Modèle : ", fit)
+    ) %>%
+  # plot!
+  ggplot(aes(x = shade.c) ) +
+  geom_point(
+    aes(y = blooms, group = x_grid), 
+    shape = 21, color = "white", fill = "black", size = 3
+    ) +
+  geom_smooth(
+    aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity",
+    color = "black",
+    alpha = 0.25, size = 1
+    ) +
+  scale_x_continuous("Shade (centered)", breaks = c(-1, 0, 1) ) +
+  ylab("Blooms") +
+  facet_grid(y_grid ~ x_grid)
+```
+
+## Interaction
+
+L'effet d'interaction nous indique que les tulipes ont besoin à la fois d'eau et de lumière pour pousser, mais aussi qu'à de faibles niveaux d'humidité, la luminosité a peu d'effet, tandis que cet effet est plus important à haut niveau d'humidité. Cette explication vaut de manière **symétrique** pour l'effet de l'humidité sur la relation entre luminosité et pousse des plantes.
+
+```{r plot-models2, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12}
+# `fitted()` for model b7.8
+fitted(mod12) %>%
+  as_tibble() %>%
+  # add `fitted()` for model b7.9
+  bind_rows(
+    fitted(mod13) %>% 
+      as_tibble()
+  ) %>% 
+  # we'll want to index the models
+  mutate(fit = rep(c("mod12", "mod13"), each = 27) ) %>%
+  # here we add the data, `d`
+  bind_cols(bind_rows(df6, df6) ) %>%
+  # these will come in handy for `ggplot2::facet_grid()`
+  mutate(
+    x_grid = paste("Water.c =", water.c),
+    y_grid = paste("Modèle : ", fit)
+    ) %>%
+  # plot!
+  ggplot(aes(x = shade.c) ) +
+  geom_point(
+    aes(y = blooms, group = x_grid), 
+    shape = 21, color = "white", fill = "black", size = 3
+    ) +
+  geom_smooth(
+    aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity",
+    color = "black",
+    alpha = 0.25, size = 1
+    ) +
+  scale_x_continuous("Shade (centered)", breaks = c(-1, 0, 1) ) +
+  ylab("Blooms") +
+  facet_grid(y_grid ~ x_grid)
+```
+
+## Résumé du cours
+
+Nous avons étendu le modèle de régression à plusieurs prédicteurs. Ce modèle de régression multiple permet de distinguer les influences causales de différents prédicteurs, lorsque les prédicteurs sont inclus (ou pas) dans le modèle, en considérant la structure causale sous-jacente.
+
+. . .
+
+Nous avons étendu le modèle de régression aux prédicteurs catégoriels, et introduit le concept d'interaction entre différentes variables prédictrices.
+
+. . .
+
+Plus nous ajoutons de variables dans notre modèle, plus les estimations "brutes" (numériques) sont difficiles à interpréter. Il devient donc plus simple, pour comprendre les prédictions du modèle, de les représenter graphiquement. Nous avons également souligné l'importance des prior et posterior predictive checks dans ce contexte.
+
+. . .
+
+Comme précédemment, le théorème de Bayes est utilisé pour mettre à jour nos connaissances a priori quant à la valeur des paramètres en une connaissance a posteriori, synthèse entre nos priors et l'information contenue dans les données.
+
+## Exercice #1
+
+Cet exemple est basé sur le jeu de données `mtcars`, issu du volume de 1974 de "Motor Trend US". La mesure qui nous intéresse est la consommation de carburant, en miles per gallon (mpg).
+
+```{r mtcars-data, eval = TRUE, echo = TRUE}
+data(mtcars)
+head(mtcars, 10)
+```
+
+## Exercice #1
+
+Imaginons que nous souhaitions savoir comment la cylindrée affecte la relation entre le nombre de cylindres et la consommation de carburant et / ou comment le nombre de cylindres affecte la relation entre la cylindrée et la consommation de carburant. Ce genre d'effet appelle une analyse d'interaction.
+
+```{r mtcars-plot, eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6}
+mtcars %>%
+  ggplot(
+    aes(
+      x = disp, y = mpg, group = cyl,
+      colour = as.factor(cyl), fill = as.factor(cyl)
+      )
+    ) +
+  geom_point(pch = 21, size = 3, colour = "white") +
+  geom_smooth(method = "lm")
+```
+
+## Exercice #1
+
+```{r mtcars-lm, eval = TRUE, echo = TRUE}
+mtcars$disp.s <- as.numeric(scale(mtcars$disp) )
+mtcars$cyl.s <- as.numeric(scale(mtcars$cyl) )
+
+m_cyl <- lm(mpg ~ disp.s * cyl.s, data = mtcars)
+summary(m_cyl)
+```
+
+## Proposition de réponse
+
+```{r mod14, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 100), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.1), class = sigma)
+  )
+
+mod14 <- brm(
+  formula = mpg ~ 1 + disp.s * cyl.s,
+  prior = priors,
+  family = gaussian,
+  data = mtcars
+  )
+```
+
+## Proposition de réponse
+
+```{r summary-mod14, eval = TRUE, echo = TRUE}
+summary(mod14)
+```
+
+## Proposition de réponse
+
+```{r plot-mod14-1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+plot(
+  conditional_effects(x = mod14, effects = "disp.s:cyl.s"),
+  points = TRUE,
+  point_args = list(
+    alpha = 0.8, shape = 21, size = 4,
+    color = "white", fill = "black"
+    ),
+  theme = theme_bw(base_size = 20, base_family = "Open Sans")
+  )
+```
+
+## Proposition de réponse
+
+```{r plot-mod14-2, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+plot(
+  conditional_effects(x = mod14, effects = "disp.s:cyl.s", spaghetti = TRUE, ndraws = 1e2),
+  points = TRUE, mean = FALSE,
+  point_args = list(
+    alpha = 0.8, shape = 21, size = 4,
+    color = "white", fill = "black"
+    ),
+  theme = theme_bw(base_size = 20, base_family = "Open Sans")
+  )
+```
+
+## Proposition de réponse
+
+```{r plot-mod14-3, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+plot(
+  conditional_effects(
+    x = mod14, effects = "disp.s:cyl.s",
+    surface = TRUE, resolution = 1e2
+    ),
+  stype = "raster", # contour or raster
+  surface_args = list(hjust = 0),
+  theme = theme_bw(base_size = 20, base_family = "Open Sans")
+  )
+```
+
+## Exercice #2
+
+Le jeu de données `airquality` recense des mesures de la qualité de l'air réalisées à New York, de Mai à Septembre 1973.
+
+```{r airquality-data, eval = TRUE, echo = TRUE}
+data(airquality)
+df7 <- airquality[complete.cases(airquality), ] # removes NAs
+
+head(df7, 10)
+```
+
+## Exercice #2
+
+On s'intéresse à la concentration de l'air en Ozone en fonction de la force du vent et de la température.
+
+- Écrire le modèle mathématique.
+- Fitter ce modèle aver `brms::brm()`, interpréter les estimations du modèle, et conclure sur l'effet de la force du vent et de la température.
+- Évaluer le modèle en faisant du **posterior predictive checking**.
+
+. . .
+
+Utilisez les fonctions suivantes (et lisez la documentation !) :
+
++ `brms::brm()` : permet de construire le modèle
++ `summary()` : affiche les estimations du modèle
++ `brms::pp_check()` : posterior predictive checking
+
+## Proposition de réponse, modèle mathématique
+
+On construit un modèle de régression multiple avec un intercept $\alpha$ et deux prédicteurs : la force du vent $W$ et la température $T$, pour prédire la concentration de l'air en Ozone $O$.
+
+$$
+\begin{aligned}
+\color{orangered}{O_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{W} W_{i} + \beta_{T} T_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(50, 10)} \\
+\color{steelblue}{\beta_{W}, \beta_{T}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)}
+\end{aligned}
+$$
+
+## Proposition de réponse, fitter le modèle
+
+```{r mod15, eval = TRUE, echo = TRUE, results = "hide"}
+df7$Wind.s <- scale(df7$Wind)
+df7$Temp.s <- scale(df7$Temp)
+
+priors <- c(
+  prior(normal(50, 10), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod15 <- brm(
+  formula = Ozone ~ 1 + Wind.s + Temp.s,
+  prior = priors,
+  family = gaussian,
+  data = df7
+  )
+```
+
+## Proposition de réponse, estimations du modèle
+
+```{r summary-mod15, eval = TRUE, echo = TRUE}
+summary(mod15)
+```
+
+## Proposition de réponse, posterior predictive checking
+
+```{r ppc-mod15-1, eval = TRUE, echo = TRUE, fig.width = 16, fig.height = 8}
+pp_check(mod15, type = "intervals", ndraws = 1e2, prob = 0.5, prob_outer = 0.95) +
+  labs(x = "Observations", y = "Ozone")
+```
+
+## Proposition de réponse, posterior predictive checking
+
+```{r ppc-mod15-3, eval = TRUE, echo = TRUE, fig.width = 14, fig.height = 7}
+pp_check(object = mod15, ndraws = 1e2) + labs(x = "Ozone", y = "Density")
+```

@@ -1,0 +1,28 @@
+---
+title: "Cours n°08"
+subtitle: "Modèles multi-niveaux"
+date: 2022-11-10
+toc: false
+lang: fr
+---
+
+## En préparation du cours
+
+- Relire les cours précédents.
+- (*optionnel*) Lire le chapitre 13 de {{< fa book >}} *Statistical Rethinking*.
+
+## Slides
+
+Les slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>h</kbd> vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., <kbd>f</kbd> pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.
+
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/cours08.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir les slides en ligne </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/cours08.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Télécharger la version PDF </a> <a class="btn btn-danger" target="_blank" href="../slides/code/cours08.R"><i class="fa-solid fa-code"></i> Télécharger le code </a> </p>
+
+<div class="ratio ratio-16x9"> <iframe src="../slides/html/cours08.html"></iframe> </div>
+
+::: {.callout-tip}
+Voir toutes les commandes de `revealjs` en appuyant sur <kbd>m</kbd> puis <kbd>h</kbd>.
+:::
+
+## Pour aller plus loin
+
+- Nalborczyk, L., Batailler, C., Lœvenbruck, H., Vilain, A., & Bürkner, P.-C. (2019). An introduction to Bayesian multilevel models using brms: A case study of gender effects on vowel variability in standard indonesian. *Journal of Speech Language and Hearing Research, 62*(5), 1225–1242. <https://doi.org/10.1044/2018_JSLHR-S-18-0006>. Preprint: <https://psyarxiv.com/guhsa/>.

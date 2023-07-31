@@ -1,0 +1,16 @@
+{
+  "hash": "08adb2901b0f150470a3811c33ac80f2",
+  "result": {
+    "markdown": "---\ntitle: \"Notes\"\nsidebar: false\nlang: fr\n---\n\n::: {.cell}\n\n:::\n\n\n<iframe src=\"_notes/docs/index.html\"  title=\"https://quarto.org/\" width=\"100%\" height=\"100%\"></iframe>\n",
+    "supporting": [
+      "notes_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

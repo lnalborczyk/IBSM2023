@@ -1,0 +1,30 @@
+---
+title: "Cours n°07"
+subtitle: "Comparaison de modèles"
+date: 2022-11-08
+toc: false
+lang: fr
+---
+
+## En préparation du cours
+
+- Relire les cours précédents.
+- (*optionnel*) Lire le chapitre 7 de {{< fa book >}} *Statistical Rethinking*.
+
+## Slides
+
+Les slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>h</kbd> vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., <kbd>f</kbd> pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.
+
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/cours07.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir les slides en ligne </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/cours07.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Télécharger la version PDF </a> <a class="btn btn-danger" target="_blank" href="../slides/code/cours07.R"><i class="fa-solid fa-code"></i> Télécharger le code </a> </p>
+
+<div class="ratio ratio-16x9"> <iframe src="../slides/html/cours07.html"></iframe> </div>
+
+::: {.callout-tip}
+Voir toutes les commandes de `revealjs` en appuyant sur <kbd>m</kbd> puis <kbd>h</kbd>.
+:::
+
+## Pour aller plus loin
+
+- Burnham, K. P., & Anderson, D. R. (2004). Multimodel inference: Understanding AIC and BIC in model selection. *Sociological Methods & Research, 33*(2), 261–304. <https://doi.org/10.1177/0049124104268644>
+- Stefan, A., & Schönbrodt, F. (2017). Two meanings of priors, part I: The plausibility of models. Blogpost available at: <https://www.nicebread.de/two-meanings-of-priors-1/>.
+- Stefan, A., & Schönbrodt, F. (2017). Two meanings of priors, part II: Quantifying uncertainty about model parameters. Blogpot available at: <https://www.nicebread.de/two-meanings-of-priors-2/>.

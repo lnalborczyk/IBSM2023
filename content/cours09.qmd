@@ -1,0 +1,29 @@
+---
+title: "Cours n°09"
+subtitle: "Modèles multi-niveaux généralisés"
+date: 2022-11-15
+toc: false
+lang: fr
+---
+
+## En préparation du cours
+
+- Relire les cours précédents.
+- (*optionnel*) Lire les chapitres 14, 15, et 16 de {{< fa book >}} *Statistical Rethinking*.
+
+## Slides
+
+Les slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>h</kbd> vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., <kbd>f</kbd> pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.
+
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/cours09.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir les slides en ligne </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/cours09.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Télécharger la version PDF </a> <a class="btn btn-danger" target="_blank" href="../slides/code/cours09.R"><i class="fa-solid fa-code"></i> Télécharger le code </a> </p>
+
+<div class="ratio ratio-16x9"> <iframe src="../slides/html/cours09.html"></iframe> </div>
+
+::: {.callout-tip}
+Voir toutes les commandes de `revealjs` en appuyant sur <kbd>m</kbd> puis <kbd>h</kbd>.
+:::
+
+## Pour aller plus loin
+
+- Bürkner, P.-C., & Vuorre, M. (2019). Ordinal Regression Models in Psychology: A Tutorial. *Advances in Methods and Practices in Psychological Science, 2*(1), 77–101. <https://doi.org/10.1177/2515245918823199>
+- Winter, B., & Bürkner, P. (2021). Poisson regression for linguists: A tutorial introduction to modelling count data with brms. *Language and Linguistics Compass, 15*(11). <https://doi.org/10.1111/lnc3.12439>

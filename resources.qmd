@@ -1,0 +1,35 @@
+---
+title: Ressources
+sidebar: false
+toc: true
+lang: fr
+---
+
+Vous pouvez télécharger le `.bib` contenant toutes les références citées pendant la formation en cliquant sur le bouton ci-dessous.
+
+<p><a href="./files/bib/references.bib" class="btn btn-success" role="button">{{< fa download >}} fichier .bib contenant toutes les références </a></p>
+
+## Livre conseillé : Statistical Rethinking
+
+> McElreath, R. (2020), *Statistical Rethinking: A Bayesian Course with Examples in R and Stan*. Second Edition. CRC Press.
+
+Liens officiels :
+
+- {{< fa book >}} [Book page](https://xcelab.net/rm/statistical-rethinking/)
+- {{< fa brands r-project >}} [R package](https://github.com/rmcelreath/rethinking)
+- {{< fa brands youtube >}} [2022 lecture videos](https://www.youtube.com/playlist?list=PLDcUM9US4XdMROZ57-OIRtIK0aOynbgZN)
+- {{< fa brands github >}} [2022 lecture slides and homework and answers](https://github.com/rmcelreath/stat_rethinking_2022)
+
+Traduction avec `tidyverse` et `brms` (en ligne) :
+
+- {{< fa laptop-code >}} Kurz, A. S. (2022), [*Statistical Rethinking with brms, ggplot2, and the tidyverse: Second edition*](https://bookdown.org/content/4857/).
+
+## Autres livres
+
+Quelques autres livres sur lesquels je me suis appuyé pour préparer ce cours.
+
+- {{< fa book >}} Kruschke, J. K. (2015), *Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan*.
+- {{< fa book >}} Lambert, B. (2018), *A Student's Guide to Bayesian Statistics*.
+- {{< fa book >}} Gelman, A., Carlin, J., Stern, H., Dunson, D., Vehtari, A., & Rubin, D. (2013), *Bayesian Data Analysis*.
+- {{< fa book >}} Noël, Y. (2015). *Psychologie statistique avec R*.
+- {{< fa book >}} Nicenboim, B., Schad, D., & Vasishth, S. (2021). An Introduction to Bayesian Data Analysis for Cognitive Science. Available [online](https://vasishth.github.io/bayescogsci/book/).

@@ -1,0 +1,1178 @@
+---
+title: Introduction à la modélisation statistique bayésienne
+subtitle: Un cours en R et Stan avec brms
+author: Ladislas Nalborczyk (LPC, LNC, CNRS, Aix-Marseille Univ)
+from: markdown+emoji
+format:
+  revealjs:
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    incremental: false
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IMSB2022"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "Voir le code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+## Préface :wave: :wave:
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(countdown)
+library(tidyverse)
+library(knitr)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+Ce cours est grandement inspiré des livres suivants :
+
+- McElreath, R. (2016, 2020). *Statistical Rethinking: A Bayesian Course with Examples in R and Stan*. CRC Press.
+
+- Kurz, S. (2019). *Statistical Rethinking with brms, ggplot2, and the tidyverse*. Available [online](https://bookdown.org/ajkurz/Statistical_Rethinking_recoded/).
+
+- Kruschke, J. K. (2015). *Doing Bayesian Data Analysis, Second Edition: A Tutorial with R, JAGS, and Stan*. Academic Press / Elsevier.
+
+- Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A., & Rubin, D. B. (2013). *Bayesian Data Analysis, third edition*. London: CRC Press.
+
+- Lambert, B. (2018). *A Student's Guide to Bayesian Statistics*. SAGE Publications Ltd.
+
+- Noël, Y. (2015). *Psychologie Statistique*. EDP Sciences.
+
+- Nicenboim, B., Schad, D., & Vasishth, S. (2021). *An Introduction to Bayesian Data Analysis for Cognitive Science*. Available [online](https://vasishth.github.io/bayescogsci/book/).
+
+Les slides seront disponibles juste avant chaque séance sur le site de la formation : <https://www.barelysignificant.com/IMSB2022/>.
+
+## Objectifs
+
+Objectifs généraux :
+
+::: incremental
+-   Comprendre les concepts fondamentaux de la statistique bayésienne.
+-   Être capable de comprendre des articles décrivant des analyses bayésiennes.
+-   Bonus : Réaliser que l'approche bayésienne est plus intuitive que l'approche fréquentiste.
+:::
+
+. . .
+
+Objectifs pratiques :
+
+-   Être capable de réaliser une analyse complète (i.e., identification du modèle approprié, écriture du modèle mathématique, implémentation en `R`, interprétation et report des résultats) d'un jeu de données simple.
+
+::: notes
+Speaker notes go here...
+:::
+
+## Planning
+
+**Cours n°01 : Introduction à l'inférence bayésienne** <br> Cours n°02 : Modèle Beta-Binomial <br> Cours n°03 : Introduction à brms, modèle de régression linéaire <br> Cours n°04 : Modèle de régression linéaire (suite) <br> Cours n°05 : Markov Chain Monte Carlo <br> Cours n°06 : Modèle linéaire généralisé <br> Cours n°07 : Comparaison de modèles <br> Cours n°08 : Modèles multi-niveaux <br> Cours n°09 : Modèles multi-niveaux généralisés <br> Cours n°10 : Data Hackathon <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## Axiomes des probabilités [@kolmogorov1933]
+
+Une probabilité est une valeur numérique assignée à un événement $A$, compris comme une possibilité appartenant à l'univers $\Omega$ (l'ensemble de toutes les issues possibles).
+
+. . .
+
+Les probabilités se conforment aux axiomes suivants :
+
+-   Non-negativité : $\Pr(A) \geq 0$
+-   Normalisation : $\Pr(\Omega) = 1$
+-   Additivité (pour des événements incompatibles) : $\Pr(A_{1} \cup A_{2}) = \Pr(A_{1}) + \Pr(A_{2})$
+
+. . .
+
+Le dernier axiome est également connu comme la **règle de la somme**, et peut se généraliser à des événements non mutuellement exclusifs : $\Pr(A_{1} \cup A_{2}) = \Pr(A_{1}) + \Pr(A_{2}) - \Pr(A_{1} \cap A_{2})$.
+
+## Interprétations probabilistes
+
+Quelle est la probabilité...
+
+-   D'obtenir un chiffre pair sur un lancer de dé ?
+
+-   Que j'apprenne quelque chose pendant cette formation ?
+
+. . .
+
+Est-ce qu'il s'agit, pour chaque exemple, de la même **sorte** de probabilité ?
+
+<br>
+
+![](figures/thinking.gif){fig-align="center" width="50%"}
+
+## Interprétation classique (ou théorique)
+
+$$
+\Pr(\text{pair}) = \frac{\text{nombre de cas favorables}}{\text{nombre de cas possibles}} = \frac{3}{6} = \frac{1}{2}
+$$
+
+. . .
+
+Problème : cette définition est uniquement applicable aux situations dans lesquelles il n'y a qu'un nombre **fini** de résultats possibles **équiprobables**...
+
+. . .
+
+Par exemple, quelle est la probabilité qu'il pleuve demain ?
+
+$$\Pr(\text{pluie}) = \frac{\text{pluie}}{ \{ \text{pluie, non-pluie} \} } = \frac{1}{2}$$
+
+## Interprétation fréquentiste (ou empirique)
+
+$$\Pr(x) = \lim_{n_{t} \to \infty}\frac{n_{x}}{n_{t}}$$
+
+Où $n_{x}$ est le nombre d'occurrences de l'événement $x$ et $n_{t}$ le nombre total d'essais. L'interprétation **fréquentiste** postule que, à long-terme (i.e., quand le nombre d'essais s'approche de l'infini), la fréquence relative va converger *exactement* vers ce qu'on appelle "probabilité".
+
+. . .
+
+Conséquence : le concept de probabilité s'applique uniquement aux **collectifs**, et non aux événements singuliers.
+
+## Interprétation fréquentiste (ou empirique)
+
+```{r frequency, fig.width = 7.5, fig.height = 5, `code-line-numbers` = "|3"}
+library(tidyverse)
+
+sample(x = c(0, 1), size = 500, prob = c(0.5, 0.5), replace = TRUE) %>%
+        data.frame() %>%
+        mutate(x = seq_along(.), y = cummean(.) ) %>%
+        ggplot(aes(x = x, y = y) ) +
+        geom_line(lwd = 1) +
+        geom_hline(yintercept = 0.5, lty = 3) +
+        labs(x = "Nombre de lancers", y = "Proportion de faces") +
+        ylim(0, 1)
+```
+
+## Limites de l'interprétation fréquentiste...
+
+Quelle classe de référence ? *Quelle est la probabilité que je vive jusqu'à 80 ans ? En tant qu'homme ? En tant que Français ?*
+
+. . .
+
+Quid des événements qui ne peuvent pas se répéter ? *Quelle est la probabilité que j'apprenne quelque chose pendant cette formation ?*
+
+. . .
+
+À partir de combien de lancers (d'une pièce par exemple) a-t-on une bonne approximation de la probabilité ? Une classe finie d'événements de taille $n$ ne peut produire que des fréquences relatives de précision $1/n$...
+
+## Interprétation propensionniste
+
+Les propriétés fréquentistes (i.e., à long terme) des objets (e.g., une pièce) seraient provoquées par des propriétés physiques intrinsèques aux objets. Par exemple, une pièce biaisée va engendrer une fréquence relative (et donc une probabilité) biaisée en raison de ses propriétés physiques. Pour les propensionnistes, les probabilités représentent ces caractéristiques intrinsèques, ces **propensions** à générer certaines fréquences relatives, et non les fréquences relatives en elles-mêmes.
+
+. . .
+
+Conséquence : ces propriétés sont les propriétés d'événements individuels... et non de séquences ! L'interprétation propensionniste nous permet donc de parler de la probabilité d'événements uniques.
+
+## Interprétation logique
+
+<br>
+
+<center>Il y a 10 étudiants dans cette salle</center>
+
+<center>9 portent un t-shirt <font color = "green">vert</font></center>
+
+<center>1 porte un t-shirt <font color = "red">rouge</font></center>
+
+<center>Une personne est tirée au sort...</center>
+
+. . .
+
+<hr width = "75%%" size = "2" align = "center" noshade>
+
+<center>Conclusion n°1 : l'étudiant tiré au sort porte un t-shirt ✔</center>
+
+. . .
+
+<hr width = "75%%" size = "1" align = "center" noshade>
+
+<center>Conclusion n°2 : l'étudiant tiré au sort porte un t-shirt <font color = "green">vert</font> ✗</center>
+
+. . .
+
+<hr width = "75%%" size = "1" align = "center" noshade>
+
+<center>Conclusion n°3 : l'étudiant tiré au sort porte un t-shirt <font color = "red">rouge</font> ✗</center>
+
+## Interprétation logique
+
+L'interprétation logique du concept de probabilité essaye de généraliser la logique (vrai / faux) au monde probabiliste. La probabilité représente donc le **degré de support logique** qu'une conclusion peut avoir, relativement à un ensemble de prémisses [@keynes1921; @carnap1971].
+
+. . .
+
+Conséquence : toute probabilité est **conditionnelle**.
+
+## Interprétation bayésienne
+
+La probabilité est **une mesure du degré d'incertitude**. Un événement *certain* aura donc une probabilité de 1 et un événement *impossible* une probabilité de 0.
+
+. . .
+
+> So to assign equal probabilities to two events is not in any way an assertion that they must occur equally often in any random experiment \[...\], it is only a formal way of saying I don't know [@jaynes1986].
+
+. . .
+
+Pour parler de probabilités, dans ce cadre, nous n'avons plus besoin de nous référer à la limite d'occurrence d'un événement (fréquence).
+
+## Interprétations probabilistes
+
+-   Interprétation classique (Laplace, Bernouilli, Leibniz)
+-   **Interprétation fréquentiste** (Venn, Reichenbach, von Mises)
+-   Interprétation propensionniste (Popper, Miller)
+-   Interprétation logique (Keynes, Carnap)
+-   **Interprétation bayésienne** (Jeffreys, de Finetti, Savage)
+
+[Voir plus de détails sur la Stanford Encyclopedia of Philosophy.](http://plato.stanford.edu/entries/probability-interpret/)
+
+## Interprétations probabilistes - résumé
+
+<br>
+
+::: columns
+::: {.column width="50%"}
+<center>
+
+**Probabilité épistémique** <br>
+
+Toute probabilité est conditionnelle à de l'information disponible (e.g., prémisses ou données). La probabilité est utilisée comme moyen de quantifier l'incertitude.<br><br>Interprétation logique, bayésienne.
+
+</center>
+:::
+
+::: {.column width="50%"}
+<center>
+
+**Probabilité physique** <br>
+
+Les probabilités dépendent d'un état du monde, de caractéristiques physiques, elles sont indépendantes de l'information disponible (ou de l'incertitude).<br><br>Interprétation classique, fréquentiste.
+
+</center>
+:::
+:::
+
+##  {background-image="figures/pill3.jpg"}
+
+## Un peu de logique
+
+![](figures/penguins.png){fig-align="center" width="50%"}
+
+## Un peu de logique, quelques syllogismes
+
+**Exemple 1**
+
+-   Si un suspect ment, il transpire. (On observe que) Ce suspect transpire.
+-   Par conséquent, ce suspect ment.
+
+. . .
+
+**Exemple 2**
+
+-   Si un suspect transpire, il ment. (On observe que) Ce suspect ne transpire pas.
+-   Par conséquent, ce suspect ne ment pas.
+
+. . .
+
+**Exemple 3**
+
+-   Tous les menteurs transpirent. (On observe que) Ce suspect ne transpire pas.
+-   Par conséquent, ce suspect n'est pas un menteur.
+
+## Arguments invalides
+
+-   Affirmation du conséquent : $\dfrac{A \Rightarrow B, \ B}{A}$
+
+-   Si il a plu, alors le sol est mouillé (A implique B). Le sol est mouillé (B). Donc il a plu (A).
+
+. . .
+
+-   Négation de l'antécédent : $\dfrac{A \Rightarrow B, \ \neg A}{\neg B}$
+
+-   Si il a plu, alors le sol est mouillé (A implique B). Il n'a pas plus (non A). Donc le sol n'est pas mouillé (non B).
+
+. . .
+
+![](figures/trump.gif){fig-align="center" width="50%"}
+
+## Arguments valides
+
+-   Modus ponens : $\dfrac{A \Rightarrow B, \ A}{B}$
+
+-   Si on est lundi, alors John ira au travail (A implique B). On est lundi (A). Donc John ira au travail (B).
+
+. . .
+
+-   Modus tollens : $\dfrac{A \Rightarrow B, \ \neg B}{\neg A}$
+
+-   Si mon chien détecte un intru, alors il aboie (A implique B). Mon chien n'a pas aboyé (non B). Donc il n'a pas détecté d'intrus (non A).
+
+. . .
+
+![](figures/good.gif){fig-align="center" width="50%"}
+
+## Logique, fréquentisme, et raisonnement probabiliste
+
+Le **modus tollens** est un des raisonnements logiques les plus importants et les plus performants. Dans le cadre de l'inférence statistique, il s'applique parfaitement au cas suivant : "Si $\mathcal{H}_{0}$ est vraie, alors $x$ ne devrait pas se produire. On observe $x$. Alors $\mathcal{H}_{0}$ est fausse".
+
+. . .
+
+Mais nous avons le plus souvent affaire à des hypothèses "continues" (probabilistes).
+
+. . .
+
+L'inférence fréquentiste (fishérienne) est elle aussi probabiliste, de la forme "Si $\mathcal{H}_{0}$ est vraie, alors $x$ est peu probable. On observe $x$. Alors $\mathcal{H}_{0}$ est peu probable."
+
+. . .
+
+Or cet argument est invalide, le modus tollens ne s'applique pas au monde probabiliste [e.g., @pollard1987; @rouder2016].
+
+. . .
+
+Par exemple : *Si un individu est un homme (man), alors il est peu probable qu'il soit pape. François est pape. François n'est donc certainement pas un homme...*
+
+## L'échec de la falsification
+
+**Poppérisme naïf** : la science progresse par falsification logique, donc la statistique devrait viser la falsification. Mais...
+
+-   Les hypothèses théoriques ne sont pas les modèles (hypothèses statistiques).
+
+. . .
+
+> Models are devices that connect theories to data. A model is an instanciation of a theory as a set of probabilistic statements [@rouder2016a].
+
+. . .
+
+-   Nos hypothèses sont souvent probabilistes.
+
+. . .
+
+-   Erreurs de mesure (e.g., [faster-than-light neutrino anomaly](https://en.wikipedia.org/wiki/Faster-than-light_neutrino_anomaly)).
+
+. . .
+
+-   La falsification concerne le problème de la démarcation, pas celui de la méthode.
+
+. . .
+
+-   La science est une technologie sociale, la falsification est **consensuelle**, et non pas logique.
+
+## Comparaison de modèles
+
+On s'intéresse au lien entre deux variables aléatoires continues, $x$ et $y$.
+
+```{r message = FALSE, echo = FALSE, fig.align = "center", fig.width = 7.5, fig.height = 5}
+set.seed(1111)
+
+x <- sort(runif(10, -2, 2) )
+y <- 3 * x^3 + 5 * x^2 + 0.5 * x + 20 + rnorm(10, sd = 3)
+
+data.frame(x, y) %>%
+        ggplot(aes(x = x, y = y) ) +
+        geom_point(size = 3)
+
+nterm <- c(1, 2, 3, 9)
+
+PAL <- colorRampPalette(c("black", "chartreuse3", "gold", "dodgerblue") )
+COLS <- PAL(length(nterm) )
+```
+
+## Comparaison de modèles
+
+L'hypothèse de modélisation la plus simple est de postuler une relation linéaire.
+
+```{r echo = FALSE, fig.align = "center", fig.width = 7.5, fig.height = 5}
+data.frame(x, y) %>%
+        ggplot(aes(x = x, y = y) ) +
+        geom_point(size = 3) +
+        geom_smooth(method = "lm", se = FALSE, col = COLS[1])
+```
+
+## Comparaison de modèles
+
+Cette description peut-être améliorée pour mieux prendre en compte les données qui s'écartent de la prédiction linéaire.
+
+```{r echo = FALSE, fig.align = "center", fig.width = 7.5, fig.height = 5}
+data.frame(x, y) %>%
+        ggplot(aes(x = x, y = y) ) +
+        geom_point(size = 3) +
+        geom_smooth(method = "lm", se = FALSE, col = COLS[1]) +
+        stat_smooth(
+                method = "lm", se = FALSE,
+                formula = y ~ poly(x, 2),
+                col = COLS[2]
+                )
+```
+
+## Comparaison de modèles
+
+Un ensemble de $N$ points peut être *exhaustivement* (i.e., sans erreur) décrit par une fonction polynomiale d'ordre $N-1$. Augmenter la complexité du modèle améliore donc la précision de notre description des données mais réduit la généralisabilité de ses prédictions (*bias-variance tradeoff*).
+
+```{r echo = FALSE, fig.align = "center", fig.width = 7.5, fig.height = 5}
+data.frame(x, y) %>%
+        ggplot(aes(x = x, y = y) ) +
+        geom_point(size = 3) +
+        geom_smooth(method = "lm", se = FALSE, col = COLS[1]) +
+        stat_smooth(
+                method = "lm", se = FALSE,
+                formula = y ~ poly(x, 2),
+                col = COLS[2]) +
+        stat_smooth(
+                method = "lm", se = FALSE,
+                formula = y ~ poly(x, 3),
+                col = COLS[3]) +
+        stat_smooth(
+                method = "lm", se = FALSE,
+                formula = y ~ poly(x, 9),
+                col = COLS[4]
+                )
+```
+
+Nous avons besoin d'outils qui prennent en compte le rapport *qualité de la description* / *complexité*, c'est à dire la **parcimonie** des modèles (e.g., AIC, WAIC).
+
+## Notre stratégie
+
+Besoin d'un cadre pour développer des modèles cohérents. Nos outils :
+
+-   **Bayesian data analysis** : utiliser les probabilités pour décrire l'incertitude.
+
+. . .
+
+-   **Multilevel modelling** : des modèles à multiples niveaux d'incertitude.
+
+. . .
+
+-   Approche par **comparaison de modèles** : au lieu d'essayer de falsifier un "null model", on va comparer des modèles intéressants (AIC, WAIC).
+
+## Exercice - Problème du sac de billes [@mcelreath2020b]
+
+Imaginons que nous disposions d'un sac contenant 4 billes. Ces billes peuvent être soit blanches, soit bleues. Nous savons qu'il y a précisément 4 billes, mais nous ne connaissons pas le nombre de billes de chaque couleur.
+
+. . .
+
+Nous savons cependant qu'il existe cinq possibilités (que nous considérons comme nos **hypothèses**) :
+
+<br>
+
+<center>
+
+:white_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle:
+
+</center>
+
+## Exercice - Problème du sac de billes [@mcelreath2020b]
+
+Le but est de déterminer quelle combinaison serait la plus probable, **sachant certaines observations**. Imaginons que l'on tire trois billes à la suite, avec remise, et que l'on obtienne la séquence suivante : :large_blue_circle: :white_circle: :large_blue_circle:.
+
+. . .
+
+Cette séquence représente nos données. À partir de là, quelle **inférence** peut-on faire sur le contenu du sac ? En d'autres termes, que peut-on dire de la probabilité de chaque hypothèse ?
+
+<br>
+
+<center>
+
+:white_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle:
+
+</center>
+
+. . .
+
+```{r countown, echo = FALSE, cache = FALSE}
+countdown(
+    minutes = 2,
+    warn_when = 30,
+    left = 0, right = 0,
+    padding = "10px",
+    margin = "5%",
+    font_size = "5em",
+    color_border = "#1c5253",
+    color_text = "#1c5253"
+    )
+```
+
+## Énumérer les possibilités
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothèse : :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Données : :large_blue_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+library(rethinking)
+source("./code/forking_data_McElreath.R")
+
+dat <- c(1)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 1
+    )
+```
+
+## Énumérer les possibilités
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothèse : :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Données : :large_blue_circle: :white_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+dat <- c(1, 0)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 1
+    )
+```
+
+## Énumérer les possibilités
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothèse : :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Données : :large_blue_circle: :white_circle: :large_blue_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+dat <- c(1, 0, 1)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 1
+    )
+```
+
+## Énumérer les possibilités
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothèse : :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Données : :large_blue_circle: :white_circle: :large_blue_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+dat <- c(1, 0, 1)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 0.3
+    )
+```
+
+## Énumérer les possibilités
+
+Sous cette hypothèse, $3$ chemins (sur $4^{3} = 64$) conduisent au résultat obtenu. Qu'en est-il des autres hypothèses ?
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 7, fig.width = 7, fig.align = "center"}
+dat <- c(1, 0, 1)
+ac <- c(1.2, 0.9, 0.6)
+
+arc <- c( pi / 2, pi / 2 + (2 / 3) * pi)
+
+garden(
+    arc = arc,
+    possibilities = c(1, 0, 0, 0),
+    data = dat,
+    hedge = 0.05,
+    adj.cex = ac
+    ) 
+
+arc <- c(arc[2], arc[2] + (2 / 3) * pi)
+
+garden(
+    arc = arc,
+    possibilities = c(1, 1, 0, 0),
+    data = dat,
+    hedge = 0.05,
+    newplot = FALSE,
+    adj.cex = ac
+    )
+
+arc <- c(arc[2], arc[2] + (2 / 3) * pi)
+
+garden(
+    arc = arc,
+    possibilities = c(1, 1, 1, 0),
+    data = dat,
+    hedge = 0.05,
+    newplot = FALSE,
+    adj.cex = ac
+    )
+
+line.polar(c(0, 2), pi / 2, lwd = 1)
+line.polar(c(0, 2), pi / 2 + (2 / 3) * pi, lwd = 1)
+line.polar(c(0, 2), pi / 2 + 2 * (2 / 3) * pi, lwd = 1)
+```
+
+## Comparer les hypothèses
+
+Au vu des données, l'hypothèse la plus *probable* est celle qui **maximise le nombre de manières possibles** d'obtenir les données obtenues.
+
+<br>
+
+|                                    Hypothèse                                    | Façons d'obtenir les données |
+|:----------------------:|:----------------------------------------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |        0 x 4 x 0 = 0         |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         |        1 x 3 x 1 = 3         |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      |        2 x 2 x 2 = 8         |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    |        3 x 1 x 3 = 9         |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |        4 x 0 x 4 = 0         |
+
+## Accumulation d'évidence
+
+Dans le cas précédent, nous avons considéré que toutes les hypothèses étaient équiprobables a priori (suivant le [principe d'indifférence](https://en.wikipedia.org/wiki/Principle_of_indifference)). Cependant, on pourrait avoir de l'information a priori, provenant de nos connaissances (des particularités des sacs de billes par exemple) ou de données antérieures.
+
+. . .
+
+Imaginons que nous tirions une nouvelle bille du sac, comment incorporer cette nouvelle donnée ?
+
+## Accumulation d'évidence
+
+Il suffit d'appliquer la même stratégie que précédemment, et de mettre à jour le dernier compte en le multipliant par ces nouvelles données. *Yesterday's posterior is today's prior* ([Lindley, 2000](https://rss.onlinelibrary.wiley.com/doi/abs/10.1111/1467-9884.00238)).
+
+<br>
+
+|                                    Hypothèse                                    | Façons de produire :large_blue_circle: | Compte précédent | Nouveau compte |
+|:----------------:|:-----------------:|:----------------:|:----------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |                   0                    |        0         |   0 x 0 = 0    |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         |                   1                    |        3         |   3 x 1 = 3    |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      |                   2                    |        8         |   8 x 2 = 16   |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    |                   3                    |        9         |   9 x 3 = 27   |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |                   4                    |        0         |   0 x 4 = 0    |
+
+## Incorporer un prior
+
+Supposons maintenant qu'un employé de l'usine de fabrication des billes nous dise que les billes bleues sont rares... Cet employé nous dit que pour chaque sac contenant 3 billes bleues, ils fabriquent deux sacs en contenant seulement deux, et trois sacs en contenant seulement une. Il nous apprend également que tous les sacs contiennent au moins une bille bleue et une bille blanche...
+
+<br>
+
+|                                    Hypothèse                                    | Compte précédent | Prior usine | Nouveau compte |
+|:----------------:|:-----------------:|:----------------:|:----------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |        0         |      0      |   0 x 0 = 0    |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         |        3         |      3      |   3 x 3 = 9    |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      |        16        |      2      |  16 x 2 = 32   |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    |        27        |      1      |  27 x 1 = 27   |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |        0         |      0      |   0 x 0 = 0    |
+
+## Des énumérations aux probabilités
+
+La probabilité d'une hypothèse après avoir observé certaines données est proportionnelle au nombre de façons qu'a cette hypothèse de produire les données observées, multiplié par sa probabilité a priori.
+
+$$
+\Pr(\text{hypothèse} \given \text{données}) \propto \Pr(\text{données} \given \text{hypothèse}) \times \Pr(\text{hypothèse})
+$$
+
+. . .
+
+Pour passer des *plausibilités* aux *probabilités*, il suffit de standardiser ces plausibilités pour que la somme des plausibilités de toutes les hypothèses possibles soit égale à $1$.
+
+$$
+\Pr(\text{hypothèse} \given \text{données}) = \frac{\Pr(\text{données} \given \text{hypothèse})\times \Pr(\text{hypothèse})}{\text{somme des produits}}
+$$
+
+## Des énumérations aux probabilités
+
+On définit $p$ comme la proportion de billes bleues dans le sac.
+
+<br>
+
+|                                    Hypothèse                                    | $p$  | Manières de produire les données | Probabilité |
+|:---------------:|:---------------:|:-------------------:|:---------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |  0   |                0                 |      0      |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         | 0.25 |                3                 |    0.15     |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      | 0.5  |                8                 |    0.40     |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    | 0.75 |                9                 |    0.45     |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |  1   |                0                 |      0      |
+
+<br>
+
+. . .
+
+```{r, echo = TRUE, eval = TRUE}
+ways <- c(0, 3, 8, 9, 0)
+ways / sum(ways)
+```
+
+## Notations, terminologie
+
+::: incremental
+-   $\theta$ est un paramètre ou vecteur de paramètres (e.g., la proportion de billes bleues).
+-   $\color{orangered}{p(x \given \theta)}$ [la probabilité conditionnelle des données $x$ sachant le paramètre $\theta$ $\color{orangered}{[p(x \given \theta = \theta)]}$.]{style="color:orangered"}
+-   $\color{orangered}{p(x \given \theta)}$ [une fois que la valeur de $x$ est connue, est vue comme la fonction de vraisemblance (likelihood) du paramètre $\theta$. Attention, il ne s'agit pas d'une distribution de probabilité valide $\color{orangered}{[p(x = x \given \theta)]}$.]{style="color:orangered"}
+-   $\color{steelblue}{p(\theta)}$ [la probabilité a priori de $\theta$.]{style="color:steelblue"}
+-   $\color{purple}{p(\theta \given x)}$ [la probabilité a posteriori de $\theta$ (sachant $x$).]{style="color:purple"}
+-   $\color{green}{p(x)}$ [la probabilité marginale de $x$ (sur $\theta$) ou "vraisemblance marginale", "vraisemblance intégrée".]{style="color:green"}
+:::
+
+. . .
+
+<br>
+
+$$
+\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{\sum\limits_{\theta}p(x \given \theta)p(\theta)}} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{\int\limits_{\theta}p(x \given \theta)p(\theta)\mathrm{d}x}} \propto \color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}
+$$
+
+## Inférence bayésienne
+
+Dans ce cadre, pour chaque problème, nous allons suivre 3 étapes :
+
+::: incremental
+-   Construire le modèle (l'histoire des données): likelihood + prior.
+-   Mettre à jour grâce aux données, calculer la probabilité a posteriori.
+-   Évaluer le modèle, qualité du "fit", sensibilité, résumer les résultats, ré-ajuster.
+:::
+
+. . .
+
+> Bayesian inference is really just counting and comparing of possibilities \[...\] in order to make good inference about what actually happened, it helps to consider everything that could have happened [@mcelreath2016].
+
+# Rappels : Théorie des probabilités
+
+## Loi de probabilité, cas discret
+
+Une fonction de masse (*probability mass function*, ou *PMF*) est une fonction qui attribue une probabilité à chaque valeur d'une variable aléatoire. Exemple de la distribution binomiale pour une pièce non biaisée ($\theta = 0.5$), probabilité d'obtenir $N$ faces sur 10 lancers.
+
+```{r echo = FALSE, fig.align = "center", dev = "svg", fig.width = 6, fig.height = 4, cache = FALSE}
+coin <- dbinom(x = 0:10, size = 10, prob = 0.5)
+barplot(coin, names.arg = 0:10, border = NA, axes = FALSE, cex.names = 1.5, col = "grey20")
+```
+
+```{r eval = TRUE, echo = TRUE}
+# PMFs sum to 1
+dbinom(x = 0:10, size = 10, prob = 0.5) %>% sum
+```
+
+## Loi de probabilité, cas continu
+
+Une (fonction de) densité de probabilité (*probability density function*, ou *PDF*), est une fonction qui permet de représenter une loi de probabilité sous forme d'intégrales (l'équivalent de la PMF pour des variables aléatoires strictement continues).
+
+```{r echo = FALSE, fig.align = "center", dev = "svg", fig.width = 6, fig.height = 5}
+data.frame(x = c(0, 200) ) %>%
+    ggplot(aes(x) ) +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = 100, sd = 15),
+        lwd = 1.5
+        ) +
+    labs(x = "QI", y = "Densité de probabilité")
+```
+
+```{r echo = TRUE}
+# PDFs integrate to 1
+integrate(dnorm, -Inf, Inf, mean = 100, sd = 15)
+```
+
+## Aparté, qu'est-ce qu'une intégrale ?
+
+Une intégrale correspond à la **surface** (aire géométrique) délimitée par la représentation graphique d'une fonction, *l'aire sous la courbe*. Une distribution est dite **impropre** si son intégrale n'est pas égale à un nombre fini (e.g., $+ \infty$) et **normalisée** si son intégrale est égale à 1.
+
+```{r message = FALSE, echo = FALSE, dev = "svg", fig.align = "center", fig.width = 7, fig.height = 5}
+cord.x <- c(90, seq(90, 96, 0.01), 96) 
+cord.y <- c(0, dnorm(seq(90, 96, 0.01), 100, 15), 0) 
+
+data.frame(x = c(0, 200) ) %>%
+    ggplot(aes(x) ) +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = 100, sd = 15),
+        lwd = 2,
+        color = "black"
+        ) +
+    geom_polygon(
+        data = data.frame(cord.x, cord.y),
+        aes(cord.x, cord.y),
+        color = "black"
+        ) +
+    labs(x = "QI", y = "Densité de probabilité")
+```
+
+## Aparté, qu'est-ce qu'une intégrale ?
+
+```{r message = FALSE, echo = FALSE, fig.align = "center", dev = "svg", fig.width = 7, fig.height = 5}
+data.frame(x = c(0, 200) ) %>%
+    ggplot(aes(x) ) +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = 100, sd = 15),
+        lwd = 2
+        ) +
+    geom_polygon(
+        data = data.frame(cord.x, cord.y),
+        aes(cord.x, cord.y)
+        ) +
+    labs(x = "QI", y = "Densité de probabilité")
+```
+
+L'intégrale de $f(x)$ sur l'intervalle \[90 ; 96\] vaut : $p(90 < x < 96) = \int_{90}^{96} f(x) \ \mathrm{d}x = 0.142$.
+
+```{r eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 6}
+integrate(dnorm, 90, 96, mean = 100, sd = 15)
+```
+
+## Probabilité conjointe
+
+```{r, message = FALSE, echo = TRUE}
+library(tidyverse)
+
+data(HairEyeColor) # data adapted from Snee (1974)
+
+cont <- apply(HairEyeColor, c(1, 2), sum) %>% t 
+cont <- round(cont / sum(cont), 2)
+cont
+```
+
+Dans chaque cellule, on trouve la **probabilité conjointe** d'avoir telle couleur de cheveux **ET** telle couleur d'yeux, qui s'écrit $p(c, y) = p(y, c)$.
+
+## Probabilité marginale
+
+```{r, echo = TRUE}
+cont2 <- cont %>% as.data.frame %>% mutate(marginal_eye = rowSums(cont) )
+rownames(cont2) <- row.names(cont)
+cont2
+```
+
+On peut aussi s'intéresser à la probabilité d'avoir des yeux bleus, de manière générale. Il s'agit de la probabilité **marginale** de l'événement *yeux bleus*, qui s'obtient par la somme de toutes les probabilités jointes impliquant l'événement *yeux bleus*. Elle s'écrit $p(y)$.
+
+## Probabilité marginale
+
+```{r, echo = TRUE, eval = TRUE}
+cont3 <- rbind(cont2, colSums(cont2) )
+rownames(cont3) <- c(row.names(cont2), "marginal_hair")
+cont3
+```
+
+On peut bien entendu aussi s'intéresser aux probabilités des couleurs de cheveux, de manière générale. Elle s'écrit $p(c)$.
+
+## Probabilité conditionnelle
+
+On pourrait aussi s'intéresser à la probabilité qu'une personne ait les cheveux blonds, **sachant** qu'elle a les yeux bleus. Il s'agit d'une probabilité **conditionnelle**, et s'écrit $p(c \given y)$. Cette probabilité conditionnelle peut se ré-écrire : $p(c \given y) = \frac{p(c, y)}{p(y)}$.
+
+```{r, echo = FALSE, eval = TRUE}
+cont3["Blue", ]
+```
+
+. . .
+
+Par exemple, quelle est la probabilité d'avoir des yeux bleus lorsqu'on a les cheveux blonds ?
+
+```{r, echo = TRUE, eval = TRUE}
+cont3["Blue", "Blond"] / cont3["Blue", "marginal_eye"]  
+```
+
+. . .
+
+On remarque que $\Pr(\text{cheveux = blonds} \given \text{yeux = bleus})$ **n'est pas nécessairement égal** (et n'est généralement pas égal) à $\Pr(\text{yeux = bleus} \given \text{cheveux = blonds})$.
+
+## Probabilité conditionnelle
+
+Autre exemple : la probabilité de mourir sachant qu'on a été attaqué par un requin n'est pas la même que la probabilité d'avoir été attaqué par un requin, sachant qu'on est mort ([confusion of the inverse](https://en.wikipedia.org/wiki/Confusion_of_the_inverse)). De la même manière, $p(\text{data} \given \mathcal{H}_{0}) \neq p(\mathcal{H}_{0} \given \text{data})$.
+
+<center><iframe border="0" frameborder="0" height="500" width="500" src="https://twitframe.com/show?url=https://twitter.com/BillGates/status/1118196606975787008">
+</iframe></center>
+
+## Dérivation du théorème de Bayes
+
+À partir des axiomes de Kolmogorov (cf. début du cours), et des définitions précédentes des probabilités conjointes, marginales, et conditionnelles, découle la **règle du produit** :
+
+$$p(x,y) = p(x \given y) p(y) = p(y \given x) p(x)$$
+
+. . .
+
+$$p(y \given x) p(x) = p(x \given y) p(y)$$
+
+. . .
+
+Puis en divisant chaque côté par $p(x)$ :
+
+$$p(y \given x) = \dfrac{p(x \given y) p(y)}{p(x)}$$
+
+. . .
+
+$$p(x \given y) = \dfrac{p(y \given x) p(x)}{p(y)}$$
+
+. . .
+
+Si on remplace $x$ par $\text{hypothèse}$ et $y$ par $\text{données}$ :
+
+$$
+\Pr(\text{hypothèse} \given \text{données}) = \frac{\Pr(\text{données} \given \text{hypothèse}) \times \Pr(\text{hypothèse})}{\text{somme des produits}}
+$$
+
+# Exemple d'application
+
+## Diagnostique médical [@gigerenzer2007]
+
+::: incremental
+-   Chez les femmes âgées de 40-50 ans, sans antécédents familiaux et sans symptômes, la probabilité d'avoir un cancer du sein est de 0.008.
+
+-   Propriétés de la mammographie :
+
+    -   Si une femme a un cancer du sein, la probabilité d'avoir un résultat positif est de 0.90.
+    -   Si une femme n'a pas de cancer du sein, la probabilité d'avoir un résultat positif est de 0.07.
+
+-   Imaginons qu'une femme passe une mammographie, et que le test est positif. Que doit-on **inférer** ? Quelle est la probabilité que cette femme ait un cancer du sein ?
+:::
+
+## Logique du maximum likelihood
+
+::: incremental
+-   Une approche générale de l'estimation de paramètre.
+-   Les paramètres **gouvernent** les données, les données **dépendent** des paramètres.
+    -   Sachant certaines valeurs des paramètres, nous pouvons calculer la **probabilité conditionnelle** des données observées.
+    -   Le résultat de la mammographie (i.e., les données) dépend de la présence / absence d'un cancer du sein (i.e., le paramètre).
+-   L'approche par **maximum de vraisemblance** pose la question : "Quelles sont les valeurs du paramètre qui rendent les données observées les plus probables ?"
+-   Spécifier la probabilité conditionnelle des données $p(x \given \theta)$.
+-   Quand on le considère comme fonction de $\theta$, on parle de **vraisemblance** (likelihood) : $\mathcal{L}(\theta \given x) = p(X = x \given \theta)$.
+-   L'approche par maximum de vraisemblance consiste donc à maximiser cette fonction, en utilisant les valeurs (connues) de $x$.
+:::
+
+## Probabilité conditionnelle
+
+::: incremental
+-   Si une femme a un cancer du sein, la probabilité d'obtenir un résultat positif est de .90.
+    -   $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
+    -   $\Pr(\text{Mam=-} \given \text{Cancer=+}) = 0.10$
+-   Si une femme n'a pas de cancer du sein, la probabilité d'obtenir un résultat positif est de .07.
+    -   $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
+    -   $\Pr(\text{Mam=-} \given \text{Cancer=-}) = 0.93$
+:::
+
+## Diagnostique médical, maximum likelihood
+
+::: incremental
+-   Une femme passe une mammographie, le résultat est positif...
+    -   $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
+    -   $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
+-   Maximum de vraisemblance : quelle est la valeur de $\text{Cancer}$ qui **maximise** $\text{Mam=+}$ ?
+    -   $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
+    -   $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
+:::
+
+. . .
+
+En suivant cette approche, on conclut donc à la présence d'un cancer (car cela maximise la probabilité d'apparition d'un mammogramme positif)...
+
+## Wait a minute...
+
+![](figures/bayes.png){fig-align="center" width="50%"}
+
+## Diagnostique médical, fréquences naturelles
+
+::: incremental
+-   Considérons 1000 femmes âgées de 40 à 50 ans, sans antécédents familiaux et sans symptômes de cancer
+    -   8 femmes sur 1000 ont un cancer
+-   On réalise une mammographie
+    -   Sur les 8 femmes ayant un cancer, 7 auront un résultat positif
+    -   Sur les 992 femmes restantes, 69 auront un résultat positif
+-   Une femme passe une mammographie, le résultat est positif
+-   Que devrait-on inférer ?
+:::
+
+## Diagnostique médical, fréquences naturelles
+
+![](figures/diagram.png){fig-align="center" width="50%"}
+
+$$\Pr(\text{Cancer=+} \given \text{Mam=+}) = \frac{7}{7 + 69} = \frac{7}{76} \approx 0.09$$
+
+## Diagnostique médical, théorème de Bayes
+
+$$
+\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+$$
+
+$\color{steelblue}{p(\theta)}$ [représente la probabilité a priori de $\theta$ : tout ce qu'on sait de $\theta$ avant d'observer les données. En l'occurrence : $\Pr(\text{Cancer=+}) = 0.008$ et $\Pr(\text{Cancer=-}) = 0.992$.]{style="color:steelblue"}
+
+```{r, echo = TRUE}
+prior <- c(0.008, 0.992)
+```
+
+## Diagnostique médical, théorème de Bayes
+
+$$
+\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+$$
+
+$\color{orangered}{p(x \given \theta)}$ [représente la probabilité conditionnelle des données $x$ sachant le paramètre $\theta$, qu'on appelle aussi la fonction de vraisemblance (likelihood function) du paramètre $\theta$.]{style="color:orangered"}
+
+. . .
+
+```{r, echo = TRUE}
+like <- rbind(c(0.9, 0.1), c(0.07, 0.93) ) %>% data.frame
+colnames(like) <- c("Mam+", "Mam-")
+rownames(like) <- c("Cancer+", "Cancer-")
+like
+```
+
+## Diagnostique médical, théorème de Bayes
+
+$$\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}$$
+
+[$p(x)$ la probabilité marginale de $x$ (sur $\theta$). Constante, sert à normaliser la distribution.]{style="color:green"}
+
+$$\color{green}{p(x) = \sum\limits_{\theta}p(x \given \theta)p(\theta)}$$
+
+. . .
+
+```{r, echo = TRUE}
+(marginal <- sum(like$"Mam+" * prior) )
+```
+
+## Diagnostique médical, théorème de Bayes
+
+$$\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}$$
+
+$\color{purple}{p(\theta \given x)}$ [la probabilité a posteriori de $\theta$ sachant $x$, c'est à dire ce qu'on sait de $\theta$ après avoir pris connaissance de $x$.]{style="color:purple"}
+
+. . .
+
+```{r, echo = TRUE}
+(posterior <- (like$"Mam+" * prior ) / marginal )
+```
+
+## L'inférence bayésienne comme mise à jour probabiliste des connaissances
+
+Avant de passer le mammogramme, la probabilité qu'une femme tirée au sort ait un cancer du sein était de $\Pr(\text{Cancer=+}) = 0.008$ (prior). Après un résultat positif, cette probabilité est devenue $\Pr(\text{Cancer=+} \given \text{Mam=+}) = 0.09$ (posterior). Ces probabilités sont des expressions de nos *connaissances*. Après un mammogramme positif, on pense toujours que c'est "très improbable" d'avoir un cancer, mais cette probabilité a considérablement évolué relativement à "avant le test".
+
+. . .
+
+> A Bayesianly justifiable analysis is one that treats known values as observed values of random variables, treats unknown values as unobserved random variables, and calculates the conditional distribution of unknowns given knowns and model specifications using Bayes' theorem [@rubin1984].
+
+## Monty Hall
+
+<div align="center">
+
+<video width="1200" height="600" controls="controls">
+
+<source src="figures/montyhall.mp4" type="video/mp4">
+
+</video>
+
+<div>
+
+## Monty Hall
+
+![](figures/monty1.png){fig-align="center" width="500" height="465"}
+
+<center>Que-feriez-vous (intuitivement) ? Analysez ensuite la situation en utilisant le théorème de Bayes.</center>
+
+## Monty Hall
+
+Il s'agit d'un problème de probabilités conditionnelles... Définissons les événements suivants :
+
+P1 : l'animateur ouvre la porte 1 <br> P2 : l'animateur ouvre la porte 2 <br> P3 : l'animateur ouvre la porte 3 <br>
+
+. . .
+
+V1 : la voiture se trouve derrière la porte 1 <br> V2 : la voiture se trouve derrière la porte 2 <br> V3 : la voiture se trouve derrière la porte 3 <br>
+
+. . .
+
+Si on a choisi la porte n°1 et que l'animateur a choisi la porte n°3 (**et qu'il sait où se trouve la voiture**), il s'ensuit que :
+
+$\Pr(\text{P3} \given \text{V1}) = \dfrac{1}{2}, \quad \Pr(\text{P3} \given \text{V2}) = 1, \quad \Pr(\text{P3} \given \text{V3}) = 0.$
+
+## Monty Hall
+
+On sait que $\Pr(\text{V3} | \text{P3}) = 0$, on veut connaître $\Pr(\text{V1} \given \text{P3})$ et $\Pr(\text{V2} \given \text{P3})$ afin de pouvoir choisir. Résolution par le théorème de Bayes.
+
+$\Pr(\text{V1} \given \text{P3}) = \dfrac{\Pr(\text{P3} \given \text{V1}) \times \Pr(\text{V1})}{\Pr(\text{P3})} = \dfrac{\dfrac{1}{2} \times \dfrac{1}{3}}{\dfrac{1}{2}} = \dfrac{1}{3}$
+
+. . .
+
+$\Pr(\text{V2} \given \text{P3}) = \dfrac{\Pr(\text{P3} \given \text{V2}) \times \Pr(\text{V2})}{\Pr(\text{P3})} = \dfrac{1 \times \dfrac{1}{3}}{\dfrac{1}{2}} = \dfrac{2}{3}$
+
+## Monty Hall
+
+```{r echo = FALSE, fig.align = "center", out.width = "600px"}
+knitr::include_graphics("figures/monty2.png")
+```
+
+## Take-home message
+
+Nos intuitions probabilistes sont, dans la grande majorité des cas, très mauvaises. Au lieu de compter sur elles, il est plus sage de se reposer sur des règles logiques (e.g., modus ponens et modus tollens) et probabilistes simples (e.g., règle du produit, règle de la somme, théorème de Bayes), nous assurant de réaliser l'inférence logique la plus juste. Autrement dit, "don't be clever" [@mcelreath2020b].
+
+![](figures/morale.gif){fig-align="center" width="50%"}
+
+## Références {.refs}

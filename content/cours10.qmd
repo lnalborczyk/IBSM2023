@@ -1,0 +1,28 @@
+---
+title: "Cours n°10"
+subtitle: "Data Hackathon"
+date: 2022-11-17
+toc: false
+lang: fr
+---
+
+## En préparation du cours
+
+- Relire les cours précédents.
+- (*optionnel*) Lire le chapitre 17 de {{< fa book >}} *Statistical Rethinking*.
+
+## Slides
+
+Les slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>h</kbd> vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., <kbd>f</kbd> pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.
+
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/cours10.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir les slides en ligne </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/cours10.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Télécharger la version PDF </a> <a class="btn btn-danger" target="_blank" href="../slides/code/cours10.R"><i class="fa-solid fa-code"></i> Télécharger le code </a> </p>
+
+<div class="ratio ratio-16x9"> <iframe src="../slides/html/cours10.html"></iframe> </div>
+
+::: {.callout-tip}
+Voir toutes les commandes de `revealjs` en appuyant sur <kbd>m</kbd> puis <kbd>h</kbd>.
+:::
+
+## Pour aller plus loin
+
+- Gelman, A., Vehtari, A., Simpson, D., Margossian, C. C., Carpenter, B., Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., & Modrák, M. (2020). Bayesian Workflow. ArXiv:2011.01808 [Stat]. <https://arxiv.org/abs/2011.01808>

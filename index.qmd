@@ -1,0 +1,63 @@
+---
+title: "Introduction à la modélisation statistique bayésienne"
+subtitle: "Un cours en R et Stan avec brms"
+fontsize: 1em
+linkcolor: "#1c5253"
+lang: fr
+details: |
+  Formation doctorale proposée sous une double étiquette Collège doctoral / MaiMoSiNE (Maison de la Modélisation et de la Simulation) avec une priorité d’accès aux étudiant.e.s du collège doctoral de l'université Grenoble-Alpes.
+sidebar: false
+toc: false
+page-layout: full
+format:
+  html:
+    template-partials:
+      - html/home/title-block.html
+course-logo: "files/cover.png"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    fig.align = "center",
+    dev = "png",
+    collapse = TRUE
+    )
+```
+
+::: {.home}
+
+::: {.grid .course-details}
+
+::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
+
+### Enseignant
+
+- {{< fa user >}} &nbsp; [{{< var instructor.name >}}]({{< var instructor.url >}})
+- {{< fa envelope >}} &nbsp; <a href="mailto:{{< var instructor.email >}}">{{< var instructor.email >}}</a>
+- {{< fa brands twitter >}} &nbsp; [{{< var instructor.twitter >}}](https://www.twitter.com/{{< var instructor.twitter >}})
+- {{< fa calendar-check >}} &nbsp; [Prendre un RDV]({{< var instructor.appointment_url >}})
+
+:::
+
+::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
+
+### Informations pratiques
+
+- {{< fa calendar >}} &nbsp; {{< var course.days >}}
+- {{< fa clock >}} &nbsp; {{< var course.time >}}
+- {{< fa calendar-alt >}} &nbsp; {{< var course.dates >}}
+- {{< fa location-dot >}} &nbsp; {{< var course.location >}}
+
+:::
+
+::: {.g-col-12 .g-col-md-4 .contact-policy}
+
+### Contact
+
+{{< var instructor.contact_policy >}}
+
+:::
+
+:::
+
+:::

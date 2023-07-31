@@ -1,0 +1,16 @@
+{
+  "hash": "4250847d433617f693f02c8371736a12",
+  "result": {
+    "markdown": "---\ntitle: \"Cours n°01\"\nsubtitle: \"Introduction à l'inférence bayésienne\"\ndate: 2022-10-11\ntoc: false\nlang: fr\n---\n\n\n## En préparation\n\nLecture du premier chapitre de {{< fa book >}} *Statistical Rethinking* : \"The Golem of Prague\"... installation des paquets: voir page installation...\n\n## Slides\n\nLes slides de ce cours sont disponibles en ligne. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>h</kbd> vous verrez apparaitre un ensemble de commandes spécifiques à la lecture des ces slides (e.g., <kbd>f</kbd> pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides via la bouton ci-dessous.\n\n<p class=\"buttons\" style=\"text-align:center;\"><a class=\"btn btn-danger\" target=\"_blank\" href=\"../_slides/cours01.html\"><i class=\"fa-solid fa-arrow-up-right-from-square\"></i> Voir les slides en ligne </a> <a class=\"btn btn-danger\" target=\"_blank\" href=\"../_slides/cours01.html\" role=\"button\"><i class=\"fa-solid fa-file-pdf\"></i> Télécharger la version PDF </a></p>\n\n\n::: {.cell}\n\n:::\n\n\n<div class=\"ratio ratio-16x9\"> <iframe src=\"../_slides/cours01.html\"></iframe> </div>\n\n::: {.callout-tip}\nVoir toutes les commandes de `revealjs` en appuyant sur <kbd>m</kbd> puis <kbd>h</kbd>.\n:::\n",
+    "supporting": [
+      "cours01_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

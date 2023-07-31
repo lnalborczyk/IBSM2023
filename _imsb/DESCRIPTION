@@ -1,0 +1,34 @@
+Package: imsb
+Title: Helper package for the IMSB course
+Version: 0.0.1
+Date: 2022-11-16
+Authors@R:
+    person(
+    given = "Ladislas", family = "Nalborczyk",
+    role = c("aut", "cre"),
+    email = "ladislas.nalborczyk@gmail.com", 
+    comment = c(ORCID = "0000-0002-7419-9855")
+    )
+Description: Provides the materials (packages, utility functions, and data) for the IMSB course.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.2
+URL: https://github.com/lnalborczyk/IMSB2022
+BugReports: https://github.com/lnalborczyk/IMSB2022/issues
+Imports:
+    bayestestR,
+    brms,
+    easystats,
+    ggplot2,
+    lme4,
+    patchwork,
+    rstan,
+    stats,
+    stringr,
+    tidybayes,
+    tidyr,
+    rlang,
+    modelr
+Depends: R (>= 4.0)
+LazyData: true

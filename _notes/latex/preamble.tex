@@ -1,0 +1,243 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Loading packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\usepackage[tikz]{mdframed}
+\usepackage{tikz}
+\usepackage{mdframed}
+\mdfsetup{skipabove=1em,skipbelow=1em}
+\newmdenv[backgroundcolor=kcblue]{note}
+
+% \usepackage{babel} % throws an error...
+% \usepackage{amsmath,amssymb,amsthm,enumitem} % for equations
+
+\usepackage{polyglossia}
+\setmainlanguage{french}
+
+\usepackage{fontspec}
+\setmainfont{Heuristica}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% title page color
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \usepackage[pagecolor=none]{pagecolor}
+% \usepackage{afterpage}
+% \usepackage{xcolor}
+
+% \setmainfont{FreeSerif} % for unicode emojis
+% fonts that support a symbol:
+% http://www.fileformat.info/info/unicode/char/1f64c/fontsupport.htm
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% links and citations colors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{blogblue}{RGB}{0, 51, 102}
+
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks = true,
+    linkcolor = blogblue,
+    filecolor = blogblue,
+    urlcolor = blogblue,
+    citecolor = blogblue
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Remove default title %
+% https://stackoverflow.com/questions/45963505/coverpage-and-copyright-notice-before-title-in-r-bookdown
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\usepackage[a4paper]{./latex/cover_page} % specifies the path to the cover page template
+%\let\oldmaketitle\maketitle
+%\AtBeginDocument{\let\maketitle\relax}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Format of the page (block, header, margins, etc.)         %
+% https://texdoc.net/texmf-dist/doc/latex/memoir/memman.pdf %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Sets the "real" paper size (already set by a4paper class option)
+% \setstocksize{11in}{8.5in}
+
+% Trimmed paper size (trimmed on the left and right)
+% \settrimmedsize{11in}{8.5in}{*}
+
+% Sets the \headheight and \footskip parameters (respectively)
+% \setheadfoot{\onelineskip}{2\onelineskip}
+
+% Sets space between header and block
+% \setheaderspaces{*}{2\onelineskip}{*}
+
+% Spine and trim page margins from main typeblock (left and right margins if oneside)
+\setlrmarginsandblock{25mm}{25mm}{*}
+
+% Top and bottom page margins from main typeblock
+\setulmarginsandblock{25mm}{*}{1}
+
+% Applies and enforces the layout
+\checkandfixthelayout
+
+% Ensures single spacing between sentences
+\frenchspacing
+
+% eliminating paragraph indentation and using extra inter- paragraph space
+\setlength{\parindent}{0pt}
+\nonzeroparskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Formatting
+%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{calc} % simple arithmetics in latex commands
+\usepackage{soul} % hyphenation for letterspacing, underlining, etc.
+
+\makeatletter
+\newlength\dlf@normtxtw
+\setlength\dlf@normtxtw{\textwidth}
+\newsavebox{\feline@chapter}
+\newcommand\feline@chapter@marker[1][4cm]{%
+	\sbox\feline@chapter{%
+		\resizebox{!}{#1}{\fboxsep=1pt%
+			\colorbox{gray}{\color{white}\thechapter}%
+		}}%
+		\rotatebox{90}{%
+			\resizebox{%
+				\heightof{\usebox{\feline@chapter}}+\depthof{\usebox{\feline@chapter}}}%
+			{!}{\scshape\so\@chapapp}}\quad%
+		\raisebox{\depthof{\usebox{\feline@chapter}}}{\usebox{\feline@chapter}}%
+}
+
+\newcommand\feline@chm[1][4cm]{%
+	\sbox\feline@chapter{\feline@chapter@marker[#1]}%
+	\makebox[0pt][c]{% aka \rlap
+		\makebox[1cm][r]{\usebox\feline@chapter}%
+	}}
+
+\makechapterstyle{daleifmodif}{
+\renewcommand\chapnamefont{\normalfont\Large\scshape\raggedleft\so}
+\renewcommand\chaptitlefont{\normalfont\Large\bfseries\scshape}
+\renewcommand\chapternamenum{} \renewcommand\printchaptername{}
+\renewcommand\printchapternum{\null\hfill\feline@chm[2.5cm]\par}
+\renewcommand\afterchapternum{\par\vskip\midchapskip}
+\renewcommand\printchaptertitle[1]{\color{gray}\chaptitlefont\raggedleft
+  \renewcommand\chaptername{Chapter}
+  ##1\par}
+}
+
+\makeatother
+\chapterstyle{daleifmodif}
+
+% The pages should be numbered consecutively at the bottom centre of the page
+\makepagestyle{myvf}
+\makeoddfoot{myvf}{}{\thepage}{}
+\makeevenfoot{myvf}{}{\thepage}{}
+\makeheadrule{myvf}{\textwidth}{\normalrulethickness}
+\makeevenhead{myvf}{\small\textsc{\leftmark}}{}{}
+\makeoddhead{myvf}{}{}{\small\textsc{\rightmark}}
+\pagestyle{myvf}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Insert an empty page %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{afterpage} % executes command after the next page break
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    % \addtocounter{page}{-1}% % uncomment to increase page counter
+    \newpage
+    }
+
+\newcommand{\clearemptydoublepage}{\newpage{\thispagestyle{empty}\cleardoublepage}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% boxes and cie
+% from https://github.com/mca91/EconometricsWithR/blob/master/preamble.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{tcolorbox}
+
+\definecolor{kcblue}{HTML}{D7DDEF}
+\definecolor{kcdarkblue}{HTML}{2B4E70}
+
+\newenvironment{rmdknit}
+    {\begin{center}
+    \begin{tabular}{|p{0.9\textwidth}|}
+    \hline\\
+    }
+    {
+    \\\\\hline
+    \end{tabular}
+    \end{center}
+    }
+
+\newenvironment{rmdnote}
+    {\begin{center}
+    \begin{tabular}{|p{0.9\textwidth}|}
+    \hline\\
+    }
+    {
+    \\\\\hline
+    \end{tabular}
+    \end{center}
+    }
+
+\newtcolorbox[auto counter, number within=section]{keyconcepts}[2][]{%
+colback=kcblue,colframe=kcdarkblue,fonttitle=\bfseries, title=Concept essentiel~#2, after title={\newline #1}, beforeafter skip=15pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% create classes for theorem and definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\usepackage{amsthm}
+%\newtheorem{theorem}{Théorème}
+%\newtheorem{definition}{Définition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Command used in the manual list of abbreviations %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\nomenclature[2]{#1 & #2 \\}
+
+%%%%%%%%%%%%%%%%%%
+% Epigraph style %
+%%%%%%%%%%%%%%%%%%
+
+\usepackage{epigraph} % provides commands to assist in the typesetting of a single epigraph
+
+\setlength\epigraphwidth{1\textwidth}
+\setlength\epigraphrule{0pt} % no line between
+\setlength\beforeepigraphskip{1\baselineskip} % space before and after epigraph
+\setlength\afterepigraphskip{2\baselineskip}
+\renewcommand*{\textflush}{flushright}
+\renewcommand*{\epigraphsize}{\normalsize\itshape}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \usepackage{booktabs}
+% \usepackage{longtable}
+% \usepackage{array}
+% \usepackage{multirow}
+% \usepackage{wrapfig}
+% \usepackage{float}
+% \usepackage{colortbl}
+% \usepackage{pdflscape}
+% \usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+% \usepackage[normalem]{ulem}
+% \usepackage{makecell}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% changing figures and tables names
+% https://tex.stackexchange.com/questions/17489/change-caption-name-of-figures
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[figurename = Figure]{caption}
+\usepackage[tablename = Tableau]{caption}

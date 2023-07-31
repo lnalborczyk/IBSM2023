@@ -1,0 +1,7 @@
+# Bibliographie {-}
+
+<!-- This manually sets the header for this unnumbered chapter -->
+\markboth{Bibliographie}{Bibliographie}
+
+\setlength{\parindent}{-0.5in}
+\setlength{\parskip}{8pt}

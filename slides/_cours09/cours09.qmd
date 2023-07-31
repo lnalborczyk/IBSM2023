@@ -1,0 +1,1037 @@
+---
+title: Introduction à la modélisation statistique bayésienne
+subtitle: Un cours en R et Stan avec brms
+author: Ladislas Nalborczyk (LPC, LNC, CNRS, Aix-Marseille Univ)
+from: markdown+emoji
+format:
+  revealjs:
+    incremental: true
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IMSB2022"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "Voir le code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+nocite: "@gelman2020"
+---
+
+## Planning
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(tidyverse)
+library(patchwork)
+library(brms)
+library(imsb)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+Cours n°01 : Introduction à l'inférence bayésienne <br> Cours n°02 :
+Modèle Beta-Binomial <br> Cours n°03 : Introduction à brms, modèle de
+régression linéaire <br> Cours n°04 : Modèle de régression linéaire
+(suite) <br> Cours n°05 : Markov Chain Monte Carlo <br> Cours n°06 :
+Modèle linéaire généralisé <br> Cours n°07 : Comparaison de modèles <br>
+Cours n°08 : Modèles multi-niveaux <br> **Cours n°09 : Modèles
+multi-niveaux généralisés** <br> Cours n°10 : Data Hackathon <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## Rappels de syntaxe
+
+Le paquet `brms` utilise la même syntaxe que les fonctions de base R
+(comme `lm`) ou que le paquet `lme4`.
+
+```{r eval = FALSE, echo = TRUE}
+Reaction ~ Days + (1 + Days | Subject)
+```
+
+. . .
+
+La partie gauche représente notre variable dépendante (ou "outcome",
+i.e., ce qu'on essaye de prédire). Le paquet `brms` permet également de
+fitter des modèles multivariés (plusieurs outcomes) en les combinant
+avec `c()`:
+
+```{r eval = FALSE, echo = TRUE}
+c(Reaction, Memory) ~ Days + (1 + Days | Subject)
+```
+
+. . .
+
+La partie droite permet de définir les prédicteurs. L'intercept est
+généralement implicite, de sorte que les deux écritures ci-dessous sont
+équivalentes.
+
+```{r eval = FALSE, echo = TRUE}
+c(Reaction, Memory) ~ Days + (1 + Days | Subject)
+c(Reaction, Memory) ~ 1 + Days + (1 + Days | Subject)
+```
+
+## Rappels de syntaxe
+
+Si l'on veut fitter un modèle sans intercept (why not), il faut le
+spécifier explicitement comme ci-dessous.
+
+```{r eval = FALSE, echo = TRUE}
+c(Reaction, Memory) ~ 0 + Days + (1 + Days | Subject)
+```
+
+La première partie de la partie droite de la formule représente les
+effets constants (effets fixes), tandis que la seconde partie (entre
+parenthèses) représente les effets variables (effets aléatoires).
+
+. . .
+
+```{r eval = FALSE, echo = TRUE}
+c(Reaction, Memory) ~ Days + (1 | Subject)
+c(Reaction, Memory) ~ Days + (Days | Subject)
+```
+
+Le premier modèle ci-dessus contient seulement un intercept variable,
+qui varie par `Subject`. Le deuxième modèle contient également un
+intercept variable, mais aussi une pente variable pour l'effet de
+`Days`.
+
+## Rappels de syntaxe
+
+Lorsqu'on inclut plusieurs effets variables (e.g., un intercept et une
+pente variables), `brms` postule qu'on souhaite aussi estimer la
+corrélation entre ces deux effets. Dans le cas contraire, on peut
+supprimer cette corrélation (i.e., la fixer à 0) en utilisant `||`.
+
+```{r eval = FALSE, echo = TRUE}
+c(Reaction, Memory) ~ Days + (1 + Days || Subject)
+```
+
+. . .
+
+Les modèles précédents postulaient une fonction de vraisemblance
+Gaussienne. Ce postulat peut être changé facilement en spécifiant la
+fonction de vraisemblance souhaitée via l'argument `family`.
+
+```{r eval = FALSE, echo = TRUE}
+brm(Reaction ~ 1 + Days + (1 + Days | Subject), family = lognormal() )
+```
+
+## Mise en pratique - absentéisme expérimental
+
+Travailler avec des sujets humains implique un minimum de coopération
+réciproque. Mais ce n'est pas toujours le cas. Une partie
+non-négligeable des étudiants qui s'inscrivent pour passer des
+expériences de psychologie ne se présentent pas le jour prévu... On a
+voulu estimer la **probabilité de présence d'un étudiant inscrit** en
+fonction de l'envoi (ou non) d'un mail de rappel (cet exemple est
+présenté en détails dans deux blogposts, accessibles
+[ici](http://www.barelysignificant.com/post/absenteeism/), et
+[ici](http://www.barelysignificant.com/post/absenteeism2/)).
+
+```{r eval = TRUE, echo = TRUE}
+library(tidyverse)
+library(imsb)
+
+# import des données
+data <- open_data(absence_multilevel) %>%
+    mutate(reminder = ifelse(test = reminder == 1, yes = 0.5, no = -0.5) )
+
+# on affiche 12 lignes "au hasard" dans ces données
+data %>% sample_frac() %>% head(12)
+```
+
+## Mise en pratique - absentéisme expérimental
+
+$$
+\begin{aligned}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n_{i}, p_{i})} \\
+\color{black}{\text{logit}(p_{i})} \ &\color{black}{= \alpha_{\text{researcher}_{[i]}} + \beta_{\text{researcher}_{[i]}} \times \text{reminder}_{i}} \\
+\color{steelblue}{\begin{bmatrix}
+\alpha_{\text{researcher}} \\
+\beta_{\text{researcher}} \\
+\end{bmatrix}} \ & \color{steelblue}{\sim \mathrm{MVNormal}\left(\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \textbf{S}\right)} \\
+\color{steelblue}{\textbf{S}} \ &\color{steelblue}{=
+\begin{pmatrix}
+\sigma_{\alpha} & 0 \\
+0 & \sigma_{\beta} \\
+\end{pmatrix}
+\textbf{R} \begin{pmatrix}
+\sigma_{\alpha} & 0 \\
+0 & \sigma_{\beta} \\
+\end{pmatrix}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\beta} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{(\sigma_{\alpha}, \sigma_{\beta})}\ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 1)} \\
+\color{steelblue}{\textbf{R}} \ &\color{steelblue}{\sim \mathrm{LKJcorr}(2)} \\
+\end{aligned}
+$$
+
+Il s'agit du même modèle de régression logistique vu au Cours n°06, avec
+une fonction de lien logit, mais cette fois-ci sur plusieurs niveaux.
+
+## Mise en pratique - absentéisme expérimental
+
+```{r eval = TRUE, echo = TRUE}
+prior1 <- c(
+    prior(normal(0, 1), class = Intercept),
+    prior(normal(0, 1), class = b),
+    prior(cauchy(0, 1), class = sd),
+    prior(lkj(2), class = cor)
+    )
+```
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod1 <- brm(
+    formula = presence | trials(total) ~ 1 + reminder + (1 + reminder | researcher), 
+    family = binomial(link = "logit"),
+    prior = prior1,
+    data = data,
+    sample_prior = TRUE,
+    warmup = 2000, iter = 10000,
+    chains = 4, cores = parallel::detectCores(),
+    control = list(adapt_delta = 0.95),
+    backend = "cmdstanr"
+    )
+```
+
+## Mise en pratique - absentéisme expérimental
+
+```{r eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+mod1 %>%
+    plot(
+        combo = c("dens_overlay", "trace"), pars = c("^b_", "^cor_"), widths = c(1, 1.5),
+        theme = theme_bw(base_size = 16, base_family = "Open Sans")
+        )
+```
+
+## Mise en pratique - absentéisme expérimental
+
+Attention, les estimations ci-dessous sont dans l'espace log-odds...
+
+```{r eval = TRUE, echo = TRUE}
+posterior_summary(x = mod1, pars = c("^b_", "^sd_") )
+```
+
+. . .
+
+Afin de pouvoir les interpréter il faut appliquer la transformation
+logit-inverse. Par exemple, la probabilité de présence en moyenne (i.e.,
+quel que soit le chercheur et pour toutes conditions confondues) est
+égale à $p = \exp(\alpha) / (1 + \exp(\alpha) )$.
+
+```{r eval = TRUE, echo = TRUE}
+a <- fixef(mod1)[1] # on récupère la valeur de l'intercept
+exp(a) / (1 + exp(a) ) # on "convertit" l'intercept en probabilité (équivalent à plogis(a))
+```
+
+## Mise en pratique - absentéisme expérimental
+
+On s'est ensuite interrogé sur l'effet du mail de rappel. Ici encore, on
+ne peut pas interpréter la pente directement... mais on sait que
+$\text{exp}(\beta)$ nous donne un [odds
+ratio](https://en.wikipedia.org/wiki/Odds_ratio) (i.e., un rapport de
+cotes).
+
+```{r eval = TRUE, echo = TRUE}
+fixef(mod1)[2, c(1, 3, 4)] %>% exp()
+```
+
+Envoyer un mail de rappel multiplie par environ 18 la cote (i.e., le rapport $\frac{\Pr(\text{présent})}{\Pr(\text{absent})}$).
+
+## Représenter les prédictions du modèle
+
+Une manière de représenter les prédictions du modèle est de plotter
+directement quelques échantillons issus de la distribution a posteriori.
+On appelle ce genre de plot un "spaghetti plot".
+
+```{r, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE, fig.width = 12, fig.height = 7}
+library(tidybayes)
+library(modelr)
+
+data %>%
+    group_by(researcher, total) %>%
+    data_grid(reminder = seq_range(reminder, n = 1e2) ) %>%
+    add_fitted_samples(mod1, newdata = ., n = 100, scale = "linear") %>%
+    mutate(estimate = plogis(estimate) ) %>%
+    group_by(reminder, .iteration) %>%
+    summarise(estimate = mean(estimate) ) %>%
+    ggplot(aes(x = reminder, y = estimate, group = .iteration) ) +
+    geom_hline(yintercept = 0.5, lty = 2) +
+    geom_line(aes(y = estimate, group = .iteration), size = 0.5, alpha = 0.1) +
+    labs(x = "Mail de rappel", y = "Pr(présent)")
+```
+
+## Représenter les prédictions du modèle
+
+```{r, echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE, fig.width = 16, fig.height = 6}
+data %>%
+    group_by(researcher, total) %>%
+    data_grid(reminder = seq_range(reminder, n = 1e2) ) %>%
+    add_fitted_samples(mod1, newdata = ., n = 100, scale = "linear") %>%
+    mutate(estimate = plogis(estimate) ) %>%
+    ggplot(aes(x = reminder, y = estimate, group = .iteration) ) +
+    geom_hline(yintercept = 0.5, lty = 2) +
+    geom_line(aes(y = estimate, group = .iteration), size = 0.5, alpha = 0.1) +
+    facet_wrap(~researcher, nrow = 2) +
+    labs(x = "Mail de rappel", y = "Pr(présent)")
+```
+
+## Test d'hypothèse - 1
+
+Plusieurs manières de tester des hypothèses avec `brms`. La fonction
+`hypothesis()` calcule un **evidence ratio** (équivalent au Bayes
+factor). Lorsque l'hypothèse testée est une hypothèse ponctuelle (on
+teste une valeur précise du paramètre, e.g., $\theta = 0$), cet
+**evidence ratio** est approximé via la méthode de **Savage-Dickey**.
+Cette méthode consiste simplement à comparer la densité du point testé
+accordée par le prior à la densité accordée par la distribution a
+posteriori.
+
+```{r, echo = TRUE}
+(hyp1 <- hypothesis(x = mod1, hypothesis = "reminder = 0") ) # Savage-Dickey Bayes factor
+1 / hyp1$hypothesis$Evid.Ratio # BF10 = 1 / BF01 (and BF01 = 1 / BF10)
+```
+
+## Test d'hypothèse - 1
+
+```{r, echo = TRUE, fig.width = 10, fig.height = 7}
+plot(hyp1, plot = FALSE, theme = theme_bw(base_size = 20, base_family = "Open Sans") )[[1]] +
+  geom_vline(xintercept = 0, linetype = 2) +
+  coord_cartesian(xlim = c(-5, 5) )
+```
+
+## Test d'hypothèse - 1
+
+Voir la vignette détaillée du paquet `bayestestR` concernant les facteurs de Bayes : <https://easystats.github.io/bayestestR/articles/bayes_factors.html>.
+
+```{r, echo = TRUE, fig.width = 10, fig.height = 7}
+library(bayestestR)
+bf <- bayesfactor_parameters(posterior = mod1, null = 0)
+plot(bf)
+```
+
+## Comparer le prior et le posterior
+
+```{r, echo = TRUE, fig.width = 14, fig.height = 6}
+data.frame(prior = hyp1$prior_samples$H1, posterior = hyp1$samples$H1) %>%
+    gather(type, value) %>%
+    mutate(type = factor(type, levels = c("prior", "posterior") ) ) %>%
+    ggplot(aes(x = value) ) +
+    geom_histogram(bins = 50, alpha = 0.8, col = "white", fill = "steelblue") +
+    geom_vline(xintercept = 0, lty = 2, size = 1) +
+    facet_wrap(~type, scales = "free") +
+    labs(x = expression(beta[reminder]), y = "Nombre d'échantillons")
+```
+
+## Test d'hypothèse - 2
+
+Une deuxième solution consiste à étendre l'approche par comparaison de
+modèles. Tester une hypothèse revient à comparer deux modèles : un
+modèle avec l'effet d'intérêt et un modèle sans l'effet d'intérêt.
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+prior2 <- c(
+    prior(normal(0, 10), class = Intercept, coef = ""),
+    prior(cauchy(0, 10), class = sd),
+    prior(lkj(2), class = cor) )
+
+mod2 <- brm(presence | trials(total) ~ 1 + reminder + (1 + reminder | researcher), 
+    family = binomial(link = "logit"),
+    prior = prior1,
+    data = data,
+    # this line is important for bridgesampling
+    save_all_pars = TRUE,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores(), backend = "cmdstanr",
+    control = list(adapt_delta = 0.95) )
+
+mod3 <- brm(presence | trials(total) ~ 1 + (1 + reminder | researcher), 
+    family = binomial(link = "logit"),
+    prior = prior2,
+    data = data,
+    save_all_pars = TRUE,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores(), backend = "cmdstanr",
+    control = list(adapt_delta = 0.95) )
+```
+
+## Test d'hypothèse - 2
+
+On peut ensuite comparer la vraisemblance marginale de ces modèles,
+c'est à dire calculer un Bayes factor. Le paquet `brms` propose la
+méthode `bayes_factor()` qui repose sur une approximation de la
+vraisemblance marginale via le paquet `bridgesampling` [@gronau2017].
+
+```{r eval = FALSE, echo = TRUE}
+bayes_factor(mod2, mod3)
+```
+
+. . .
+
+```{r eval = TRUE, echo = FALSE, results = "hide"}
+bf <- bayes_factor(mod2, mod3)
+```
+
+```{r eval = TRUE, echo = FALSE}
+bf
+```
+
+## Comparaison de modèles
+
+On peut également s'intéresser aux capacités de prédiction de ces deux
+modèles et les comparer en utilisant des critères d'information. La
+fonction `waic()` calcule le **Widely Applicable Information Criterion**
+(cf. Cours n°07).
+
+```{r, echo = TRUE, eval = TRUE}
+waic(mod2, mod3, compare = FALSE)
+```
+
+## Posterior predictive checking
+
+Une autre manière d'examiner les capacités de prédiction d'un modèle est
+le **posterior predictive checking** (PPC). L'idée est simple : il
+s'agit de comparer les données observées à des données simulées à partir
+de la distribution **a posteriori**. Une fois qu'on a une distribution a
+posteriori sur $\theta$, on peut simuler des données à partir de la
+**posterior predictive distribution** :
+
+$$p(\widetilde{y} \given y) = \int p(\widetilde{y} \given \theta) p(\theta \given y) d \theta$$
+
+Si le modèle est un bon modèle, il devrait pouvoir générer des données
+qui ressemblent aux données qu'on a observées [e.g., @gabry2019].
+
+## Posterior predictive checking
+
+On représente ci-dessous la distribution de nos données.
+
+```{r, echo = TRUE, fig.width = 12, fig.height = 6}
+data %>%
+    ggplot(aes(x = presence / total) ) +
+    geom_density(fill = "grey20")
+```
+
+## Posterior predictive checking
+
+Cette procédure est implémentée dans `brms` via la méthode `pp_check()`
+qui permet de réaliser de nombreux checks. Par exemple, ci-dessous on
+compare les prédictions a posteriori (n = 100) aux données observées.
+
+```{r, echo = TRUE, fig.width = 12, fig.height = 6}
+pp_check(object = mod2, nsamples = 1e2)
+```
+
+## Posterior predictive checking
+
+```{r, echo = TRUE, fig.width = 12, fig.height = 8}
+pp_check(object = mod2, nsamples = 1e3, type = "stat_2d")
+```
+
+## Ajuster le comportement de Stan
+
+En fittant des modèles un peu compliqués, il se peut que vous obteniez
+des messages d'avertissement du genre
+"`There were x divergent transitions after warmup`". Dans cette
+situation, on peut ajuster le comportement de `Stan` directement dans un
+appel de la fonction `brm()` en utilisant l'argument `control`.
+
+```{r eval = FALSE, echo = TRUE}
+mod2 <- brm(
+    formula = presence | trials(total) ~ 1 + reminder + (1 + reminder | researcher), 
+    family = binomial(link = "logit"),
+    prior = prior2,
+    data = data,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores(), # using all available cores
+    control = list(adapt_delta = 0.95) # adjusting the delta step size
+    )
+```
+
+On peut par exemple augmenter le pas de l'algorithme, via `adapt_delta`
+(par défaut fixé à 0.8), ce qui ralentira probablement l'échantillonnage
+mais améliorera la validité des échantillons obtenus. Plus généralement,
+soyez attentifs aux messages d'erreur et d'avertissement générés par
+`brms`.
+
+## Tutoriels
+
+Une liste d'articles de blog sur `brms` :
+<https://paul-buerkner.github.io/blog/brms-blogposts/>.
+
+L'article d'introduction du paquet `brms` [@bürkner2017] et la version
+"advanced" [@bürkner2018].
+
+Un tutoriel sur les modèles de régression logistique ordinale
+[@bürkner2019].
+
+Notre article tutoriel d'introduction aux modèles multi-niveaux avec
+`brms` [@nalborczyk2019].
+
+# Modèles de méta-analyse
+
+## Méta-analyse
+
+Une méta-analyse est simplement une analyse d'analyses. Il s'agit d'un
+modèle linéaire (presque) comme les autres, sauf que nos observations
+sont (généralement) des données déjà résumées par une taille d'effet (ou
+pas). On peut traiter ces tailles d'effets comme des observations, avec
+une variance connue.
+
+. . .
+
+On distingue deux classes de modèles :
+
+-   Méta-analyse à effets fixes (constant effects) : on considère que la
+    taille d'effet estimée par toutes les études est la même.
+-   Méta-analyse à effets aléatoires (varying effects) : on modélise la
+    variabilité et les sources de dépendance dans les données.
+
+. . .
+
+On ne considère que le deuxième type de modèle, en notant (cf. Cours
+n°08) qu'un modèle à effet fixe peut être considéré comme un modèle à
+effet aléatoire dont on a fixé $\tau = 0$.
+
+## Méta-analyse
+
+Le jeu de données ci-dessous recense les résultats de 32 expériences
+visant à évaluer l'effet des contraintes biomécaniques sur l'évaluation
+des distances [@molto2020].
+
+```{r eval = TRUE, echo = TRUE}
+d <- open_data(meta)
+head(d, 15)
+```
+
+## Méta-analyse
+
+On peut écrire un premier modèle de la manière suivante.
+
+$$
+\begin{aligned}
+\color{orangered}{y_{j}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{j}, \sigma_{j})} \\
+\color{black}{\mu_{j}} \ &\color{black}{= \alpha + \alpha_{\text{study}[j]}} \\
+\color{steelblue}{\alpha_{\text{study}[j]}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, \tau_{s})} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\tau_{s}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 1)} \\
+\end{aligned}
+$$
+
+Où $\sigma_{j}^2 = v_{j}$ est la variance de l'effet dans l'étude $j$
+et $\alpha$ la taille d'effet dans la population. L'index
+$\alpha_{\text{study}[j]}$ indique la taille d'effet moyenne dans
+l'étude $j$. En plus de la variance dans l'échantillon $\sigma_{j}^2$
+(qui est connue), on estime la variabilité des effets entre les
+études $\text{Var}(\alpha_{\text{study}}) = \tau_{s}^{2}$ (niveau 2).
+
+## Méta-analyse
+
+Le modèle précédent peut être étendu à plus de deux niveaux pour prendre
+en compte les structures de dépendance dans le jeu de données. En effet,
+chaque étude (chaque papier publié) contenait plusieurs expériences. On
+pourrait s'attendre à ce que les expériences d'une même étude se
+ressemblent plus entre elles...
+
+```{r echo = FALSE, out.width = "1200px"}
+knitr::include_graphics("figures/meta_structure.png")
+```
+
+## Méta-analyse
+
+On peut écrire ce modèle sur trois niveaux, comme ci-dessous.
+
+$$
+\begin{aligned}
+\color{orangered}{y_{ij}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{ij}, \sigma_{ij})} \\
+\color{black}{\mu_{ij}} \ &\color{black}{= \alpha + \alpha_{\text{study}[j]} + \alpha_{\text{experiment}[ij]}} \\
+\color{steelblue}{\alpha_{\text{study}[j]}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, \tau_{s})} \\
+\color{steelblue}{\alpha_{\text{experiment}[ij]}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, \tau_{e})} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\tau_{e}, \tau_{s}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 1)} \\
+\end{aligned}
+$$
+
+On estime maintenant, en plus de la variabilité $\sigma_{ij}$, deux
+autres sources de variation : la variation des effets entre différentes
+expériences issues d'une même étude
+$\text{Var}(\alpha_{\text{experiment}}) = \tau_{e}^{2}$ (niveau 2) et la
+variation entre différentes études
+$\text{Var}(\alpha_{\text{study}}) = \tau_{s}^{2}$ (niveau 3).
+
+## Méta-analyse
+
+Ce modèle se fit facilement avec `brms`.
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+prior4 <- c(
+    prior(normal(0, 1), coef = intercept),
+    prior(cauchy(0, 1), class = sd)
+    )
+
+mod4 <- brm(
+    formula = yi | se(sqrt(vi) ) ~ 0 + intercept + (1 | study) + (1 | experiment),
+    data = d,
+    prior = prior4,
+    save_all_pars = TRUE,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores(),
+    control = list(adapt_delta = 0.99),
+    backend = "cmdstanr"
+    )
+```
+
+## Méta-analyse
+
+```{r eval = TRUE, echo = TRUE}
+summary(mod4)
+```
+
+## Méta-analyse
+
+```{r eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+mod4 %>%
+  plot(
+    pars = c("^b_", "^sd_"),
+    combo = c("dens_overlay", "trace"),
+    theme = theme_bw(base_size = 16, base_family = "Open Sans")
+    )
+```
+
+## Méta-analyse
+
+```{r eval = TRUE, echo = FALSE, out.width = "50%"}
+# source("code/fplot2.R")
+# fplot2(d, mod4, level = 0.95)
+knitr::include_graphics("figures/forest.png")
+```
+
+## Conclusions
+
+La statistique bayésienne est une approche générale de l'estimation de
+paramètres. Cette approche utilise la théorie des probabilités pour
+quantifier l'incertitude vis à vis de la valeur des paramètres de
+modèles statistiques.
+
+. . .
+
+Ces modèles sont composés de différents blocs (e.g., fonction de
+vraisemblance, priors, modèle linéaire ou non-linéaire) qui sont
+modifiables à souhait. Ce qu'on appelle classiquement "conditions
+d'application" sont simplement les conséquences des choix de
+modélisation réalisés par l'utilisateur. Autrement dit, c'est
+l'utilisateur qui choisit (et ne subit pas) les conditions
+d'application.
+
+. . .
+
+Nous avons vu que le modèle de régression linéaire est un modèle très
+flexible qui permet de décrire, via la modification de la fonction de
+vraisemblance et via l'introduction de fonctions de lien, des relations
+complexes (e.g., non-linéaires) entre variable prédite et variables
+prédictrices. Ces modèles peuvent gagner en précision par la prise en
+compte de la variabilité et des structures présentes dans les données
+(cf. modèles multi-niveaux).
+
+## Conclusions
+
+Le paquet `brms` est un véritable couteau suisse de l'analyse
+statistique bayésienne en `R`. Il permet de fitter presque n'importe
+quel type de modèle de régression. Cela comprend tous les modèles que
+nous avons vu en cours, mais également bien d'autres. Entre autres, des
+modèles multivariés (i.e., avec plusieurs outcomes), des modèles
+"distributionnels" (e.g., pour prédire des différence de variance), des
+[generalised additive
+models](https://fromthebottomoftheheap.net/2018/04/21/fitting-gams-with-brms/),
+des [procesus Gaussiens](https://rdrr.io/cran/brms/man/gp.html)
+(Gaussian processes), des modèles issus de la [théorie de détection du
+signal](https://mvuorre.github.io/posts/2017-10-09-bayesian-estimation-of-signal-detection-theory-models/),
+des [mixture
+models](https://www.martinmodrak.cz/2021/04/01/using-brms-to-model-reaction-times-contaminated-with-errors/),
+des [modèles de
+diffusion](http://singmann.org/wiener-model-analysis-with-brms-part-i/),
+des modèles
+[non-linéaires](https://paul-buerkner.github.io/brms/articles/brms_nonlinear.html)...
+
+N'hésitez pas à me contacter pour plus d'informations sur ces modèles ou
+si vous avez des questions par rapport à vos propres données. Vous
+pouvez aussi contacter le créateur du paquet `brms`, très actif en ligne
+(voir [son site](https://paul-buerkner.github.io/about/)). Voir aussi le
+[forum Stan](https://discourse.mc-stan.org).
+
+## Bayesian workflow [@gelman2020]
+
+```{r echo = FALSE, out.width = "66%"}
+knitr::include_graphics("figures/bayes_workflow_1.png")
+```
+
+## Bayesian workflow [@gelman2020]
+
+```{r echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/bayes_workflow_2.png")
+```
+
+## Travaux pratiques
+
+Ce jeu de données recense des données concernant 2000 élèves dans 100
+écoles différentes. L'outcome principal est la popularité de l'élève,
+évaluée sur une échelle de 1 à 10, et estimée en utilisant une procédure
+sociométrique (i.e., on a demandé aux élèves de se noter mutuellement).
+Ces élèves étaient également notés par leurs professeurs (colonne
+`teachpop`), sur une échelle de 1 à 7. On dispose comme prédicteurs du
+genre de l'élève (boy = 0, girl = 1) et de l'expérience du professeur
+(`texp`, en années).
+
+```{r eval = TRUE, echo = TRUE}
+d <- open_data(popular)
+head(d, 10)
+```
+
+## Travaux pratiques
+
+À vous d'explorer ce jeu de données, de fitter quelques modèles (avec
+`brms`) pour essayer de comprendre quels sont les facteurs qui
+expliquent (permettent de prédire) la popularité d'un élève...
+
+```{r echo = FALSE, out.width = "500px"}
+knitr::include_graphics("figures/cat.gif")
+```
+
+## Proposition de solution - exploration graphique
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 6}
+d %>%
+    ggplot(aes(x = popular) ) +
+    geom_histogram() +
+    facet_wrap(~sex) +
+    scale_x_continuous(breaks = 1:10, limits = c(1, 10) )
+```
+
+## Proposition de solution - exploration graphique
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 6}
+d %>%
+    ggplot(aes(x = texp, y = popular) ) +
+    geom_point(alpha = 0.2) +
+    geom_smooth(method = "lm", colour = "black") +
+    facet_wrap(~sex)
+```
+
+## Proposition de solution
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+d <- d %>%
+    mutate(
+        # using a sum contrast for gender
+        sex = ifelse(sex == "boy", -0.5, 0.5),
+        # centering and standardising teacher experience
+        texp = scale(texp) %>% as.numeric
+        )
+
+prior5 <- c(
+    prior(normal(5, 2.5), class = Intercept),
+    prior(cauchy(0, 10), class = sd),
+    prior(cauchy(0, 10), class = sigma)
+    )
+
+mod5 <- brm(
+    formula = popular ~ 1 + (1 | school),
+    data = d,
+    prior = prior5,
+    save_all_pars = TRUE,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores()
+    )
+```
+
+## Proposition de solution
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+prior6 <- c(
+    prior(normal(0, 1), class = Intercept),
+    prior(normal(0, 1), class = b),
+    prior(cauchy(0, 1), class = sd),
+    prior(cauchy(0, 10), class = sigma)
+    )
+
+mod6 <- brm(
+    formula = popular ~ 1 + texp + (1 | school),
+    data = d,
+    prior = prior6,
+    save_all_pars = TRUE,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores()
+    )
+```
+
+## Proposition de solution
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+prior7 <- c(
+    prior(normal(0, 1), class = Intercept),
+    prior(normal(0, 1), class = b),
+    prior(cauchy(0, 1), class = sd),
+    prior(cauchy(0, 10), class = sigma),
+    prior(lkj(2), class = cor)
+    )
+
+mod7 <- brm(
+    formula = popular ~ 1 + sex + texp + (1 + sex | school),
+    data = d,
+    prior = prior7,
+    save_all_pars = TRUE,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores()
+    )
+```
+
+## Proposition de solution
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod8 <- brm(
+    formula = popular ~ 1 + sex + texp + sex:texp + (1 + sex | school),
+    data = d,
+    prior = prior7,
+    save_all_pars = TRUE,
+    warmup = 2000, iter = 1e4,
+    cores = parallel::detectCores()
+    )
+```
+
+```{r eval = TRUE, echo = TRUE}
+# calcul du WAIC et ajout du WAIC à chaque modèle
+mod5 <- add_criterion(mod5, "waic")
+mod6 <- add_criterion(mod6, "waic")
+mod7 <- add_criterion(mod7, "waic")
+mod8 <- add_criterion(mod8, "waic")
+```
+
+## Proposition de solution
+
+```{r eval = TRUE, echo = TRUE}
+# comparaison des WAIC de chaque modèle
+model_comparison_table <- loo_compare(mod5, mod6, mod7, mod8, criterion = "waic") %>%
+  data.frame() %>%
+  rownames_to_column(var = "model")
+
+weights <- data.frame(weight = model_weights(mod5, mod6, mod7, mod8, weights = "waic") ) %>%
+  round(digits = 3) %>%
+  rownames_to_column(var = "model")
+
+left_join(model_comparison_table, weights, by = "model")
+```
+
+## Proposition de solution
+
+Les prédictions du modèle ne coïncident pas exactement avec les données
+car ces dernières sont discrètes Les élèves étaient notés sur une
+échelle discrète allant de 1 à 10 (un élève ne pouvait pas avoir
+une note de 3.456). Ce type de données peut-être approximée par une
+distribution normale (comme nous l'avons fait) mais ce choix n'est pas
+optimal en termes de prédiction...
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+pp_check(object = mod8, nsamples = 1e2)
+```
+
+## Proposition de solution
+
+On pourrait choisir un modèle qui se rapproche du processus de
+génération des données. C'est le cas du modèle de régression logistique
+ordinale (ordered categorical model). Ce modèle est une sorte de
+généralisation à plus de 2 catégories du modèle de régression logistique
+vu au Cours n°06 (voir ce
+[blogpost](https://kevinstadler.github.io/blog/bayesian-ordinal-regression-with-random-effects-using-brms/)
+pour plus de détails, ou le chapitre 11 de Statistical Rethinking), sauf
+que les catégories sont ordonnées.
+
+$$
+\begin{aligned}
+\color{orangered}{\text{pop}_{i}} \ &\color{orangered}{\sim \mathrm{Categorical}(\mathbf{p})} \\
+\color{black}{\text{logit}(p_{k})} \ &\color{black}{= \alpha_{k}} \\
+\color{steelblue}{\alpha_{k}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\end{aligned}
+$$
+
+Où la distribution $\mathrm{Categorical}$ est une distribution discrète
+qui prend un vecteur de probabilités
+$\mathbf{p} = \{p_{1}, p_{2}, p_{3}, p_{4}, p_{5}, p_{6}, p_{7}, p_{8}, p_{9}\}$
+qui correspondent aux probabilités cumulées de chaque réponse (entre 1
+et 10, 10 ayant une probabilité cumulée de 1).
+
+## Proposition de solution
+
+On définit une série de $N - 1$ intercepts
+$\mathbf{p} = \{p_{1}, p_{2}, p_{3}, p_{4}, p_{5}, p_{6}, p_{7}, p_{8}, p_{9}\}$
+sur le logarithme de la cote cumulée (log-cumulative-odds).
+
+$$\text{logit}(p_{k}) = \log \frac{\Pr(y_{i} \leq k)}{1 - \Pr(y_{i} \leq k)} = \alpha_{k}$$
+
+```{r eval = TRUE, echo = FALSE, fig.width = 14, fig.height = 6}
+library(patchwork)
+
+p1 <-
+  d %>% 
+  ggplot(aes(x = popular, fill = ..x..) ) +
+  geom_histogram(binwidth = 0.5, size = 0) +
+  scale_x_continuous(breaks = 1:10, limits = c(1, 10) ) +
+  labs(x = "Popularité", y = "Nombre de réponses") +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  theme(
+    axis.title.y = element_text(angle = 90),
+    legend.position = "none"
+    )
+
+p2 <-
+  d %>%
+  count(popular) %>%
+  mutate(pr_k = n / nrow(d), cum_pr_k = cumsum(pr_k) ) %>% 
+  ggplot(aes(x = popular, y = cum_pr_k, color = popular, fill = popular) ) +
+  geom_line() +
+  geom_point(shape = 21, color = "white", size = 2.5, stroke = 1) +
+  labs(x = "Popularité", y = "Proportion cumulée") +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  scale_x_continuous(breaks = 1:10, limits = c(1, 10) ) +
+  theme(
+    axis.title.y = element_text(angle = 90),
+    legend.position = "none"
+    )
+
+p3 <-
+  d %>%
+  count(popular) %>%
+  mutate(cum_pr_k = cumsum(n / nrow(d) ) ) %>% 
+  filter(popular < 9) %>% 
+  ggplot(aes(
+    x = popular, y = log(cum_pr_k / (1 - cum_pr_k) ),
+    color = popular, fill = popular
+    ) ) +
+  geom_line() +
+  geom_point(shape = 21, colour = "white", size = 2.5, stroke = 1) +
+  labs(x = "Popularité", y = "Log cote cumulée") +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  scale_x_continuous(breaks = 1:10, limits = c(1, 10) ) +
+  theme(
+    axis.title.y = element_text(angle = 90),
+    legend.position = "none"
+    )
+
+(p1 | p2 | p3)
+```
+
+## Proposition de solution
+
+La vraisemblance de l'observation $k$ (e.g., `pop = 3`) est donnée par
+soustraction des proportions cumulées. Cette vraisemblance est
+représentée par les barres verticales sur le graphique ci-dessous.
+
+$$p_{k} = \Pr(y_{i} = k) = \Pr(y_{i} \leq k) - \Pr(y_{i} \leq k -1)$$
+
+```{r eval = TRUE, echo = FALSE, fig.width = 6, fig.height = 6}
+d_plot <- d %>%
+  count(popular) %>%
+  mutate(pr_k = n / nrow(d), cum_pr_k = cumsum(n / nrow(d) ) ) %>%
+  mutate(discrete_probability = ifelse(popular == 1, cum_pr_k, cum_pr_k - pr_k) )
+
+text <- tibble(
+  text = 2:9,
+  popular = seq(from = 2.25, to = 9.25, by = 1),
+  cum_pr_k = d_plot$cum_pr_k - 0.065
+  )
+
+d_plot %>% 
+  ggplot(aes(x = popular, y = cum_pr_k, color = cum_pr_k, fill = cum_pr_k) ) +
+  geom_line() +
+  geom_point(shape = 21, colour = "white", size = 2.5, stroke = 1) +
+  geom_linerange(aes(ymin = 0, ymax = cum_pr_k), alpha = 0.5) +
+  geom_linerange(
+    aes(
+      x = popular + .025,
+      ymin = ifelse(popular == 1, 0, discrete_probability),
+      ymax = cum_pr_k),
+    color = "black"
+    ) +
+  geom_text(data = text,aes(label = text), size = 4) +
+  scale_x_continuous(breaks = 2:9) +
+  labs(x = "Popularité", y = "Proportion cumulée") +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  theme(
+    axis.title.y = element_text(angle = 90),
+    legend.position = "none"
+    )
+```
+
+## Proposition de solution
+
+NB : Ce modèle peut prendre plusieurs heures selon votre système...
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod9 <- brm(
+    popular ~ 1 + sex + texp + sex:texp + (1 | school),
+    data = d,
+    prior = prior6,
+    warmup = 2000, iter = 5000,
+    chains = 4, cores = parallel::detectCores(),
+    file = "models/mod9", backend = "cmdstanr"
+    )
+```
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+prior10 <- c(
+    brms::prior(normal(0, 10), class = Intercept),
+    brms::prior(normal(0, 10), class = b),
+    brms::prior(cauchy(0, 10), class = sd)
+    )
+
+mod10 <- brm(
+    popular ~ 1 + sex + texp + sex:texp + (1 | school),
+    data = d,
+    family = cumulative(link = "logit"),
+    prior = prior10,
+    chains = 4, cores = parallel::detectCores(),
+    control = list(adapt_delta = 0.99, max_treedepth = 15),
+    file = "models/mod10", backend = "cmdstanr"
+    )
+```
+
+## Proposition de solution
+
+```{r eval = TRUE, echo = TRUE}
+waic(mod9, mod10, compare = FALSE)
+```
+
+## Proposition de solution
+
+```{r eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+pp_check(mod10, nsamples = 1e2, type = "bars", prob = 0.95, freq = FALSE) +
+  scale_x_continuous(breaks = 1:9) +
+  labs(x = "Popularité", y = "Proportion")
+```
+
+## Références {.refs}

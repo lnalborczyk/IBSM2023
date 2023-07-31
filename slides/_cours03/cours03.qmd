@@ -1,0 +1,1553 @@
+---
+title: Introduction à la modélisation statistique bayésienne
+subtitle: Un cours en R et Stan avec brms
+author: Ladislas Nalborczyk (LPC, LNC, CNRS, Aix-Marseille Univ)
+from: markdown+emoji
+format:
+  revealjs:
+    incremental: true
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IMSB2022"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "Voir le code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+## Planning
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(countdown)
+library(tidyverse)
+library(knitr)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+Cours n°01 : Introduction à l'inférence bayésienne <br> Cours n°02 :
+Modèle Beta-Binomial <br> **Cours n°03 : Introduction à brms, modèle de
+régression linéaire** <br> Cours n°04 : Modèle de régression linéaire
+(suite) <br> Cours n°05 : Markov Chain Monte Carlo <br> Cours n°06 :
+Modèle linéaire généralisé <br> Cours n°07 : Comparaison de modèles <br>
+Cours n°08 : Modèles multi-niveaux <br> Cours n°09 : Modèles
+multi-niveaux généralisés <br> Cours n°10 : Data Hackathon <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## Langage de la modélisation
+
+$$
+\begin{align}
+y_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i}&= \alpha + \beta x_{i} \\
+\alpha &\sim \mathrm{Normal}(60, 10) \\
+\beta &\sim \mathrm{Normal}(0, 10) \\
+\sigma &\sim \mathrm{HalfCauchy}(0, 1)
+\end{align}
+$$
+
+**Objectif de la séance** : comprendre ce type de modèle.
+
+. . .
+
+Les constituants de nos modèles seront toujours les mêmes et nous
+suivrons les trois mêmes étapes :
+
+-   Construire le modèle (likelihood + priors).
+-   Mettre à jour grâce aux données, afin de calculer la
+    distribution postérieure.
+-   Interpréter les estimations du modèle, évaluer ses prédictions,
+    éventuellement modifier le modèle.
+
+## Un premier modèle
+
+```{r echo = TRUE}
+library(tidyverse)
+library(imsb)
+
+d <- open_data(howell)
+str(d)
+```
+
+. . .
+
+```{r echo = TRUE}
+d2 <- d %>% filter(age >= 18)
+head(d2)
+```
+
+## Un premier modèle
+
+$$h_{i} \sim \mathrm{Normal}(\mu, \sigma)$$
+
+```{r echo = TRUE, fig.width = 6, fig.height = 6}
+d2 %>%
+    ggplot(aes(x = height) ) +
+    geom_histogram(aes(y = ..density..), bins = 20, col = "white") +
+    stat_function(fun = dnorm, args = list(mean(d2$height), sd(d2$height) ), size = 1)
+```
+
+## Loi normale
+
+$$
+p(x \given \mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^{2}}} \exp \bigg[-\frac{1}{2 \sigma^{2}} (\mu - x)^{2} \bigg]
+$$
+
+```{r eval = TRUE, echo = TRUE, fig.width = 6, fig.height = 6}
+data.frame(value = rnorm(n = 1e4, mean = 10, sd = 1) ) %>% # 10.000 samples from Normal(10, 1)
+    ggplot(aes(x = value) ) +
+    geom_histogram(col = "white")
+```
+
+## D'où vient la loi normale ?
+
+Contraintes : Certaines valeurs soient fortement probables (autour de la moyenne $\mu$).
+Plus on s'éloigne, moins les valeurs sont probables (en suivant une
+décroissance exponentielle).
+
+```{r normal-explain1, echo = FALSE, fig.width = 12, fig.height = 6}
+f1 <- function(x) {exp(-x)}
+f2 <- function(x) {exp(-x^2)}
+
+ggplot(data.frame(x = c(0, 5) ), aes(x = x) ) + 
+  geom_path(aes(colour = "steelblue"), stat = "function", fun = f1, lwd = 1) +
+  geom_path(aes(colour = "orangered"), stat = "function", fun = f2, lwd = 1) +
+  labs(x = "x", y = "f(x)") +
+  scale_colour_identity(
+    "Function", guide = "legend",
+    labels = c("y = exp(-x)", "y = exp(-x^2)"),
+    breaks = c("steelblue", "orangered")
+    )
+```
+
+## D'où vient la loi normale ?
+
+$$
+y = \exp \big[-x^{2} \big]
+$$
+
+On étend notre fonction aux valeurs négatives.
+
+```{r normal-explain2, echo = FALSE, fig.width = 12, fig.height = 6}
+ggplot(data.frame(x = c(-5, 5) ), aes(x = x) ) + 
+  geom_path(aes(colour = "steelblue"), stat = "function", fun = f2, lwd = 1) +
+  labs(x = "x", y = "f(x)") +
+  scale_colour_identity(
+    "Function", guide = "legend",
+    labels = c("y = exp(-x^2)", "y = exp(-x^2)"),
+    breaks = c("steelblue", "orangered")
+    )
+```
+
+## D'où vient la loi normale ?
+
+$$
+y = \exp \big[-x^{2} \big]
+$$
+
+Les points d'inflection nous donnent une bonne indication de là où la
+plupart des valeurs se trouvent (i.e., entre les points d'inflection).
+Les pics de la dérivée nous montrent les points d'inflection.
+
+```{r normal-explain3, echo = FALSE, fig.width = 12, fig.height = 6}
+f <- expression(exp(-x^2) )
+f_derivative <- D(f, "x")
+
+f3 <- function(x) {-(exp(-x^2) * (2 * x) )}
+f3_min <- optimize(f = f3, interval = c(-10, 10) )$minimum
+
+ggplot(data.frame(x = c(-5, 5) ), aes(x = x) ) + 
+  geom_path(aes(colour = "steelblue"), stat = "function", fun = f2, lwd = 1) +
+  geom_area(
+    data = data.frame(x = seq(-5, 5, 0.01) ) %>% filter(-f3_min < x & x < f3_min),
+    aes(y = exp(-x^2) ),
+    position = "identity", fill = "steelblue", alpha = 0.3
+    ) +
+  geom_path(aes(colour = "orangered"), stat = "function", fun = f3, lwd = 1) +
+  geom_vline(xintercept = -f3_min, colour = "orangered", lty = 2) +
+  geom_vline(xintercept = f3_min, colour = "orangered", lty = 2) +
+  labs(x = "x", y = "f(x)") +
+  scale_colour_identity(
+    "Function", guide = "legend",
+    labels = c("y = exp(-x^2)", "derivative"),
+    breaks = c("steelblue", "orangered")
+    )
+```
+
+## D'où vient la loi normale ?
+
+$$
+y = \exp \bigg [- \frac{1}{2} x^{2} \bigg]
+$$
+
+Ensuite on standardise la distribution de manière à ce que les deux
+points d'inflection se trouvent à $x = -1$ et $x = 1$.
+
+```{r normal-explain4, echo = FALSE, fig.width = 12, fig.height = 6}
+f <- expression(exp((-0.5) * x^2) )
+f_derivative <- D(f, "x")
+
+f4 <- function(x) {exp((-0.5) * x^2)}
+f5 <- function(x) {exp((-0.5) * x^2) * ((-0.5) * (2 * x) )}
+
+ggplot(data.frame(x = c(-5, 5) ), aes(x = x) ) + 
+  geom_path(aes(colour = "steelblue"), stat = "function", fun = f4, lwd = 1) +
+  geom_path(aes(colour = "orangered"), stat = "function", fun = f5, lwd = 1) +
+  geom_vline(xintercept = -1, colour = "orangered", lty = 2) +
+  geom_vline(xintercept = 1, colour = "orangered", lty = 2) +
+  labs(x = "x", y = "f(x)") +
+  scale_colour_identity(
+    "Function", guide = "legend",
+    labels = c("y = exp(-0.5x^2)", "derivative"),
+    breaks = c("steelblue", "orangered")
+    )
+```
+
+## D'où vient la loi normale ?
+
+$$
+y = \exp \bigg [- \frac{1}{2 \color{steelblue}{\sigma^{2}}} x^{2} \bigg]
+$$
+
+On insère un paramètre $\sigma^{2}$ pour contrôler la distance entre les
+points d'inflection.
+
+```{r normal-explain5, echo = FALSE, fig.width = 12, fig.height = 6}
+f4 <- function(x) {exp((-0.5) * x^2)}
+
+ggplot(data.frame(x = c(-5, 5) ), aes(x = x) ) + 
+  geom_path(
+    aes(colour = "steelblue"),
+    colour = "steelblue",
+    stat = "function", fun = f4, lwd = 1
+    ) +
+  labs(x = "x", y = "f(x)")
+```
+
+## D'où vient la loi normale ?
+
+$$
+y = \exp \bigg [- \frac{1}{2 \color{steelblue}{\sigma^{2}}} (\color{orangered}{\mu} - x)^{2} \bigg]
+$$
+
+On insère ensuite un paramètre $\mu$ afin de pouvoir contrôler la
+position (la tendance centrale) de la distribution.
+
+```{r normal-explain6, echo = FALSE, fig.width = 12, fig.height = 6}
+f4 <- function(x) {exp((-0.5) * (x - 3)^2)}
+
+ggplot(data.frame(x = c(-5, 5) ), aes(x = x) ) + 
+  geom_path(
+    aes(colour = "steelblue"),
+    colour = "steelblue",
+    stat = "function", fun = f4, lwd = 1
+    ) +
+  labs(x = "x", y = "f(x)")
+```
+
+## D'où vient la loi normale ?
+
+$$
+y = \frac{1}{\sqrt{2 \pi \color{steelblue}{\sigma^{2}}}} \exp \bigg[-\frac{1}{2 \color{steelblue}{\sigma^{2}}} (\color{orangered}{\mu} - x)^{2} \bigg]
+$$
+
+Mais... cette distribution n'intègre pas à 1. On divise donc par une
+constante de normalisation (la partie gauche), afin d'obtenir une
+distribution de probabilité.
+
+```{r normal-explain7, echo = FALSE, fig.width = 12, fig.height = 6}
+ggplot(data.frame(x = c(-5, 5) ), aes(x = x) ) + 
+  geom_path(
+    aes(colour = "steelblue"),
+    colour = "steelblue",
+    stat = "function", fun = dnorm, lwd = 1
+    ) +
+  labs(x = "x", y = "f(x)")
+```
+
+## Modèle gaussien
+
+Nous allons construire un modèle de régression, mais avant d'ajouter un
+prédicteur, essayons de modéliser la distribution des tailles.
+
+. . .
+
+On cherche à savoir quel est le modèle (la distribution) qui décrit le
+mieux la répartition des tailles. On va donc explorer toutes les
+combinaisons possibles de $\mu$ et $\sigma$ et les classer par leurs
+probabilités respectives.
+
+. . .
+
+Notre but, une fois encore, est de décrire **la distribution
+postérieure**, qui sera donc d'une certaine manière **une distribution
+de distributions**.
+
+## Modèle gaussien
+
+On définit $p(\mu, \sigma)$, la distribution a priori conjointe de tous
+les paramètres du modèle. On peut spécifier ces priors indépendamment
+pour chaque paramètre, sachant que $p(\mu, \sigma) = p(\mu) p(\sigma)$.
+
+$$\color{steelblue}{\mu \sim \mathrm{Normal}(178, 20)}$$
+
+```{r eval = TRUE, echo = FALSE, fig.align = "center", fig.width = 9, fig.height = 6}
+data.frame(x = c(100, 250) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dnorm, args = list(mean = 178, sd = 20),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(mu), y = "Densité de probabilité")
+```
+
+## Modèle gaussien
+
+On définit $p(\mu, \sigma)$, la distribution a priori conjointe de tous
+les paramètres du modèle. On peut spécifier ces priors indépendamment
+pour chaque paramètre, sachant que $p(\mu, \sigma) = p(\mu) p(\sigma)$.
+
+$$\color{steelblue}{\sigma \sim \mathrm{Uniform}(0, 50)}$$
+
+```{r eval = TRUE, echo = FALSE, fig.width = 9, fig.height = 6}
+data.frame(x = c(-10, 60) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dunif, args = list(0, 50),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(sigma), y = "Densité de probabilité")
+```
+
+## Visualiser le prior
+
+```{r eval = FALSE, echo = TRUE}
+library(ks)
+sample_mu <- rnorm(1e4, 178, 20) # prior on mu
+sample_sigma <- runif(1e4, 0, 50) # prior on sigma
+prior <- data.frame(cbind(sample_mu, sample_sigma) ) # multivariate prior
+H.scv <- Hscv(x = prior, verbose = TRUE)
+fhat_prior <- kde(x = prior, H = H.scv, compute.cont = TRUE)
+plot(
+    fhat_prior, display = "persp", col = "steelblue", border = NA,
+    xlab = "\nmu", ylab = "\nsigma", zlab = "\n\np(mu, sigma)",
+    shade = 0.8, phi = 30, ticktype = "detailed",
+    cex.lab = 1.2, family = "Helvetica")
+```
+
+```{r prior-plot, echo = FALSE, out.width = "500px"}
+knitr::include_graphics("figures/prior.png")
+```
+
+## Prior predictive checking
+
+```{r eval = TRUE, echo = TRUE, fig.width = 6, fig.height = 6}
+sample_mu <- rnorm(1000, 178, 20)
+sample_sigma <- runif(1000, 0, 50)
+
+data.frame(x = rnorm(1000, sample_mu, sample_sigma) ) %>%
+    ggplot(aes(x) ) +
+    geom_histogram() +
+    labs(x = "Taille (en cm)", y = "Nombre d'échantillons")
+```
+
+## Fonction de vraisemblance
+
+```{r eval = TRUE, echo = TRUE}
+mu_exemple <- 151.23
+sigma_exemple <- 23.42
+
+d2$height[34] # une observation de taille (pour exemple)
+```
+
+```{r eval = TRUE, echo = FALSE, fig.width = 6, fig.height = 6}
+ggplot(data.frame(x = c(50, 250) ), aes(x) ) +
+    stat_function(
+        fun = dnorm, args = list(mu_exemple, sigma_exemple), lwd = 2) +
+    geom_segment(
+        aes(
+            x = d2$height[34],
+            xend = d2$height[34],
+            y = 0,
+            yend = dnorm(d2$height[34], mu_exemple,sigma_exemple) ),
+        color = "black", size = 1, linetype = 2) +
+    geom_point(
+        data = d2,
+        aes(x = d2$height[34], y = dnorm(d2$height[34], mu_exemple,sigma_exemple) ),
+        size = 4) +
+    xlab("Taille (en cm)") +
+    ylab("Vraisemblance")
+```
+
+## Fonction de vraisemblance
+
+On veut calculer la probabilité d'observer une certaine valeur de
+taille, sachant certaines valeurs de $\mu$ et $\sigma$, c'est à dire :
+
+$$
+p(x \given \mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^{2}}} \exp \bigg[-\frac{1}{2 \sigma^{2}} (\mu - x)^{2} \bigg]
+$$
+
+. . .
+
+On peut calculer cette **densité de probabilité** à l'aide des fonctions
+`dnorm`, `dbeta`, `dt`, `dexp`, `dgamma`, etc.
+
+```{r eval = TRUE, echo = TRUE, fig.align = "center"}
+dnorm(d2$height[34], mu_exemple, sigma_exemple)
+```
+
+## Fonction de vraisemblance
+
+$$
+p(x \given \mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^{2}}} \exp \bigg[-\frac{1}{2 \sigma^{2}} (\mu - x)^{2} \bigg]
+$$
+
+Ou avec une fonction maison...
+
+```{r eval = TRUE, echo = TRUE}
+normal_likelihood <- function (x, mu, sigma) {
+  
+  bell <- exp( (- 1 / (2 * sigma^2) ) * (mu - x)^2 )
+  norm <- sqrt(2 * pi * sigma^2)
+  
+  return(bell / norm)
+  
+}
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+normal_likelihood(d2$height[34], mu_exemple, sigma_exemple)
+```
+
+## Distribution postérieure
+
+$$
+\color{purple}{p(\mu, \sigma \given h)} = \frac{\prod_{i} \color{orangered}{\mathrm{Normal}(h_{i} \given \mu, \sigma)}\color{steelblue}{\mathrm{Normal}(\mu \given 178, 20)\mathrm{Uniform}(\sigma \given 0, 50)}}
+{\color{green}{\int \int \prod_{i} \mathrm{Normal}(h_{i} \given \mu, \sigma)\mathrm{Normal}(\mu \given 178, 20)\mathrm{Uniform}(\sigma \given 0, 50) \mathrm{d} \mu \mathrm{d} \sigma}}
+$$
+
+$$
+\color{purple}{p(\mu, \sigma \given h)} \propto \prod_{i} \color{orangered}{\mathrm{Normal}(h_{i} \given \mu, \sigma)}\color{steelblue}{\mathrm{Normal}(\mu \given 178, 20)\mathrm{Uniform}(\sigma \given 0, 50)}
+$$
+
+. . .
+
+Il s'agit de la même formule vue lors des cours 1 et 2, mais cette fois
+en considérant qu'il existe plusieurs observations de taille ($h_{i}$),
+et deux paramètres à estimer : $\mu$ et $\sigma$.
+
+. . .
+
+Pour calculer la **vraisemblance marginale** (en vert), il faut donc
+intégrer sur deux paramètres : $\mu$ et $\sigma$. On réalise ici encore
+que la probabilité a posteriori est proportionnelle au produit de la
+vraisemblance et du prior.
+
+## Distribution postérieure - Grid approximation
+
+```{r grid, eval = TRUE, echo = TRUE}
+# on définit une grille de valeurs possibles pour mu et sigma
+mu.list <- seq(from = 140, to = 160, length.out = 200)
+sigma.list <- seq(from = 4, to = 9, length.out = 200)
+
+# on étend la grille à toutes les combinaisons possibles de mu et sigma
+post <- expand.grid(mu = mu.list, sigma = sigma.list)
+
+# calcul de la log-vraisemblance (pour chaque combinaison de mu et sigma)
+post$LL <-
+  sapply(
+    1:nrow(post),
+    function(i) sum(dnorm(
+      d2$height,
+      mean = post$mu[i],
+      sd = post$sigma[i],
+      log = TRUE) )
+    )
+
+# calcul de la probabilité a posteriori (non normalisée)
+post$prod <-
+  post$LL +
+  dnorm(x = post$mu, mean = 178, sd = 20, log = TRUE) +
+  dunif(x = post$sigma, min = 0, max = 50, log = TRUE)
+
+# on "annule" le log et on standardise par la valeur maximale (pour éviter les erreurs d'arrondi)
+post$prob <- exp(post$prod - max(post$prod) )
+```
+
+## Distribution postérieure - Grid approximation
+
+```{r samples1, eval = TRUE, echo = TRUE}
+# select random 20 rows of the dataframe 
+post %>% slice_sample(n = 20, replace = FALSE)
+```
+
+## Distribution postérieure - Grid approximation
+
+```{r sampling-posterior, eval = TRUE, echo = TRUE}
+sample.rows <- sample(x = 1:nrow(post), size = 1e4, replace = TRUE, prob = post$prob)
+sample.mu <- post$mu[sample.rows]
+sample.sigma <- post$sigma[sample.rows]
+```
+
+```{r plotting-samples, eval = TRUE, echo = FALSE, fig.align = "center", fig.width = 12, fig.height = 8}
+library(viridis)
+
+sample.mu <- post$mu[sample.rows]
+sample.sigma <- post$sigma[sample.rows]
+
+ggplot(
+    data.frame(sample.mu, sample.sigma),
+    aes(x = sample.mu, y = sample.sigma)
+    ) + 
+    stat_density_2d(
+        geom = "raster", aes(fill = ..density..),
+        contour = FALSE, show.legend = FALSE
+      ) +
+    geom_vline(xintercept = mean(sample.mu), lty = 2) +
+    geom_hline(yintercept = mean(sample.sigma), lty = 2) +
+    scale_fill_viridis(na.value = "black") +
+    coord_cartesian(
+      xlim = c(min(sample.mu), max(sample.mu) ),
+      ylim = c(min(sample.sigma), max(sample.sigma) )
+      ) +
+    scale_x_continuous(expand = c(0, 0) ) +
+    scale_y_continuous(expand = c(0, 0) ) +
+    labs(x = expression(mu), y = expression(sigma) )
+```
+
+## Distribution postérieure - Distributions marginales
+
+```{r eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+posterior_plot(samples = sample.mu, nbins = 30) + labs(x = expression(mu) )
+```
+
+## Distribution postérieure - Distributions marginales
+
+```{r eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+posterior_plot(samples = sample.sigma, nbins = 30) + labs(x = expression(sigma) )
+```
+
+## Introduction à brms
+
+Under the hood : `Stan` est un langage de programmation probabiliste
+écrit en `C++`, et qui implémente plusieurs algorithmes de MCMC : HMC,
+NUTS, L-BFGS...
+
+```{r stan, eval = FALSE, echo = TRUE}
+data {
+  int<lower=0> J; // number of schools 
+  real y[J]; // estimated treatment effects
+  real<lower=0> sigma[J]; // s.e. of effect estimates 
+  }
+
+parameters {
+  real mu; 
+  real<lower=0> tau;
+  real eta[J];
+  }
+
+transformed parameters {
+  real theta[J];
+  for (j in 1:J)
+    theta[j] = mu + tau * eta[j];
+  }
+
+model {
+  target += normal_lpdf(eta | 0, 1);
+  target += normal_lpdf(y | theta, sigma);
+  }
+```
+
+## Bayesian regression models using Stan
+
+Le package `brms` [@bürkner2017] permet de fitter des modèles
+multi-niveaux (ou pas) linéaires (ou pas) bayésiens en `Stan` mais en
+utilisant la syntaxe de `lme4`.
+
+. . .
+
+Par exemple, le modèle suivant :
+
+$$
+\begin{align}
+y_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i} &= \alpha + \alpha_{\text{subject}[i]} + \alpha_{\text{item}[i]} + \beta x_{i} \\
+\end{align}
+$$
+
+. . .
+
+se spécifie avec `brms` (comme avec `lme4`) de la manière suivante :
+
+```{r eval = FALSE, echo = TRUE}
+model <- brm(y ~ x + (1 | subject) + (1 | item), data = d, family = gaussian() )
+```
+
+## Rappels de syntaxe
+
+Le package `brms` utilise la même syntaxe que les fonctions de base R
+(comme `lm`) ou que le package `lme4`.
+
+```{r eval = FALSE, echo = TRUE}
+Reaction ~ Days + (1 + Days | Subject)
+```
+
+. . .
+
+La partie gauche représente notre variable dépendante (ou outcome,
+i.e., ce qu'on essaye de prédire). Le package `brms` permet également de
+fitter des modèles multivariés (plusieurs outcomes) en les combinant
+avec `mvbind()`.
+
+```{r eval = FALSE, echo = TRUE}
+mvbind(Reaction, Memory) ~ Days + (1 + Days | Subject)
+```
+
+. . .
+
+La partie droite permet de définir les prédicteurs. L'intercept est
+généralement implicite, de sorte que les deux écritures ci-dessous sont
+équivalentes.
+
+```{r eval = FALSE, echo = TRUE}
+mvbind(Reaction, Memory) ~ Days + (1 + Days | Subject)
+mvbind(Reaction, Memory) ~ 1 + Days + (1 + Days | Subject)
+```
+
+## Rappels de syntaxe
+
+Si l'on veut fitter un modèle sans intercept (why not), il faut le
+spécifier explicitement comme ci-dessous.
+
+```{r eval = FALSE, echo = TRUE}
+mvbind(Reaction, Memory) ~ 0 + Days + (1 + Days | Subject)
+```
+
+. . .
+
+Par défaut `brms` postule une vraisemblance gaussienne. Ce postulat peut
+être changé facilement en spécifiant la vraisemblance souhaitée via
+l'argument `family`.
+
+```{r eval = FALSE, echo = TRUE}
+brm(Reaction ~ 1 + Days + (1 + Days | Subject), family = lognormal() )
+```
+
+. . .
+
+Lisez la documentation (c'est très enthousiasmant à lire) accessible via
+`?brm`.
+
+## Quelques fonctions utiles
+
+```{r fonctions-utiles, eval = FALSE, echo = TRUE}
+# générer le code du modèle en Stan
+make_stancode(formula, ...)
+stancode(fit)
+
+# définir les priors
+get_prior(formula, ...)
+set_prior(prior, ...)
+
+# récupérer les prédictions du modèle
+fitted(fit, ...)
+predict(fit, ...)
+conditional_effects(fit, ...)
+
+# posterior predictive checking
+pp_check(fit, ...)
+
+# comparaison de modèles
+loo(fit1, fit2, ...)
+bayes_factor(fit1, fit2, ...)
+model_weights(fit1, fit2, ...)
+
+# test d'hypothèse
+hypothesis(fit, hypothesis, ...)
+```
+
+## Un premier exemple
+
+```{r mod1, eval = TRUE, echo = TRUE, results = "hide"}
+library(brms)
+mod1 <- brm(height ~ 1, data = d2)
+```
+
+. . .
+
+```{r summary-mod1, eval = TRUE, echo = TRUE}
+posterior_summary(mod1, pars = c("^b_", "sigma"), probs = c(0.025, 0.975) )
+```
+
+Ces données représentent les distributions marginales de chaque
+paramètre. En d'autres termes, la probabilité de chaque valeur de
+$\mu$, moyennée sur toutes les valeurs possible de
+$\sigma$, est décrite par une distribution gaussienne avec une moyenne
+de $154.6$ et un écart type de $0.42$. L'intervalle de crédibilité
+($\neq$ intervalle de confiance) nous indique les 95% valeurs de $\mu$
+ou $\sigma$ les plus probables (sachant les données et les priors).
+
+## En utilisant notre prior
+
+Par défaut `brms` utilise un prior très peu informatif centré sur la
+valeur moyenne de la variable mesurée. On peut donc affiner l'estimation
+réalisée par ce modèle en utilisant nos connaissances sur la
+distribution habituelle des tailles chez les humains.
+
+. . .
+
+La fonction `get_prior()` permet de visualiser une liste des priors par
+défaut ainsi que de tous les priors qu'on peut spécifier, sachant une
+certaine formule (i.e., une manière d'écrire notre modèle) et un jeu de
+données.
+
+```{r get-prior, eval = TRUE, echo = TRUE}
+get_prior(height ~ 1, data = d2)
+```
+
+## En utilisant notre prior
+
+```{r mod2, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(178, 20), class = Intercept),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod2 <- brm(
+  height ~ 1,
+  prior = priors,
+  family = gaussian(),
+  data = d2
+  )
+```
+
+```{r prior-mod2, echo = FALSE, fig.width = 15, fig.height = 5}
+library(patchwork)
+
+p1 <- data.frame(x = c(100, 250) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dnorm, args = list(mean = 178, sd = 20),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(mu), y = "Densité de probabilité")
+
+p2 <- data.frame(x = c(0, 500) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dexp, args = list(0.01),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(sigma), y = "Densité de probabilité")
+
+p1 + p2
+```
+
+## En utilisant notre prior
+
+```{r summary-mod2, eval = TRUE, echo = TRUE}
+summary(mod2)
+```
+
+## En utilisant un prior plus informatif
+
+```{r mod3, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(178, 0.1), class = Intercept),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod3 <- brm(
+  height ~ 1,
+  prior = priors,
+  family = gaussian(),
+  data = d2
+  )
+```
+
+```{r prior-mod3, echo = FALSE, fig.width = 15, fig.height = 5}
+library(patchwork)
+
+p1 <- data.frame(x = c(177, 179) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dnorm, args = list(mean = 178, sd = 0.1),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(mu), y = "Densité de probabilité")
+
+p2 <- data.frame(x = c(0, 500) ) %>%
+  ggplot(aes(x = x) ) +
+  stat_function(
+    fun = dexp, args = list(0.01),
+    fill = "steelblue", geom = "area", alpha = 0.8
+    ) +
+  labs(x = expression(sigma), y = "Densité de probabilité")
+
+p1 + p2
+```
+
+## En utilisant un prior plus informatif
+
+```{r summary-mod3, eval = TRUE, echo = TRUE}
+summary(mod3)
+```
+
+On remarque que la valeur estimée pour $\mu$ n'a presque pas "bougée" du
+prior...mais on remarque également que la valeur estimée pour $\sigma$ a
+largement augmentée. Nous avons dit au modèle que nous étions assez
+certain de notre valeur de $\mu$, le modèle s'est ensuite "adapté", ce
+qui explique la valeur de $\sigma$...
+
+## Précision du prior (heuristique)
+
+Le prior peut généralement être considéré comme un posterior obtenu sur
+des données antérieures.
+
+. . .
+
+On sait que le $\sigma$ d'un posterior gaussien nous est donné par la
+formule :
+
+$$\sigma_{\text{post}} = 1\ /\ \sqrt{n}$$
+
+Qui implique une **quantité de données** $n = 1\ /\ \sigma^2_{\text{post}}$. Notre
+prior avait un $\sigma = 0.1$, ce qui donne $n = 1\ /\ 0.1^2 = 100$.
+
+. . .
+
+On peut donc considérer que le prior
+$\mu \sim \mathrm{Normal}(178, 0.1)$ est équivalent au cas dans lequel
+nous aurions observé $100$ tailles de moyenne $178$.
+
+## Visualiser les échantillons de la distribution postérieure
+
+```{r get-density-function, eval = TRUE, echo = FALSE}
+library(viridis)
+library(MASS)
+
+# Get density of points in 2 dimensions.
+# @param x A numeric vector.
+# @param y A numeric vector.
+# @param n Create a square n by n grid to compute density.
+# @return The density within each square.
+
+get_density <- function(x, y, n = 100) {
+    
+    dens <- MASS::kde2d(x = x, y = y, n = n)
+    ix <- findInterval(x, dens$x)
+    iy <- findInterval(y, dens$y)
+    ii <- cbind(ix, iy)
+    return(dens$z[ii])
+    
+}
+```
+
+```{r samples-plot, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 6}
+post <- as_draws_df(x = mod2) %>%
+    mutate(density = get_density(b_Intercept, sigma, n = 1e2) )
+
+ggplot(post, aes(x = b_Intercept, y = sigma, color = density) ) +
+    geom_point(size = 2, alpha = 0.5, show.legend = FALSE) +
+    labs(x = expression(mu), y = expression(sigma) ) +
+    viridis::scale_color_viridis()
+```
+
+## Récupérer les échantillons de la distribution postérieure
+
+```{r eval = TRUE, echo = TRUE}
+# gets the first 6 samples
+head(post)
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+# gets the median and the 95% credible interval
+t(sapply(post[, 1:2], quantile, probs = c(0.025, 0.5, 0.975) ) )
+```
+
+## Visualiser la distribution postérieure
+
+```{r eval = FALSE, echo = TRUE}
+H.scv <- Hscv(post[, 1:2])
+fhat_post <- kde(x = post[, 1:2], H = H.scv, compute.cont = TRUE)
+
+plot(fhat_post, display = "persp", col = "purple", border = NA,
+  xlab = "\nmu", ylab = "\nsigma", zlab = "\np(mu, sigma)",
+  shade = 0.8, phi = 30, ticktype = "detailed",
+  cex.lab = 1.2, family = "Helvetica")
+```
+
+```{r posterior-plot, echo = FALSE, out.width = "600px"}
+knitr::include_graphics("figures/posterior.png")
+```
+
+## Visualiser la distribution postérieure
+
+```{r plot-samples, eval = TRUE, echo = FALSE, fig.align = "center", fig.width = 12, fig.height = 8}
+library(viridis)
+
+sample.mu <- post$b_Intercept
+sample.sigma <- post$sigma
+
+data.frame(sample.mu, sample.sigma) %>%
+    ggplot(aes(x = sample.mu, y = sample.sigma) ) + 
+    stat_density_2d(
+        geom = "raster",
+        aes(fill = ..density..),
+        contour = FALSE, show.legend = FALSE
+        ) +
+    geom_vline(xintercept = mean(sample.mu), lty = 2) +
+    geom_hline(yintercept = mean(sample.sigma), lty = 2) +
+    scale_fill_viridis(na.value = "black") +
+    coord_cartesian(
+        xlim = c(min(sample.mu), max(sample.mu) ),
+        ylim = c(min(sample.sigma), max(sample.sigma) )
+        ) +
+    scale_x_continuous(expand = c(0, 0) ) +
+    scale_y_continuous(expand = c(0, 0) ) +
+    labs(x = expression(mu), y = expression(sigma) )
+```
+
+## Ajouter un prédicteur
+
+Comment est-ce que la taille co-varie avec le poids ?
+
+```{r height-weight-plot, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 6}
+d2 %>%
+  ggplot(aes(x = weight, y = height) ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8)
+```
+
+## Régression linéaire à un prédicteur continu
+
+$$
+\begin{align}
+h_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i} &= \alpha + \beta x_{i} \\
+\end{align}
+$$
+
+```{r lm-regression, eval = TRUE, echo = TRUE, fig.align = "center"}
+linear_model <- lm(height ~ weight, data = d2)
+rethinking::precis(linear_model, prob = 0.95)
+```
+
+```{r lm-regression-plot, eval = TRUE, echo = FALSE, fig.align = "center", fig.width = 7.5, fig.height = 5}
+d2 %>%
+    ggplot(aes(x = weight, y = height) ) +
+    geom_point(
+      colour = "white", fill = "black",
+      pch = 21, size = 3, alpha = 0.8
+      ) +
+    geom_smooth(method = "lm", se = FALSE, color = "black", lwd = 1)
+```
+
+## Différentes notations
+
+On considère un modèle de régression linéaire avec un seul prédicteur,
+une pente, un intercept, et des résidus distribués selon une loi
+normale. La notation :
+
+$$
+h_{i} = \alpha + \beta x_{i} + \epsilon_{i} \quad \text{avec} \quad \epsilon_{i} \sim \mathrm{Normal}(0, \sigma)
+$$
+
+est équivalente à :
+
+$$
+h_{i} - (\alpha + \beta x_{i}) \sim \mathrm{Normal}(0, \sigma)
+$$
+
+. . .
+
+et si on réduit encore un peu :
+
+$$
+h_{i} \sim \mathrm{Normal}(\alpha + \beta x_{i}, \sigma).
+$$
+
+Les notations ci-dessus sont équivalentes, mais la dernière est plus
+flexible, et nous permettra par la suite de l'étendre plus simplement
+aux modèles multi-niveaux.
+
+## Régression linéaire à un prédicteur continu
+
+$$
+\begin{aligned}
+\color{orangered}{h_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i},\sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta x_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(178, 20)} \\
+\color{steelblue}{\beta} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)} \\
+\end{aligned}
+$$
+
+Dans ce modèle $\mu$ n'est plus un paramètre à estimer (car $\mu$ est
+**déterminé** par $\alpha$ et $\beta$). À la place, nous allons estimer
+$\alpha$ et $\beta$.
+
+. . .
+
+Rappels : $\alpha$ est l'intercept, c'est à dire la taille attendue,
+lorsque le poids est égal à $0$. $\beta$ est la pente, c'est à dire le
+changement de taille attendu quand le poids augmente d'une unité.
+
+## Régression linéaire à un prédicteur continu
+
+```{r mod4, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(178, 20), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod4 <- brm(
+  height ~ 1 + weight,
+  prior = priors,
+  family = gaussian(),
+  data = d2
+  )
+```
+
+## Régression linéaire à un prédicteur continu
+
+```{r summary-mod4, eval = TRUE, echo = TRUE}
+posterior_summary(mod4)
+```
+
+-   $\alpha = 113.89, 95\% \ \text{CrI} \ [110.15, 117.58]$ représente
+    la taille moyenne quand le poids est égal à 0kg...
+
+-   $\beta = 0.90, 95\% \ \text{CrI} \ [0.82, 0.99]$ nous indique qu'une
+    augmentation de 1kg entraîne une augmentation de 0.90cm.
+
+## Régression linéaire à un prédicteur continu
+
+```{r mod5, eval = TRUE, echo = TRUE, results = "hide"}
+d2$weight.c <- d2$weight - mean(d2$weight)
+
+mod5 <- brm(
+  height ~ 1 + weight.c,
+  prior = priors,
+  family = gaussian(),
+  data = d2
+  )
+```
+
+. . .
+
+```{r fixef-mod5, eval = TRUE, echo = TRUE}
+fixef(mod5) # retrieves the fixed effects estimates
+```
+
+Après avoir centré la réponse, l'intercept représente désormais la
+valeur attendue de taille (en cm) lorsque le poids est à sa valeur moyenne.
+
+## Représenter les prédictions du modèle
+
+```{r mod4-predictions, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 6}
+d2 %>%
+    ggplot(aes(x = weight, y = height) ) +
+    geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+    geom_abline(intercept = fixef(mod4)[1], slope = fixef(mod4)[2], lwd = 1)
+```
+
+## Représenter l'incertitude sur $\mu$ via fitted()
+
+```{r fitted-mod4, eval = TRUE, echo = TRUE}
+# on crée un vecteur de valeurs possibles pour "weight"
+weight.seq <- data.frame(weight = seq(from = 25, to = 70, by = 1) )
+
+# on récupère les prédictions du modèle pour ces valeurs de poids
+mu <- data.frame(fitted(mod4, newdata = weight.seq) ) %>% bind_cols(weight.seq)
+
+# on affiche les 10 premières lignes de mu
+head(mu, 10)
+```
+
+## Représenter l'incertitude sur $\mu$ via fitted()
+
+```{r fitted-mod4-plot, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 5}
+d2 %>%
+  ggplot(aes(x = weight, y = height) ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  geom_smooth(
+    data = mu, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity",
+    color = "black", alpha = 0.8, size = 1
+    )
+```
+
+## Intervalles de prédiction (incorporer $\sigma$)
+
+Pour rappel, voici notre modèle :
+$h_{i} \sim \mathrm{Normal}(\alpha + \beta x_{i}, \sigma)$. Pour
+l'instant, on a seulement représenté les prédictions pour $\mu$. Comment
+incorporer $\sigma$ dans nos prédictions ?
+
+```{r predict-mod4, eval = TRUE, echo = TRUE}
+# on crée un vecteur de valeurs possibles pour "weight"
+weight.seq <- data.frame(weight = seq(from = 25, to = 70, by = 1) )
+
+# on récupère les prédictions du modèle pour ces valeurs de poids
+pred_height <- data.frame(predict(mod4, newdata = weight.seq) ) %>% bind_cols(weight.seq)
+
+# on affiche les 10 premières lignes de pred_height
+head(pred_height, 10)
+```
+
+## Intervalles de prédiction (incorporer $\sigma$)
+
+```{r predict-mod4-plot, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 4}
+d2 %>%
+  ggplot(aes(x = weight, y = height) ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  geom_ribbon(
+    data = pred_height, aes(x = weight, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.2, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = mu, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.8, size = 1
+    )
+```
+
+## Built-in brms functions
+
+Le paquet `brms` propose aussi les fonctions `posterior_epred()`, `posterior_linpred()`, et `posterior_predict()`, qui permettent de générer des prédictions à partir de modèles fittés avc `brms`. Andrew Heiss décrit de manière détaillée le fonctionnement de ces fonction dans [cet article de blog](https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/).
+
+![](figures/normal.png){fig-align="center"}
+
+## Rappel : Deux types d'incertitude
+
+Deux sources d'incertitude dans le modèle : incertitude concernant
+l'estimation de la valeur des paramètres mais également concernant le
+processus d'échantillonnage.
+
+. . .
+
+**Incertitude épistémique** : La distribution a posteriori ordonne
+toutes les combinaisons possibles des valeurs des paramètres selon leurs
+plausibilités relatives.
+
+. . .
+
+**Incertitude aléatoire** : La distribution des données simulées est
+elle, une distribution qui contient de l'incertitude liée à un processus
+d'échantillonnage (i.e., générer des données à partir d'une gaussienne).
+
+. . .
+
+Voir aussi ce court article par @ohagan2004.
+
+## Régression polynomiale
+
+```{r plot-poly, eval = TRUE, echo = TRUE, fig.align = "center"}
+d %>% # on utilise d au lieu de d2
+  ggplot(aes(x = weight, y = height) ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8)
+```
+
+## Scores standardisés
+
+```{r poly-plot-std, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 6, fig.height = 4}
+d <- d %>% mutate(weight.s = (weight - mean(weight) ) / sd(weight) )
+
+d %>%
+    ggplot(aes(x = weight.s, y = height) ) +
+    geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8)
+
+c(mean(d$weight.s), sd(d$weight.s) )
+```
+
+## Scores standardisés
+
+Pourquoi standardiser les prédicteurs ?
+
+-   **Interprétation**. Permet de comparer les coefficients de plusieurs
+    prédicteurs. Un changement d'un écart-type du prédicteur correspond
+    à un changement d'un écart-type sur la réponse (si la réponse est
+    aussi standardisée).
+
+-   **Fitting**. Quand les prédicteurs contiennent de grandes valeurs
+    (ou des valeurs trop différentes les unes des autres),
+    cela peut poser des problèmes de convergence (cf. Cours n°05).
+
+## Modèle de régression polynomiale - Exercice
+
+$$
+\begin{aligned}
+\color{orangered}{h_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{1} x_{i} + \beta_{2} x_{i}^{2}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(156, 100)} \\
+\color{steelblue}{\beta_{1}, \beta_{2}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{Exponential}(0.01)} \\
+\end{aligned}
+$$
+
+À vous de construire et fitter ce modèle en utilisant `brms::brm()`.
+
+## Modèle de régression polynomiale
+
+```{r mod6, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(156, 100), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod6 <- brm(
+  # NB: polynomials should be written with the I() function...
+  height ~ 1 + weight.s + I(weight.s^2),
+  prior = priors,
+  family = gaussian(),
+  data = d
+  )
+```
+
+## Modèle de régression polynomiale
+
+```{r summary-mod6, eval = TRUE, echo = TRUE}
+summary(mod6)
+```
+
+## Représenter les prédictions du modèle
+
+```{r predict-mod6, eval = TRUE, echo = TRUE}
+# on crée un vecteur de valeurs possibles pour "weight"
+weight.seq <- data.frame(weight.s = seq(from = -2.5, to = 2.5, length.out = 50) )
+
+# on récupère les prédictions du modèle pour ces valeurs de poids
+mu <- data.frame(fitted(mod6, newdata = weight.seq) ) %>% bind_cols(weight.seq)
+pred_height <- data.frame(predict(mod6, newdata = weight.seq) ) %>% bind_cols(weight.seq)
+
+# on affiche les 10 premières lignes de pred_height
+head(pred_height, 10)
+```
+
+## Représenter les prédictions du modèle
+
+```{r predict-mod6-plot, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 5}
+d %>%
+  ggplot(aes(x = weight.s, y = height) ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  geom_ribbon(
+    data = pred_height, aes(x = weight.s, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.2, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = mu, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.8, size = 1
+    )
+```
+
+## Modèle de régression, taille d'effet
+
+Plusieurs méthodes pour calculer les tailles d'effet dans les modèles
+bayésiens. @gelman2006 proposent une méthode pour calculer un $R^{2}$
+basé sur l'échantillon.
+
+. . .
+
+@marsman2017 et @marsman2019 généralisent des méthodes existantes pour
+calculer un $\rho^{2}$ pour les designs de type ANOVA (i.e., avec
+prédicteurs catégoriels), qui représente une estimation de la taille
+d'effet dans la population (et non basée sur l'échantillon).
+
+. . .
+
+> Similar to most of the ES measures that have been proposed for the
+> ANOVA model, the squared multiple correlation coefficient $\rho^{2}$
+> \[...\] is a so-called proportional reduction in error measure (PRE).
+> In general, a PRE measure expresses the proportion of the variance in
+> an outcome $y$ that is attributed to the independent variables $x$
+> [@marsman2019].
+
+## Modèle de régression, taille d'effet
+
+$$
+\begin{aligned}
+\rho^{2} &= \dfrac{\sum_{i = 1}^{n} \pi_{i}(\beta_{i} - \beta)^{2}}{\sigma^{2} + \sum_{i=1}^{n} \pi_{i}(\beta_{i} - \beta)^{2}} \\  \rho^{2} &= \dfrac{ \frac{1}{n} \sum_{i=1}^{n} \beta_{i}^{2}}{\sigma^{2} + \frac{1}{n} \sum_{i = 1}^{n} \beta_{i}^{2}} \\ \rho^{2} &= \dfrac{\beta^{2} \tau^{2}}{\sigma^{2} + \beta^{2} \tau^{2}}\\
+\end{aligned}
+$$
+
+. . .
+
+```{r effsize, eval = TRUE, echo = TRUE}
+post <- as_draws_df(x = mod4)
+beta <- post$b_weight
+sigma <- post$sigma
+rho <- beta^2 * var(d2$weight) / (sigma^2 + beta^2 * var(d2$weight) )
+```
+
+Attention, si plusieurs prédicteurs, dépend de la structure de
+covariance...
+
+## Modèle de régression, taille d'effet
+
+```{r effsize-plot1, eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+posterior_plot(samples = rho, usemode = TRUE) + labs(x = expression(rho) )
+```
+
+. . .
+
+```{r summary-lm-effsize, eval = TRUE, echo = TRUE}
+summary(lm(height ~ weight, data = d2) )$r.squared
+```
+
+## Modèle de régression, taille d'effet
+
+```{r effsize-plot2, eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+bayes_R2(mod4)
+```
+
+. . .
+
+```{r effsize-plot3, eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+bayes_R2(mod4, summary = FALSE)[, 1] %>%
+    posterior_plot(usemode = TRUE) +
+    labs(x = expression(rho) )
+```
+
+## Résumé du cours
+
+On a présenté un nouveau modèle à deux puis trois paramètres : le modèle
+gaussien, puis la régression linéaire gaussienne, permettant de mettre
+en relation deux variables continues.
+
+. . .
+
+Comme précédemment, le théorème de Bayes est utilisé pour mettre à jour
+nos connaissances a priori quant à la valeur des paramètres en une
+connaissance a posteriori, synthèse entre nos priors et l'information
+contenue dans les données.
+
+. . .
+
+La package `brms` permet de fitter toutes sortes de modèles avec une
+syntaxe similaire à celle utilisée par `lm()`.
+
+. . .
+
+La fonction `fitted()` permet de récupérer les prédictions d'un modèle
+fitté avec `brms`.
+
+. . .
+
+La fonction `predict()` permet de simuler des données à partir d'un
+modèle fitté avec `brms`.
+
+## Travaux pratiques - 1/2
+
+Sélectionner toutes les lignes du jeu de données `howell` correspondant
+à des individus mineurs (age \< 18). Cela devrait résulter en une
+dataframe de 192 lignes.
+
+. . .
+
+Fitter un modèle de régression linéaire en utilisant la fonction
+`brms::brm()`. Reporter et interpréter les estimations de ce modèle.
+Pour une augmentation de 10 unités de `weight`, quelle augmentation de
+taille (`height`) le modèle prédit-il ?
+
+. . .
+
+Faire un plot des données brutes avec le poids sur l'axe des abscisses
+et la taille sur l'axe des ordonnées. Surimposer la droite de régression
+du modèle et un intervalle de crédibilité à 89% pour la moyenne. Ajouter
+un intervalle de crédibilité à 89% pour les tailles prédites.
+
+. . .
+
+Que pensez-vous du "fit" du modèle ? Quelles conditions d'application du
+modèle seriez-vous prêt.e.s à changer, afin d'améliorer le modèle ?
+
+## Travaux pratiques - 2/2
+
+Imaginons que vous ayez consulté une collègue experte en
+[allométrie](https://fr.wikipedia.org/wiki/Allométrie) (i.e., les
+phénomènes de croissance différentielle d'organes) et que cette dernière
+vous explique que ça ne fait aucun sens de modéliser la relation entre
+le poids et la taille... alors qu'on sait que c'est le logarithme du
+poids qui est relié (linéairement) à la taille !
+
+. . .
+
+Modéliser alors la relation entre la taille (cm) et le log du poids
+(log-kg). Utiliser la dataframe `howell` en entier (les 544 lignes).
+Fitter le modèle suivant en utilisant `brms::brm()`.
+
+$$
+\begin{align*}
+&\color{orangered}{h_{i} \sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+&\mu_{i}= \alpha + \beta \cdot \log (w_{i}) \\
+&\color{steelblue}{\alpha \sim \mathrm{Normal}(178, 100)} \\
+&\color{steelblue}{\beta \sim \mathrm{Normal}(0, 100)} \\
+&\color{steelblue}{\sigma \sim \mathrm{Exponential}(0.01)} \\
+\end{align*}
+$$
+
+Où $h_{i}$ est la taille de l'individu $i$ et $w_{i}$ le poids de
+l'individu $i$. La fonction pour calculer le log en `R` est simplement
+`log()`. Est-ce que vous savez interpréter les résultats ? Indice : faire
+un plot des données brutes et surimposer les prédictions du modèle...
+
+## Proposition de solution
+
+```{r mod7, eval = TRUE, echo = TRUE, results = "hide"}
+# on garde seulement les individus ayant moins de 18 ans
+d <- open_data(howell) %>% filter(age < 18)
+
+priors <- c(
+  prior(normal(150, 100), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod7 <- brm(
+  height ~ 1 + weight,
+  prior = priors,
+  family = gaussian(),
+  data = d
+  )
+```
+
+## Proposition de solution
+
+```{r summary-mod7, eval = TRUE, echo = TRUE}
+summary(mod7, prob = 0.89)
+```
+
+## Représenter les prédictions du modèle
+
+```{r predict-mod7, eval = TRUE, echo = TRUE}
+# on crée un vecteur de valeurs possibles pour "weight"
+weight.seq <- data.frame(weight = seq(from = 5, to = 45, length.out = 1e2) )
+
+# on récupère les prédictions du modèle pour ces valeurs de poids
+mu <- data.frame(
+  fitted(mod7, newdata = weight.seq, probs = c(0.055, 0.945) )
+  ) %>%
+  bind_cols(weight.seq)
+
+pred_height <- data.frame(
+  predict(mod7, newdata = weight.seq, probs = c(0.055, 0.945) )
+  ) %>%
+  bind_cols(weight.seq)
+
+# on affiche les 6 premières lignes de pred_height
+head(pred_height)
+```
+
+## Représenter les prédictions du modèle
+
+```{r predict-mod7-plot, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 5}
+d %>%
+  ggplot(aes(x = weight, y = height) ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  geom_ribbon(
+    data = pred_height, aes(x = weight, ymin = Q5.5, ymax = Q94.5),
+    alpha = 0.2, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = mu, aes(y = Estimate, ymin = Q5.5, ymax = Q94.5),
+    stat = "identity", color = "black", alpha = 0.8, size = 1
+    )
+```
+
+## Proposition de solution
+
+```{r mod8, eval = TRUE, echo = TRUE, results = "hide"}
+# on considère maintenant tous les individus
+d <- open_data(howell)
+
+mod8 <- brm(
+  # on prédit la taille par le logarithme du poids
+  height ~ 1 + log(weight),
+  prior = priors,
+  family = gaussian(),
+  data = d
+  )
+```
+
+## Proposition de solution
+
+```{r summary-mod8, eval = TRUE, echo = TRUE}
+summary(mod8, prob = 0.89)
+```
+
+## Représenter les prédictions du modèle
+
+```{r predict-mod8, eval = TRUE, echo = TRUE}
+# on crée un vecteur de valeurs possibles pour "weight"
+weight.seq <- data.frame(weight = seq(from = 5, to = 65, length.out = 1e2) )
+
+# on récupère les prédictions du modèle pour ces valeurs de poids
+mu <- data.frame(
+  fitted(mod8, newdata = weight.seq, probs = c(0.055, 0.945) )
+  ) %>%
+  bind_cols(weight.seq)
+
+pred_height <- data.frame(
+  predict(mod8, newdata = weight.seq, probs = c(0.055, 0.945) )
+  ) %>%
+  bind_cols(weight.seq)
+
+# on affiche les 6 premières lignes de pred_height
+head(pred_height)
+```
+
+## Représenter les prédictions du modèle
+
+```{r predict-mod8-plot, eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 5}
+d %>%
+  ggplot(aes(x = weight, y = height) ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  geom_ribbon(
+    data = pred_height, aes(x = weight, ymin = Q5.5, ymax = Q94.5),
+    alpha = 0.2, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = mu, aes(y = Estimate, ymin = Q5.5, ymax = Q94.5),
+    stat = "identity", color = "black", alpha = 0.8, size = 1
+    )
+```
+
+## Références {.refs}

@@ -1,0 +1,30 @@
+---
+title: "Cours n°05"
+subtitle: "Markov Chain Monte Carlo"
+date: 2022-10-25
+toc: false
+lang: fr
+---
+
+## En préparation du cours
+
+- Relire les cours précédents.
+- (*optionnel*) Lire le chapitre 9 de {{< fa book >}} *Statistical Rethinking*.
+
+## Slides
+
+Les slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>h</kbd> vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., <kbd>f</kbd> pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.
+
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/cours05.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir les slides en ligne </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/cours05.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Télécharger la version PDF </a> <a class="btn btn-danger" target="_blank" href="../slides/code/cours05.R"><i class="fa-solid fa-code"></i> Télécharger le code </a> </p>
+
+<div class="ratio ratio-16x9"> <iframe src="../slides/html/cours05.html"></iframe> </div>
+
+::: {.callout-tip}
+Voir toutes les commandes de `revealjs` en appuyant sur <kbd>m</kbd> puis <kbd>h</kbd>.
+:::
+
+## Pour aller plus loin
+
+- Betancourt, M. (2018). A Conceptual Introduction to Hamiltonian Monte Carlo (arXiv:1701.02434). arXiv. <https://arxiv.org/abs/1701.02434>
+- Feng, C. (2022). Chi-feng/mcmc-demo [JavaScript]. <https://github.com/chi-feng/mcmc-demo> / <https://chi-feng.github.io/mcmc-demo/>
+- Dogucu, A. A. J., Miles Q., & Ott, Mine. (2022). Chapter 7 - MCMC under the Hood. In Bayes Rules! An Introduction to Applied Bayesian Modeling. Available online at: <https://www.bayesrulesbook.com/chapter-7.html>.

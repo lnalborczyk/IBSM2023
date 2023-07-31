@@ -1,0 +1,324 @@
+[
+  {
+    "objectID": "LICENSE.html",
+    "href": "LICENSE.html",
+    "title": "IMSB",
+    "section": "",
+    "text": "Copyright (c) 2022 Andrew Heiss and Meng Ye\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+  },
+  {
+    "objectID": "content/cours08.html",
+    "href": "content/cours08.html",
+    "title": "Cours n°08",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire le chapitre 13 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours08.html#slides",
+    "href": "content/cours08.html#slides",
+    "title": "Cours n°08",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours08.html#pour-aller-plus-loin",
+    "href": "content/cours08.html#pour-aller-plus-loin",
+    "title": "Cours n°08",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nNalborczyk, L., Batailler, C., Lœvenbruck, H., Vilain, A., & Bürkner, P.-C. (2019). An introduction to Bayesian multilevel models using brms: A case study of gender effects on vowel variability in standard indonesian. Journal of Speech Language and Hearing Research, 62(5), 1225–1242. https://doi.org/10.1044/2018_JSLHR-S-18-0006. Preprint: https://psyarxiv.com/guhsa/."
+  },
+  {
+    "objectID": "content/cours09.html",
+    "href": "content/cours09.html",
+    "title": "Cours n°09",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire les chapitres 14, 15, et 16 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours09.html#slides",
+    "href": "content/cours09.html#slides",
+    "title": "Cours n°09",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours09.html#pour-aller-plus-loin",
+    "href": "content/cours09.html#pour-aller-plus-loin",
+    "title": "Cours n°09",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nBürkner, P.-C., & Vuorre, M. (2019). Ordinal Regression Models in Psychology: A Tutorial. Advances in Methods and Practices in Psychological Science, 2(1), 77–101. https://doi.org/10.1177/2515245918823199\nWinter, B., & Bürkner, P. (2021). Poisson regression for linguists: A tutorial introduction to modelling count data with brms. Language and Linguistics Compass, 15(11). https://doi.org/10.1111/lnc3.12439"
+  },
+  {
+    "objectID": "content/index.html",
+    "href": "content/index.html",
+    "title": "Contenu",
+    "section": "",
+    "text": "Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\nLes slides sont aussi affichées sur la page de chaque cours. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez m vous verrez apparaître un ensemble de commandes spécifiques à la lecture des ces slides (e.g., f pour passer en plein écran)."
+  },
+  {
+    "objectID": "content/cours02.html",
+    "href": "content/cours02.html",
+    "title": "Cours n°02",
+    "section": "",
+    "text": "Vérifier l’installation des paquets R avec imsb::check_install().\nRelire les cours précédents.\n(optionnel) Lire les chapitres 2 et 3 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours02.html#slides",
+    "href": "content/cours02.html#slides",
+    "title": "Cours n°02",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours02.html#pour-aller-plus-loin",
+    "href": "content/cours02.html#pour-aller-plus-loin",
+    "title": "Cours n°02",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\n3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. https://www.youtube.com/watch?v=8idr1WZ1A7Q\n3Blue1Brown (Director). (2020, April 12). Why “probability of 0” does not mean “impossible” | Probabilities of probabilities, part 2. https://www.youtube.com/watch?v=ZA4JkHKZM50"
+  },
+  {
+    "objectID": "content/cours03.html",
+    "href": "content/cours03.html",
+    "title": "Cours n°03",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire le chapitre 4 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours03.html#slides",
+    "href": "content/cours03.html#slides",
+    "title": "Cours n°03",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours03.html#pour-aller-plus-loin",
+    "href": "content/cours03.html#pour-aller-plus-loin",
+    "title": "Cours n°03",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nHeiss, A. (2022). Visualizing the differences between Bayesian posterior predictions, linear predictions, and the expectation of posterior predictions. Blogpost available at https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/."
+  },
+  {
+    "objectID": "content/cours01.html",
+    "href": "content/cours01.html",
+    "title": "Cours n°01",
+    "section": "",
+    "text": "Installer les paquets R : voir page installation.\n(optionnel) Lire le premier chapitre de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours01.html#slides",
+    "href": "content/cours01.html#slides",
+    "title": "Cours n°01",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours01.html#pour-aller-plus-loin",
+    "href": "content/cours01.html#pour-aller-plus-loin",
+    "title": "Cours n°01",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nHájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), The stanford encyclopedia of philosophy (Fall 2019). Metaphysics Research Lab, Stanford University. https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/\n3Blue1Brown (Director). (2019, December 22). Bayes theorem, the geometry of changing beliefs. https://www.youtube.com/watch?v=HZGCoVF3YvM"
+  },
+  {
+    "objectID": "content/cours10.html",
+    "href": "content/cours10.html",
+    "title": "Cours n°10",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire le chapitre 17 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours10.html#slides",
+    "href": "content/cours10.html#slides",
+    "title": "Cours n°10",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours10.html#pour-aller-plus-loin",
+    "href": "content/cours10.html#pour-aller-plus-loin",
+    "title": "Cours n°10",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nGelman, A., Vehtari, A., Simpson, D., Margossian, C. C., Carpenter, B., Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., & Modrák, M. (2020). Bayesian Workflow. ArXiv:2011.01808 [Stat]. https://arxiv.org/abs/2011.01808"
+  },
+  {
+    "objectID": "content/cours04.html",
+    "href": "content/cours04.html",
+    "title": "Cours n°04",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire les chapitres 5 et 6 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours04.html#slides",
+    "href": "content/cours04.html#slides",
+    "title": "Cours n°04",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours04.html#pour-aller-plus-loin",
+    "href": "content/cours04.html#pour-aller-plus-loin",
+    "title": "Cours n°04",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nMcElreath, R. (2021). Science Before Statistics: Causal Inference. Conference recording available at https://www.youtube.com/watch?v=KNPYUVmY3NM."
+  },
+  {
+    "objectID": "content/cours05.html",
+    "href": "content/cours05.html",
+    "title": "Cours n°05",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire le chapitre 9 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours05.html#slides",
+    "href": "content/cours05.html#slides",
+    "title": "Cours n°05",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours05.html#pour-aller-plus-loin",
+    "href": "content/cours05.html#pour-aller-plus-loin",
+    "title": "Cours n°05",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nBetancourt, M. (2018). A Conceptual Introduction to Hamiltonian Monte Carlo (arXiv:1701.02434). arXiv. https://arxiv.org/abs/1701.02434\nFeng, C. (2022). Chi-feng/mcmc-demo [JavaScript]. https://github.com/chi-feng/mcmc-demo / https://chi-feng.github.io/mcmc-demo/\nDogucu, A. A. J., Miles Q., & Ott, Mine. (2022). Chapter 7 - MCMC under the Hood. In Bayes Rules! An Introduction to Applied Bayesian Modeling. Available online at: https://www.bayesrulesbook.com/chapter-7.html."
+  },
+  {
+    "objectID": "content/cours07.html",
+    "href": "content/cours07.html",
+    "title": "Cours n°07",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire le chapitre 7 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours07.html#slides",
+    "href": "content/cours07.html#slides",
+    "title": "Cours n°07",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours07.html#pour-aller-plus-loin",
+    "href": "content/cours07.html#pour-aller-plus-loin",
+    "title": "Cours n°07",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nBurnham, K. P., & Anderson, D. R. (2004). Multimodel inference: Understanding AIC and BIC in model selection. Sociological Methods & Research, 33(2), 261–304. https://doi.org/10.1177/0049124104268644\nStefan, A., & Schönbrodt, F. (2017). Two meanings of priors, part I: The plausibility of models. Blogpost available at: https://www.nicebread.de/two-meanings-of-priors-1/.\nStefan, A., & Schönbrodt, F. (2017). Two meanings of priors, part II: Quantifying uncertainty about model parameters. Blogpot available at: https://www.nicebread.de/two-meanings-of-priors-2/."
+  },
+  {
+    "objectID": "content/cours06.html",
+    "href": "content/cours06.html",
+    "title": "Cours n°06",
+    "section": "",
+    "text": "Relire les cours précédents.\n(optionnel) Lire les chapitres 10 et 11 de  Statistical Rethinking."
+  },
+  {
+    "objectID": "content/cours06.html#slides",
+    "href": "content/cours06.html#slides",
+    "title": "Cours n°06",
+    "section": "Slides",
+    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nAstuce\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+  },
+  {
+    "objectID": "content/cours06.html#pour-aller-plus-loin",
+    "href": "content/cours06.html#pour-aller-plus-loin",
+    "title": "Cours n°06",
+    "section": "Pour aller plus loin",
+    "text": "Pour aller plus loin\n\nNalborczyk, L. (2018). Using R to make sense of the generalised linear model. Blogpost available at https://www.barelysignificant.com/post/glm/."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "IMSB",
+    "section": "",
+    "text": "Enseignant\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@univ-amu.fr\n   lnalborczyk\n   Prendre un RDV\n\n\n\nInformations pratiques\n\n   Mardi et Jeudi\n   14h-16h\n   10 octobre - 17 novembre 2022\n   Zoom\n\n\n\nContact\nLe plus efficace est de me contacter par e-mail, je répond assez rapidement (sous 24-48h)."
+  },
+  {
+    "objectID": "install.html",
+    "href": "install.html",
+    "title": "Installation",
+    "section": "",
+    "text": "Pour cette formation, vous pourrez utiliser votre propre ordinateur sur lequel vous aurez installé ou mis à jour R (version 4.2.1 pour systèmes Unix et version 4.1.3 pour Windows) ainsi que l’interface utilisateur RStudio : https://www.rstudio.com/products/rstudio/."
+  },
+  {
+    "objectID": "install.html#installer-brms-et-rstan",
+    "href": "install.html#installer-brms-et-rstan",
+    "title": "Installation",
+    "section": "Installer brms et rstan",
+    "text": "Installer brms et rstan\nNous utiliserons également Stan via les paquets brms et rstan. Vous trouverez toutes les infos pour installer brms selon votre plateforme ici : https://learnb4ss.github.io/learnB4SS/articles/install-brms.html.1\nAttention, cette étape peut être assez longue complexe selon votre plateforme (surtout sur Windows), il faudra veiller à ne pas la réaliser au dernier moment et à ce que tout fonctionne au début de la formation."
+  },
+  {
+    "objectID": "install.html#installer-imsb",
+    "href": "install.html#installer-imsb",
+    "title": "Installation",
+    "section": "Installer imsb",
+    "text": "Installer imsb\nLe reste des paquets ainsi que les données utilisées dans les exercices, et quelques fonctions utiles, peuvent être installées ensemble sous la forme d’un paquet “compagnon” de la formation, le paquet imsb. Pour l’installer, vous devez d’abord installer le paquet remotes (et tidyverse au passage), puis installer imsb depuis Github.\n\ninstall.packages(pkgs = c(\"remotes\", \"tidyverse\") )\noptions(timeout = 240) # on laisse un peu plus de temps à R pour installer imsb\nremotes::install_github(repo = \"lnalborczyk/IMSB2022/_imsb\", dependencies = TRUE)\n\nAu cours de la formation, ce paquet pourra être utilisé pour lire les slides des différents cours (du cours 01 au cours 10) en ligne via la fonction open_slides().\n\nlibrary(imsb)\nopen_slides(01)\n\nLes jeux de données utilisés dans les différents exercices sont également contenus dans ce paquet. Vous pouvez les importer via la function open_data().\n\nopen_data(robot)"
+  },
+  {
+    "objectID": "install.html#rappel-concernant-les-pré-requis",
+    "href": "install.html#rappel-concernant-les-pré-requis",
+    "title": "Installation",
+    "section": "Rappel concernant les pré-requis",
+    "text": "Rappel concernant les pré-requis\nBien qu’une bonne connaissance de R soit un pré-requis à l’inscription, vous trouverez ici une courte introduction aux bases du langage, qui seront nécessaires afin de bien comprendre les exemples traités lors de la formation."
+  },
+  {
+    "objectID": "planning.html",
+    "href": "planning.html",
+    "title": "Planning",
+    "section": "",
+    "text": "Cours\nDate\nSujet\nDétails\nSlides\nRethinking\n\n\n\n\n\n01\n11.10.2022\nIntroduction à l’inférence bayésienne\n\n\n1\n\n\n\n02\n13.10.2022\nModèle Beta-Binomial\n\n\n2-3\n\n\n\n03\n18.10.2022\nIntroduction à brms, modèle de régression linéaire\n\n\n4\n\n\n\n04\n20.10.2022\nModèle de régression linéaire (suite)\n\n\n5-6\n\n\n\n05\n25.10.2022\nMarkov Chain Monte Carlo\n\n\n9\n\n\n\n06\n27.10.2022\nModèle linéaire généralisé\n\n\n10-11\n\n\n\n07\n08.11.2022\nComparaison de modèles\n\n\n7\n\n\n\n08\n10.11.2022\nModèles multi-niveaux\n\n\n13\n\n\n\n09\n15.11.2022\nModèles multi-niveaux généralisés\n\n\n14-16\n\n\n\n10\n17.11.2022\nData Hackathon\n\n\n17"
+  },
+  {
+    "objectID": "syllabus.html",
+    "href": "syllabus.html",
+    "title": "Syllabus",
+    "section": "",
+    "text": "Ladislas Nalborczyk\n   ladislas.nalborczyk@univ-amu.fr\n   lnalborczyk\n   Prendre un RDV\n\n\n\n\n\n   Mardi et Jeudi\n   10 octobre - 17 novembre 2022\n   14h-16h\n   Zoom"
+  },
+  {
+    "objectID": "syllabus.html#quest-ce-que-la-modélisation-statistique-bayésienne",
+    "href": "syllabus.html#quest-ce-que-la-modélisation-statistique-bayésienne",
+    "title": "Syllabus",
+    "section": "Qu’est-ce que la modélisation statistique bayésienne ?",
+    "text": "Qu’est-ce que la modélisation statistique bayésienne ?\nL’approche bayésienne consiste à traiter chaque entité (e.g., variables observées, paramètres du modèle, données manquantes) comme des variables aléatoires caractérisées par des distributions de probabilité. Dans une analyse bayésienne, chaque entité inconnue se voit assignée une distribution a priori qui représente un état de connaissance avant d’observer les données. Une fois les données observées, le théorème de Bayes est utilisé pour mettre à jour la distribution a priori en une distribution a posteriori. La distribution a posteriori est le but d’une analyse bayésienne et peut être résumée par des valeurs ponctuelles ou des intervalles, et interprétée directement dans un cadre probabiliste cohérent.\nCette approche se différencie –à la fois philosophiquement et en pratique– de l’approche traditionnelle fréquentiste, qui constitue la majorité des formations proposées. Un des avantages de l’approche bayésienne est qu’elle permet à l’analyste de résoudre des problèmes difficiles voire impossibles à résoudre pour l’approche fréquentiste traditionnelle.\nAu fil des exemples proposés, nous réaliserons que même dans des situations de modélisation simples, l’approche bayésienne permet un raisonnement probabiliste plus naturel et plus flexible que la machinerie inférentielle de l’approche fréquentiste. La modélisation statistique bayésienne représente une alternative attirante aux approches fréquentistes en ce qu’elle offre un cadre cohérent à la modélisation statistique. L’approche bayésienne permet de construire et de fitter des modèles complexes tout en offrant des conclusions relativement intuitives et qui incorporent toute l’incertitude intrinsèque au processus inférentiel."
+  },
+  {
+    "objectID": "syllabus.html#objectifs-de-la-formation",
+    "href": "syllabus.html#objectifs-de-la-formation",
+    "title": "Syllabus",
+    "section": "Objectifs de la formation",
+    "text": "Objectifs de la formation\nL’objectif de cette formation est de vous faire découvrir l’approche bayésienne. Les concepts et outils qui seront présentés seront illustrés par des cas concrets d’analyse de données. Cette formation est construite autour du langage R et du paquet brms, une interface au langage probabiliste Stan. À l’issue de cette formation, vous devriez pouvoir construire et fitter des modèles de régressions adaptés à votre problème avec brms."
+  },
+  {
+    "objectID": "syllabus.html#pré-requis",
+    "href": "syllabus.html#pré-requis",
+    "title": "Syllabus",
+    "section": "Pré-requis",
+    "text": "Pré-requis\nCertains pré-requis sont indispensables pour participer à cette formation :\n\nÊtre familier avec les concepts de base de la statistique inférentielle (e.g., test d’hypothèse, intervalles de confiance, régression linéaire).\nConnaissances élémentaires en manipulation de données en R. Objets et calculs élémentaires en R."
+  },
+  {
+    "objectID": "syllabus.html#contenu-de-la-formation",
+    "href": "syllabus.html#contenu-de-la-formation",
+    "title": "Syllabus",
+    "section": "Contenu de la formation",
+    "text": "Contenu de la formation\nCette formation est composée de dix séances de deux heures durant lesquelles seront dispensées connaissances théoriques et travaux pratiques en R, dans l’environnement RStudio."
+  },
+  {
+    "objectID": "resources.html",
+    "href": "resources.html",
+    "title": "Ressources",
+    "section": "",
+    "text": "Vous pouvez télécharger le .bib contenant toutes les références citées pendant la formation en cliquant sur le bouton ci-dessous.\nfichier .bib contenant toutes les références"
+  },
+  {
+    "objectID": "resources.html#livre-conseillé-statistical-rethinking",
+    "href": "resources.html#livre-conseillé-statistical-rethinking",
+    "title": "Ressources",
+    "section": "Livre conseillé : Statistical Rethinking",
+    "text": "Livre conseillé : Statistical Rethinking\n\nMcElreath, R. (2020), Statistical Rethinking: A Bayesian Course with Examples in R and Stan. Second Edition. CRC Press.\n\nLiens officiels :\n\n Book page\n R package\n 2022 lecture videos\n 2022 lecture slides and homework and answers\n\nTraduction avec tidyverse et brms (en ligne) :\n\n Kurz, A. S. (2022), Statistical Rethinking with brms, ggplot2, and the tidyverse: Second edition."
+  },
+  {
+    "objectID": "resources.html#autres-livres",
+    "href": "resources.html#autres-livres",
+    "title": "Ressources",
+    "section": "Autres livres",
+    "text": "Autres livres\nQuelques autres livres sur lesquels je me suis appuyé pour préparer ce cours.\n\n Kruschke, J. K. (2015), Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan.\n Lambert, B. (2018), A Student’s Guide to Bayesian Statistics.\n Gelman, A., Carlin, J., Stern, H., Dunson, D., Vehtari, A., & Rubin, D. (2013), Bayesian Data Analysis.\n Noël, Y. (2015). Psychologie statistique avec R.\n Nicenboim, B., Schad, D., & Vasishth, S. (2021). An Introduction to Bayesian Data Analysis for Cognitive Science. Available online."
+  }
+]

@@ -1,0 +1,12 @@
+---
+title: Contenu
+sidebar: true
+toc: false
+lang: fr
+---
+
+Sur la page de chaque cours, vous trouverez trois boutons comme ceux ci-dessous pour i) ouvrir les slides dans un nouvel onglet et les consulter en ligne, ii) télécharger une version PDF des slides, et iii) télécharger le code R du cours.
+
+<p class="buttons" style="text-align:center;"><span class="btn btn-danger">{{< fa arrow-up-right-from-square >}} Voir les slides en ligne </span> <span class="btn btn-danger">{{< fa file-pdf >}} Télécharger la version PDF </span> <span class="btn btn-danger">{{< fa code >}} Télécharger le code </span> </p>
+
+Les slides sont aussi affichées sur la page de chaque cours. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>m</kbd> vous verrez apparaître un ensemble de commandes spécifiques à la lecture des ces slides (e.g., <kbd>f</kbd> pour passer en plein écran).

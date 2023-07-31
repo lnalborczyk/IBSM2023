@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Bibliographie | Notes de cours - Introduction à la modélisation statistique bayésienne</title>
+  <meta name="description" content="<p>Ce document regroupe les notes de l’édition 2022 de la formation doctorale
+‘Introduction à la modélisation statistique bayésienne’, co-organisée par le collège
+des écoles doctorales de l’Université Grenoble Alpes et la Maison de la Modélisation
+et de la Simulation, Nanoscience et Environnement (MaiMoSiNE).</p>" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Bibliographie | Notes de cours - Introduction à la modélisation statistique bayésienne" />
+  <meta property="og:type" content="book" />
+  <meta property="og:image" content="https://www.barelysignificant.com/IMSB2022/notes/docs/./figures/cover_distributions.png" />
+  <meta property="og:description" content="<p>Ce document regroupe les notes de l’édition 2022 de la formation doctorale
+‘Introduction à la modélisation statistique bayésienne’, co-organisée par le collège
+des écoles doctorales de l’Université Grenoble Alpes et la Maison de la Modélisation
+et de la Simulation, Nanoscience et Environnement (MaiMoSiNE).</p>" />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Bibliographie | Notes de cours - Introduction à la modélisation statistique bayésienne" />
+  
+  <meta name="twitter:description" content="<p>Ce document regroupe les notes de l’édition 2022 de la formation doctorale
+‘Introduction à la modélisation statistique bayésienne’, co-organisée par le collège
+des écoles doctorales de l’Université Grenoble Alpes et la Maison de la Modélisation
+et de la Simulation, Nanoscience et Environnement (MaiMoSiNE).</p>" />
+  <meta name="twitter:image" content="https://www.barelysignificant.com/IMSB2022/notes/docs/./figures/cover_distributions.png" />
+
+<meta name="author" content="Ladislas Nalborczyk" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  <link rel="shortcut icon" href="./figures/cover_distributions.png" type="image/x-icon" />
+<link rel="prev" href="B-notations.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<!-- font families -->
+
+<link href="https://fonts.googleapis.com/css?family=PT+Sans|Pacifico|Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="js/hideOutput.js"></script>
+
+<!-- Mathjax -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/default.js"></script>
+
+ <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        extensions: ["tex2jax.js", "TeX/AMSmath.js"],
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+        jax: ["input/TeX","output/CommonHTML"]
+      });
+      MathJax.Hub.processSectionDelay = 0;
+  </script>
+
+<!-- Global site tag (gtag.js) - Google Analytics
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110299877-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110299877-1');
+</script>
+-->
+
+<!-- open review block -->
+
+<script async defer src="https://hypothes.is/embed.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+<link rel="stylesheet" href="css/toc.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction à la modélisation statistique bayésienne</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Préface</a></li>
+<li class="chapter" data-level="1" data-path="1-introduction.html"><a href="1-introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction à l’inférence bayésienne</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="1-introduction.html"><a href="1-introduction.html#quest-ce-quune-probabilité"><i class="fa fa-check"></i><b>1.1</b> Qu’est-ce qu’une probabilité ?</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="1-introduction.html"><a href="1-introduction.html#axiomes-des-probabilités"><i class="fa fa-check"></i><b>1.1.1</b> Axiomes des probabilités</a></li>
+<li class="chapter" data-level="1.1.2" data-path="1-introduction.html"><a href="1-introduction.html#interprétations-probabilistes"><i class="fa fa-check"></i><b>1.1.2</b> Interprétations probabilistes</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="1-introduction.html"><a href="1-introduction.html#rappels-de-théorie-des-probabilités"><i class="fa fa-check"></i><b>1.2</b> Rappels de théorie des probabilités</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="1-introduction.html"><a href="1-introduction.html#probabilité-conjointe"><i class="fa fa-check"></i><b>1.2.1</b> Probabilité conjointe</a></li>
+<li class="chapter" data-level="1.2.2" data-path="1-introduction.html"><a href="1-introduction.html#probabilité-marginale"><i class="fa fa-check"></i><b>1.2.2</b> Probabilité marginale</a></li>
+<li class="chapter" data-level="1.2.3" data-path="1-introduction.html"><a href="1-introduction.html#probabilité-conditionnelle"><i class="fa fa-check"></i><b>1.2.3</b> Probabilité conditionnelle</a></li>
+<li class="chapter" data-level="1.2.4" data-path="1-introduction.html"><a href="1-introduction.html#dérivation-du-théorème-de-bayes"><i class="fa fa-check"></i><b>1.2.4</b> Dérivation du théorème de Bayes</a></li>
+<li class="chapter" data-level="1.2.5" data-path="1-introduction.html"><a href="1-introduction.html#loi-de-probabilité-cas-discret"><i class="fa fa-check"></i><b>1.2.5</b> Loi de probabilité, cas discret</a></li>
+<li class="chapter" data-level="1.2.6" data-path="1-introduction.html"><a href="1-introduction.html#loi-de-probabilité-cas-continu"><i class="fa fa-check"></i><b>1.2.6</b> Loi de probabilité, cas continu</a></li>
+<li class="chapter" data-level="1.2.7" data-path="1-introduction.html"><a href="1-introduction.html#aparté-quest-ce-quune-intégrale"><i class="fa fa-check"></i><b>1.2.7</b> Aparté, qu’est-ce qu’une intégrale ?</a></li>
+<li class="chapter" data-level="1.2.8" data-path="1-introduction.html"><a href="1-introduction.html#notations-terminologie"><i class="fa fa-check"></i><b>1.2.8</b> Notations, terminologie</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="1-introduction.html"><a href="1-introduction.html#logique-et-raisonnement-scientifique"><i class="fa fa-check"></i><b>1.3</b> Logique et raisonnement scientifique</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="1-introduction.html"><a href="1-introduction.html#introduction-à-la-logique"><i class="fa fa-check"></i><b>1.3.1</b> Introduction à la logique</a></li>
+<li class="chapter" data-level="1.3.2" data-path="1-introduction.html"><a href="1-introduction.html#quelques-syllogismes-connus"><i class="fa fa-check"></i><b>1.3.2</b> Quelques syllogismes connus</a></li>
+<li class="chapter" data-level="1.3.3" data-path="1-introduction.html"><a href="1-introduction.html#quest-ce-quune-théorie-scientifique"><i class="fa fa-check"></i><b>1.3.3</b> Qu’est-ce qu’une théorie scientifique ?</a></li>
+<li class="chapter" data-level="1.3.4" data-path="1-introduction.html"><a href="1-introduction.html#test-dhypothèse-nulle-et-raisonnement-scientifique"><i class="fa fa-check"></i><b>1.3.4</b> Test d’hypothèse nulle et raisonnement scientifique</a></li>
+<li class="chapter" data-level="1.3.5" data-path="1-introduction.html"><a href="1-introduction.html#lapproche-par-comparaison-de-modèles"><i class="fa fa-check"></i><b>1.3.5</b> L’approche par comparaison de modèles</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="1-introduction.html"><a href="1-introduction.html#problème-du-sac-de-billes-mcelreath_statistical_2016"><i class="fa fa-check"></i><b>1.4</b> Problème du sac de billes <span class="citation">(<span>McElreath, 2016b</span>)</span></a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="1-introduction.html"><a href="1-introduction.html#énumérer-les-possibilités"><i class="fa fa-check"></i><b>1.4.1</b> Énumérer les possibilités</a></li>
+<li class="chapter" data-level="1.4.2" data-path="1-introduction.html"><a href="1-introduction.html#accumulation-dévidence"><i class="fa fa-check"></i><b>1.4.2</b> Accumulation d’évidence</a></li>
+<li class="chapter" data-level="1.4.3" data-path="1-introduction.html"><a href="1-introduction.html#incorporer-un-prior"><i class="fa fa-check"></i><b>1.4.3</b> Incorporer un prior</a></li>
+<li class="chapter" data-level="1.4.4" data-path="1-introduction.html"><a href="1-introduction.html#des-énumérations-aux-probabilités"><i class="fa fa-check"></i><b>1.4.4</b> Des énumérations aux probabilités</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="1-introduction.html"><a href="1-introduction.html#quelques-exemples-dapplication"><i class="fa fa-check"></i><b>1.5</b> Quelques exemples d’application</a>
+<ul>
+<li class="chapter" data-level="1.5.1" data-path="1-introduction.html"><a href="1-introduction.html#diagnostique-médical-gigerenzer-2002"><i class="fa fa-check"></i><b>1.5.1</b> Diagnostique médical (Gigerenzer, 2002)</a></li>
+<li class="chapter" data-level="1.5.2" data-path="1-introduction.html"><a href="1-introduction.html#problème-de-monty-hall"><i class="fa fa-check"></i><b>1.5.2</b> Problème de Monty Hall</a></li>
+</ul></li>
+</ul></li>
+<li class="appendix"><span><b>Annexes</b></span></li>
+<li class="chapter" data-level="A" data-path="A-glossaire.html"><a href="A-glossaire.html"><i class="fa fa-check"></i><b>A</b> Glossaire</a></li>
+<li class="chapter" data-level="B" data-path="B-notations.html"><a href="B-notations.html"><i class="fa fa-check"></i><b>B</b> Notations</a></li>
+<li class="chapter" data-level="" data-path="bibliographie.html"><a href="bibliographie.html"><i class="fa fa-check"></i>Bibliographie</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank"> Powered by bookdown </a></li>
+<li><a href="http://www.barelysignificant.com" target="blank"> Ladislas Nalborczyk </a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Notes de cours - Introduction à la modélisation statistique bayésienne</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div class = rmdreview>
+Ce livret est en "<b>Open Review</b>". Votre retour est essentiel afin de l'améliorer, pour vous-même ainsi que pour les futurs étudiant•e•s. Vous pouvez annoter le texte en <span style="background-color: #3297FD; color: white">le sélectionnant avec le curseur</span> et en cliquant sur l'icône dans le menu qui s'affiche en pop-up. Vous pouvez également lire les annotations des autres utilisateurs du livret en cliquant sur <i class="fa fa-chevron-left"></i> dans le coin supérieur droit de cette page.
+</div>
+<div id="bibliographie" class="section level1 unnumbered hasAnchor">
+<h1>Bibliographie<a href="bibliographie.html#bibliographie" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<!-- This manually sets the header for this unnumbered chapter -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" line-spacing="2">
+<div id="ref-R-rmarkdown" class="csl-entry">
+Allaire, J., Xie, Y., McPherson, J., Luraschi, J., Ushey, K., Atkins, A., Wickham, H., Cheng, J., Chang, W., &amp; Iannone, R. (2020). <em>Rmarkdown: Dynamic documents for r</em>. <a href="https://CRAN.R-project.org/package=rmarkdown">https://CRAN.R-project.org/package=rmarkdown</a>
+</div>
+<div id="ref-R-papaja" class="csl-entry">
+Aust, F., &amp; Barth, M. (2020). <em>Papaja: Prepare reproducible APA journal articles with r markdown</em>. <a href="https://github.com/crsh/papaja">https://github.com/crsh/papaja</a>
+</div>
+<div id="ref-blitzstein_introduction_2019" class="csl-entry">
+Blitzstein, J. K., &amp; Hwang, J. (2019). <em>Introduction to probability</em> (Second edition). Taylor &amp; Francis.
+</div>
+<div id="ref-R-brms" class="csl-entry">
+Bürkner, P.-C. (2020). <em>Brms: Bayesian regression models using ’stan’</em>. <a href="https://CRAN.R-project.org/package=brms">https://CRAN.R-project.org/package=brms</a>
+</div>
+<div id="ref-burnham_multimodel_2004" class="csl-entry">
+Burnham, K. P., &amp; Anderson, D. R. (2004). Multimodel inference: <span>Understanding</span> <span>AIC</span> and <span>BIC</span> in model selection. <em>Sociological Methods &amp; Research</em>, <em>33</em>(2), 261–304. <a href="https://doi.org/10.1177/0049124104268644">https://doi.org/10.1177/0049124104268644</a>
+</div>
+<div id="ref-burnham_model_2002" class="csl-entry">
+Burnham, K. P., &amp; Anderson, D. R. (2002). <em>Model selection and multimodel inference: A practical information-theoretic approach</em> (2nd ed). Springer.
+</div>
+<div id="ref-campbell_meehlian_1990" class="csl-entry">
+Campbell, D. T. (1990). The <span>Meehlian</span> <span>Corroboration</span>-<span>Verisimilitude</span> <span>Theory</span> of <span>Science</span>. <em>Psychological Inquiry</em>, <em>1</em>(2), 142–147. <a href="https://www.jstor.org/stable/1448769">https://www.jstor.org/stable/1448769</a>
+</div>
+<div id="ref-carnap_logical_1950" class="csl-entry">
+Carnap, R. (1950). <em>Logical <span>Foundations</span> of <span>Probability</span></em>. Chicago]University of Chicago Press.
+</div>
+<div id="ref-cohen_earth_1994" class="csl-entry">
+Cohen, J. (1994). The earth is round (p <span>&lt;</span> .05). <em>American Psychologist</em>, <em>49</em>(12), 997–1003. <a href="https://doi.org/10.1037/0003-066X.49.12.997">https://doi.org/10.1037/0003-066X.49.12.997</a>
+</div>
+<div id="ref-cumming_new_2014" class="csl-entry">
+Cumming, G. (2014). The new statistics: <span>Why</span> and how. <em>Psychological Science</em>, <em>25</em>(1), 7–29. <a href="https://doi.org/10.1177/0956797613504966">https://doi.org/10.1177/0956797613504966</a>
+</div>
+<div id="ref-Cumming2012" class="csl-entry">
+Cumming, G. (2012). <em>Understanding the new statistics: <span>Effect</span> sizes, confidence intervals, and meta-analysis.</em> (New York:).
+</div>
+<div id="ref-dekking_modern_2005" class="csl-entry">
+Dekking, M. (Ed.). (2005). <em>A modern introduction to probability and statistics: Understanding why and how</em>. Springer.
+</div>
+<div id="ref-fidler_epistemic_2018" class="csl-entry">
+Fidler, F., Thorn, F. S., Barnett, A., Kambouris, S., &amp; Kruger, A. (2018). The <span>Epistemic</span> <span>Importance</span> of <span>Establishing</span> the <span>Absence</span> of an <span>Effect</span>: <em>Advances in Methods and Practices in Psychological Science</em>. <a href="https://doi.org/10.1177/2515245918770407">https://doi.org/10.1177/2515245918770407</a>
+</div>
+<div id="ref-gelman_bayesian_2013" class="csl-entry">
+Gelman, A., Carlin, J. B., Stern, H., Dunson, D. B., Vehtari, A., &amp; Rubin, D. B. (2013). <em>Bayesian data analysis, third edition</em>. CRC Press, Taylor &amp; Francis Group.
+</div>
+<div id="ref-gelman_data_2006" class="csl-entry">
+Gelman, A., &amp; Hill, J. (2006). <em>Data <span>Analysis</span> <span>Using</span> <span>Regression</span> and <span>Multilevel</span>/<span>Hierarchical</span> <span>Models</span>.</em> Cambridge University Press.
+</div>
+<div id="ref-gelman_philosophy_2013" class="csl-entry">
+Gelman, A., &amp; Shalizi, C. R. (2013). Philosophy and the practice of <span>Bayesian</span> statistics: <span>Philosophy</span> and the practice of <span>Bayesian</span> statistics. <em>British Journal of Mathematical and Statistical Psychology</em>, <em>66</em>(1), 8–38. <a href="https://doi.org/10.1111/j.2044-8317.2011.02037.x">https://doi.org/10.1111/j.2044-8317.2011.02037.x</a>
+</div>
+<div id="ref-gigerenzer_superego_1993" class="csl-entry">
+Gigerenzer, G. (1993). The superego, the ego, and the id in statistical reasoning. In <em>A handbook for data analysis in the behavioral sciences: <span>Methodological</span> issues</em> (pp. 311–339). Lawrence Erlbaum Associates, Inc.
+</div>
+<div id="ref-sep-probability-interpret" class="csl-entry">
+Hájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), <em>The stanford encyclopedia of philosophy</em> (Fall 2019). Metaphysics Research Lab, Stanford University. <a href="https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/">https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/</a>
+</div>
+<div id="ref-hanck_introduction_2018" class="csl-entry">
+Hanck, C., Arnold, M., Gerber, A., &amp; Schmelzer, M. (2018). <em>Introduction to <span>Econometrics</span> with <span>R</span></em>. <a href="https://www.econometrics-with-r.org/">https://www.econometrics-with-r.org/</a>
+</div>
+<div id="ref-jaynes_bayesian_1986" class="csl-entry">
+Jaynes, E. T. (1986, November). Bayesian <span>Methods</span>: <span>General</span> <span>Background</span>. <em>Maximum <span>Entropy</span> and <span>Bayesian</span> <span>Methods</span> in <span>Applied</span> <span>Statistics</span>: <span>Proceedings</span> of the <span>Fourth</span> <span>Maximum</span> <span>Entropy</span> <span>Workshop</span> <span>University</span> of <span>Calgary</span>, 1984</em>. <a href="https://doi.org/10.1017/CBO9780511569678.003">https://doi.org/10.1017/CBO9780511569678.003</a>
+</div>
+<div id="ref-judd_data_2009" class="csl-entry">
+Judd, C. M., McClelland, G. H., &amp; Ryan, C. S. (2009). <em>Data analysis: <span>A</span> model comparison approach, 2nd ed</em>. Routledge/Taylor &amp; Francis Group.
+</div>
+<div id="ref-keynes_treatise_1921" class="csl-entry">
+Keynes, J. M. (1921). <em>A <span>Treatise</span> <span>On</span> <span>Probability</span></em>. Macmillan And Co.,. <a href="http://archive.org/details/treatiseonprobab007528mbp">http://archive.org/details/treatiseonprobab007528mbp</a>
+</div>
+<div id="ref-kolmogorov_foundations_1933" class="csl-entry">
+Kolmogorov, A. N. (1933). <em>Foundations of the theory of probability</em>. New York, USA: Chelsea Publishing Company.
+</div>
+<div id="ref-kruschke_doing_2015" class="csl-entry">
+Kruschke, J. K. (2015). <em>Doing <span>Bayesian</span> data analysis: A tutorial with <span>R</span>, <span>JAGS</span>, and <span>Stan</span></em> (2nd Edition). Academic Press.
+</div>
+<div id="ref-kruschke_bayesian_2018" class="csl-entry">
+Kruschke, J. K., &amp; Liddell, T. M. (2018a). Bayesian data analysis for newcomers. <em>Psychonomic Bulletin &amp; Review</em>, <em>25</em>(1), 155–177. <a href="https://doi.org/10.3758/s13423-017-1272-1">https://doi.org/10.3758/s13423-017-1272-1</a>
+</div>
+<div id="ref-kruschke_bayesian_2018-1" class="csl-entry">
+Kruschke, J. K., &amp; Liddell, T. M. (2018b). The <span>Bayesian</span> <span>New</span> <span>Statistics</span>: <span>Hypothesis</span> testing, estimation, meta-analysis, and power analysis from a <span>Bayesian</span> perspective. <em>Psychonomic Bulletin &amp; Review</em>, <em>25</em>(1), 178–206. <a href="https://doi.org/10.3758/s13423-016-1221-4">https://doi.org/10.3758/s13423-016-1221-4</a>
+</div>
+<div id="ref-lakens_equivalence_2018" class="csl-entry">
+Lakens, D., Scheel, A. M., &amp; Isager, P. M. (2018). Equivalence <span>Testing</span> for <span>Psychological</span> <span>Research</span>: <span>A</span> <span>Tutorial</span>: <em>Advances in Methods and Practices in Psychological Science</em>. <a href="https://doi.org/10.1177/2515245918770963">https://doi.org/10.1177/2515245918770963</a>
+</div>
+<div id="ref-lindley_philosophy_2001" class="csl-entry">
+Lindley, D. V. (2001). The <span>Philosophy</span> of <span>Statistics</span>. <em>Journal of the Royal Statistical Society: Series D (The Statistician)</em>, <em>49</em>(3), 293–337. <a href="https://doi.org/10.1111/1467-9884.00238">https://doi.org/10.1111/1467-9884.00238</a>
+</div>
+<div id="ref-R-rethinking" class="csl-entry">
+McElreath, R. (2016a). <em>Rethinking: Statistical rethinking book package</em>.
+</div>
+<div id="ref-mcelreath_statistical_2016" class="csl-entry">
+McElreath, R. (2016b). <em>Statistical rethinking: A <span>Bayesian</span> course with examples in <span>R</span> and <span>Stan</span></em>. CRC Press/Taylor &amp; Francis Group.
+</div>
+<div id="ref-mcelreath_statistical_2020" class="csl-entry">
+McElreath, R. (2020). <em>Statistical rethinking: A <span>Bayesian</span> course with examples in <span>R</span> and <span>Stan</span></em> (2nd ed.). Taylor; Francis, CRC Press.
+</div>
+<div id="ref-meehl_appraising_1990" class="csl-entry">
+Meehl, Paul E. (1990a). Appraising and amending theories: <span>The</span> strategy of <span>Lakatosian</span> defense and two principles that warrant <span>It</span>. <em>Psychological Inquiry</em>, <em>1</em>(2), 108–141. <a href="https://doi.org/10.1207/s15327965pli0102_1">https://doi.org/10.1207/s15327965pli0102_1</a>
+</div>
+<div id="ref-meehl_theory-testing_1967" class="csl-entry">
+Meehl, Paul E. (1967). Theory-testing in <span>Psychology</span> and <span>Physics</span>: <span>A</span> methodological paradox. <em>Philosophy of Science</em>, <em>34</em>(2), 103–115. <a href="https://doi.org/10.1086/288135">https://doi.org/10.1086/288135</a>
+</div>
+<div id="ref-meehl_theoretical_1978" class="csl-entry">
+Meehl, Paul E. (1978). Theoretical risks and tabular asterisks: <span>Sir</span> <span>Karl</span>, <span>Sir</span> <span>Ronald</span>, and the slow progress of soft psychology. <em>Journal of Consulting and Clinical Psychology</em>, <em>46</em>(4), 806–834. <a href="https://doi.org/10.1037/0022-006X.46.4.806">https://doi.org/10.1037/0022-006X.46.4.806</a>
+</div>
+<div id="ref-meehl_what_1986" class="csl-entry">
+Meehl, P. E. (1986). What <span>Social</span> <span>Scientists</span> <span>Don</span>’t <span>Understand</span>. In D. W. Fiske &amp; R. A. Shweder (Eds.), <em>Metatheory in social science: <span>Pluralisms</span> and subjectivities</em> (p. 24). Chicago: University of Chicago Press.
+</div>
+<div id="ref-meehl_why_1990" class="csl-entry">
+Meehl, Paul E. (1990b). Why <span>Summaries</span> of <span>Research</span> on <span>Psychological</span> <span>Theories</span> are <span>Often</span> <span>Uninterpretable</span>. <em>Psychological Reports</em>. <a href="https://doi.org/10.2466/pr0.1990.66.1.195">https://doi.org/10.2466/pr0.1990.66.1.195</a>
+</div>
+<div id="ref-harlow_problem_1997" class="csl-entry">
+Meehl, Paul E. (1997). The problem is epistemology, not statistics: <span>Replace</span> significance tests by confidence intervals and quantify accuracy of risky numerical predictions. <em>What If There Were No Significance Tests?</em>, 393–425. <a href="http://citeseerx.ist.psu.edu/viewdoc/citations;jsessionid=72FF987997EFB5F0602B02E1A2E04E40?doi=10.1.1.693.9583">http://citeseerx.ist.psu.edu/viewdoc/citations;jsessionid=72FF987997EFB5F0602B02E1A2E04E40?doi=10.1.1.693.9583</a>
+</div>
+<div id="ref-morey_beyond_2018" class="csl-entry">
+Morey, R. D., Homer, S., &amp; Proulx, T. (2018). Beyond <span>Statistics</span>: <span>Accepting</span> the <span>Null</span> <span>Hypothesis</span> in <span>Mature</span> <span>Sciences</span>: <em>Advances in Methods and Practices in Psychological Science</em>. <a href="https://doi.org/10.1177/2515245918776023">https://doi.org/10.1177/2515245918776023</a>
+</div>
+<div id="ref-noel_psychologie_2015" class="csl-entry">
+Noël, Y. (2015). <em>Psychologie statistique avec <span>R</span></em>. EDP SCIENCES.
+</div>
+<div id="ref-pollard_probability_1987" class="csl-entry">
+Pollard, P., &amp; Richardson, J. T. (1987). On the probability of making <span>Type</span> <span>I</span> errors. <em>Psychological Bulletin</em>, <em>102</em>(1), 159–163. <a href="https://doi.org/10.1037/0033-2909.102.1.159">https://doi.org/10.1037/0033-2909.102.1.159</a>
+</div>
+<div id="ref-R-base" class="csl-entry">
+R Core Team. (2019). <em>R: A language and environment for statistical computing</em>. R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>
+</div>
+<div id="ref-rogers_using_1993" class="csl-entry">
+Rogers, J. L., Howard, K. I., &amp; Vessey, J. T. (1993). Using significance tests to evaluate equivalence between two experimental groups. <em>Psychological Bulletin</em>, <em>113</em>(3), 553–565. <a href="https://doi.org/10.1037/0033-2909.113.3.553">https://doi.org/10.1037/0033-2909.113.3.553</a>
+</div>
+<div id="ref-rouder_interplay_2016" class="csl-entry">
+Rouder, J. N., Morey, R. D., &amp; Wagenmakers, E.-J. (2016). The <span>Interplay</span> between <span>Subjectivity</span>, <span>Statistical</span> <span>Practice</span>, and <span>Psychological</span> <span>Science</span>. <em>Collabra</em>, <em>2</em>(1), 6. <a href="https://doi.org/10.1525/collabra.28">https://doi.org/10.1525/collabra.28</a>
+</div>
+<div id="ref-szucs_empirical_2017-1" class="csl-entry">
+Szucs, D., &amp; Ioannidis, J. P. A. (2017). Empirical assessment of published effect sizes and power in the recent cognitive neuroscience and psychology literature. <em>PLOS Biology</em>, <em>15</em>(3), e2000797. <a href="https://doi.org/10.1371/journal.pbio.2000797">https://doi.org/10.1371/journal.pbio.2000797</a>
+</div>
+<div id="ref-talbot_critical_2015" class="csl-entry">
+Talbot, M. (2015). <em>Critical <span>Reasoning</span>: <span>A</span> <span>Romp</span> through the <span>Foothills</span> of <span>Logic</span> for the <span>Complete</span> <span>Beginner</span></em> (C. Wood, Ed.; 1 edition). CreateSpace Independent Publishing Platform.
+</div>
+<div id="ref-R-tidyverse" class="csl-entry">
+Wickham, H. (2019). <em>Tidyverse: Easily install and load the ’tidyverse’</em>. <a href="https://CRAN.R-project.org/package=tidyverse">https://CRAN.R-project.org/package=tidyverse</a>
+</div>
+<div id="ref-R-ggplot2" class="csl-entry">
+Wickham, H., Chang, W., Henry, L., Pedersen, T. L., Takahashi, K., Wilke, C., Woo, K., &amp; Yutani, H. (2019). <em>ggplot2: Create elegant data visualisations using the grammar of graphics</em>. <a href="https://CRAN.R-project.org/package=ggplot2">https://CRAN.R-project.org/package=ggplot2</a>
+</div>
+<div id="ref-R-bookdown" class="csl-entry">
+Xie, Y. (2020a). <em>Bookdown: Authoring books and technical documents with r markdown</em>. <a href="https://CRAN.R-project.org/package=bookdown">https://CRAN.R-project.org/package=bookdown</a>
+</div>
+<div id="ref-R-knitr" class="csl-entry">
+Xie, Y. (2020b). <em>Knitr: A general-purpose package for dynamic report generation in r</em>. <a href="https://CRAN.R-project.org/package=knitr">https://CRAN.R-project.org/package=knitr</a>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="B-notations.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": false
+},
+"fontsettings": {
+"theme": "white",
+"family": "serif",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/lnalborczyk/IMSB2022/tree/master/_notes/99-bibliographie.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["IMSB.pdf"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection",
+"scroll_highlight": true
+},
+"info": false
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

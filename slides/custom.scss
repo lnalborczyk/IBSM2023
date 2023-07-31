@@ -1,0 +1,165 @@
+////////////////////////
+/*-- scss:defaults --*/
+////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// documentation
+// https://github.com/twbs/bootstrap/blob/main/scss/_variables.scss
+// https://github.com/hakimel/reveal.js/blob/master/css/theme/template/theme.scss
+// https://github.com/hakimel/reveal.js/blob/master/css/theme/template/exposer.scss
+////////////////////////////////////////////////////////////////////////////////
+
+// importing fonts
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
+
+// fonts
+$font-family-sans-serif: Montserrat, sans-serif !default;
+$font-family-monospace: Lucida Console, Monaco, monospace;
+$presentation-font-size-root: 20px;
+$presentation-font-smaller:	0.9em;
+$presentation-line-height: 1.5;
+$presentation-title-slide-text-align: center;
+$code-block-font-size: 0.8em;
+
+// colors
+$body-bg: #FFFFFF !default;
+$body-color: #272822 !default;
+$link-color: #1c5253 !default;
+$selection-bg: #26351c !default;
+$link-color-hover: lighten($link-color, 15%);
+$selection-bg: lighten($link-color, 25%);
+$selection-color: $body-bg;
+
+// headings
+$presentation-heading-font: Josefin Sans, sans-serif !default;
+$presentation-heading-font-weight: normal !default;
+$presentation-heading-font-size: 6em !default;
+$presentation-heading-color: #1c5253 !default;
+$presentation-h1-font-size: 3em !default;
+$presentation-h2-font-size: 2em !default;
+$presentation-h3-font-size: 1.5em !default;
+
+/////////////////////
+/*-- scss:rules --*/
+/////////////////////
+
+.reveal .title-slide {
+  background-color: #1c5253;
+  color: #FFFFFF;
+  font-size: 100%;
+  //text-align: center;
+  //top: 50%;
+  //left: 50%;
+  //width: 100%;
+  //position: absolute;
+  //transform: translate(-50%, -50%);
+}
+
+.reveal p.subtitle {
+  font-size: 150%;
+  text-align: center;
+}
+
+.reveal p.author {
+  font-size: 100%;
+  text-align: center;
+}
+
+.reveal h1 {
+  //font-size: 150%;
+  text-align: center;
+}
+
+// https://github.com/quarto-dev/quarto-cli/blob/main/src/resources/formats/revealjs/plugins/support/footer.css
+.reveal .slide-number {
+  font-family: Montserrat, sans-serif;
+  font-size: 0.9em !important;
+  color: #1c5253 !important;
+}
+
+.reveal .footer {
+  font-family: Montserrat, sans-serif;
+  font-size: 0.9em !important;
+  color: #1c5253;
+}
+
+//.MathJax { // all math
+//    font-size: 100% !important;
+//}
+
+.math.inline .MathJax  {
+  font-size: 100% !important;
+}
+
+.math.display .MathJax  {
+  font-size: 110% !important;
+}
+
+.reveal .slide a {
+  text-decoration: underline;
+}
+
+.reveal strong, .reveal b {
+  font-weight: bold;
+  color: #1c5253;
+}
+
+// modifying the blockquote
+// https://codepen.io/jimmycow/pen/LmjVaz
+
+.reveal .slide blockquote {
+  float: left;
+  font-size: 1.0em;
+  //width: 80%;
+  //margin: 10px auto;
+  color: #555555;
+  padding: 1.2em 30px 1.2em 75px;
+  border-left: 8px solid lighten($link-color, 20%);
+  line-height: 1.5;
+  position: relative;
+  background: #EDEDED;
+}
+
+.reveal .slide blockquote::before{
+  font-family: Arial;
+  content: "\201C";
+  color: lighten($link-color, 20%);
+  font-size: 4em;
+  position: absolute;
+  left: 10px;
+  top: -10px;
+}
+
+// formatting the references slide (i.e., the last slide)
+.reveal .refs {
+    //font-size: 50% !important;
+    line-height: 1.5em !important;
+}
+
+// https://www.emilhvitfeldt.com/post/slidecraft-code-output/
+// formatting the code output
+.reveal pre code {
+  background-color: #232525;
+  color: #A9B7C6;
+}
+
+// formatting the code block
+.reveal div.sourceCode pre code {
+  padding: 10px;
+}
+
+// formatting the code block
+.reveal div.sourceCode {
+  background-color: #232525;
+  border: none;
+  border-radius: 0px;
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+}
+
+// changing the colour of inline R code
+.reveal code {
+  color: $link-color;
+  font-family: $font-family-monospace;
+}

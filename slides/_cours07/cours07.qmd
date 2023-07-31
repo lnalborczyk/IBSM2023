@@ -1,0 +1,1799 @@
+---
+title: Introduction à la modélisation statistique bayésienne
+subtitle: Un cours en R et Stan avec brms
+author: Ladislas Nalborczyk (LPC, LNC, CNRS, Aix-Marseille Univ)
+from: markdown+emoji
+format:
+  revealjs:
+    incremental: true
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IMSB2022"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "Voir le code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+---
+
+## Planning
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(tidyverse)
+library(patchwork)
+library(brms)
+library(imsb)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+Cours n°01 : Introduction à l'inférence bayésienne <br> Cours n°02 :
+Modèle Beta-Binomial <br> Cours n°03 : Introduction à brms, modèle de
+régression linéaire <br> Cours n°04 : Modèle de régression linéaire
+(suite) <br> Cours n°05 : Markov Chain Monte Carlo <br> Cours n°06 :
+Modèle linéaire généralisé <br> **Cours n°07 : Comparaison de modèles**
+<br> Cours n°08 : Modèles multi-niveaux <br> Cours n°09 : Modèles
+multi-niveaux généralisés <br> Cours n°10 : Data Hackathon <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## Null Hypothesis Significance Testing (NHST)
+
+On s'intéresse aux différences de taille entre hommes et femmes. On va
+mesurer 100 femmes et 100 hommes.
+
+```{r eval = TRUE, echo = TRUE}
+set.seed(19) # pour reproduire les résultats
+men <- rnorm(100, 175, 10) # 100 tailles d'hommes
+women <- rnorm(100, 170, 10) # 100 tailles de femmes
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+#| output-location: fragment
+t.test(men, women) # test de student pour différence de moyenne
+```
+
+## {background-iframe="https://embed.polleverywhere.com/multiple_choice_polls/ok3TmpBIp0fmbxGJDS7rr?controls=none&short_poll=true"}
+
+## Null Hypothesis Significance Testing (NHST)
+
+On va simuler des t-valeurs issues de données générées sous l'hypothèse
+d'une absence de différence entre hommes et femmes.
+
+```{r eval = TRUE, echo = TRUE}
+nsims <- 1e4 # nombre de simulations
+t <- rep(NA, nsims) # initialisation d'un vecteur vide
+
+for (i in 1:nsims) {
+    
+    men2 <- rnorm(100, 170, 10) # 100 tailles d'hommes
+    women2 <- rnorm(100, 170, 10) # 100 tailles de femmes (de même distribution)
+    t[i] <- t.test(men2, women2)$statistic # on conserve la t-valeur
+    
+}
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+# une autre manière de réaliser la même opération, sans boucle for
+t <- replicate(nsims, t.test(rnorm(100, 170, 10), rnorm(100, 170, 10) )$statistic)
+```
+
+## Null Hypothesis Significance Testing (NHST)
+
+```{r eval = TRUE, echo = TRUE, message = FALSE, fig.width = 6, fig.height = 6}
+data.frame(t = t) %>%
+    ggplot(aes(x = t) ) +
+    geom_histogram() +
+    labs(x = "Valeur de t", y = "Nombre d'échantillons")
+```
+
+## Null Hypothesis Significance Testing (NHST)
+
+```{r eval = TRUE, echo = TRUE, fig.width = 6, fig.height = 6}
+data.frame(x = c(-5, 5) ) %>%
+    ggplot(aes(x = x) ) +
+    stat_function(fun = dt, args = list(df = t.test(men, women)$parameter), size = 1.5) +
+    labs(x = "Valeur de t", y = "Densité de probabilité")
+```
+
+## Null Hypothesis Significance Testing (NHST)
+
+```{r eval = TRUE, echo = TRUE}
+alpha <- 0.05 # seuil de significativité
+abs(qt(p = alpha / 2, df = t.test(men, women)$parameter) ) # valeur de t critique
+```
+
+```{r eval = TRUE, echo = FALSE, fig.width = 7, fig.height = 7}
+data.frame(t = c(-5, 5) ) %>%
+    ggplot(aes(x = t) ) +
+    stat_function(fun = dt, args = list(df = t.test(men, women)$parameter), size = 1.5) +
+    stat_function(
+        fun = dt, args = list(df = t.test(men, women)$parameter),
+        xlim = c(-5, qt(0.025, df = t.test(men, women)$parameter) ),
+        geom = "area", alpha = 0.5
+        ) +
+    stat_function(
+        fun = dt, args = list(df = t.test(men, women)$parameter),
+        xlim = c(qt(0.975, df = t.test(men, women)$parameter), 5),
+        geom = "area", alpha = 0.5
+        ) +
+    labs(x = "Valeur de t", y = "Densité de probabilité")
+```
+
+## Null Hypothesis Significance Testing (NHST)
+
+```{r eval = TRUE, echo = TRUE}
+tobs <- t.test(men, women)$statistic # valeur de t observée
+tobs %>% as.numeric
+```
+
+```{r eval = TRUE, echo = FALSE, fig.width = 7, fig.height = 7}
+data.frame(t = c(-5, 5) ) %>%
+    ggplot(aes(x = t) ) +
+    stat_function(fun = dt, args = list(df = t.test(men, women)$parameter), size = 1.5) +
+    stat_function(
+        fun = dt, args = list(df = t.test(men, women)$parameter),
+        xlim = c(-5, qt(0.025, df = t.test(men, women)$parameter) ),
+        geom = "area", alpha = 0.5
+            ) +
+    stat_function(
+        fun = dt, args = list(df = t.test(men, women)$parameter),
+        xlim = c(qt(0.975, df = t.test(men, women)$parameter), 5),
+        geom = "area", alpha = 0.5
+        ) +
+    stat_function(
+        fun = dt, args = list(df = t.test(men, women)$parameter),
+        xlim = c(-5, - tobs),
+        geom = "area") +
+    stat_function(
+        fun = dt, args = list(df = t.test(men, women)$parameter),
+        xlim = c(tobs, 5),
+        geom = "area") +
+    labs(x = "Valeur de t", y = "Densité de probabilité")
+```
+
+## P-valeur
+
+Une p-valeur est une aire sous la courbe (une intégrale) sous la
+distribution de statistiques de test sous l'hypothèse nulle (i.e., étant
+admis que l'hypothèse nulle est vraie). La p-valeur indique la
+probabilité d'observer la valeur de la statistique de test (e.g., une valeur de t) observée, ou une valeur plus extrême, sous l'hypothèse nulle.
+
+$$p[\mathbf{t}(\mathbf{x}^{\text{rep}}; \mathcal{H}_{0}) \geq t(x)]$$
+
+```{r eval = TRUE, echo = TRUE}
+#| output-location: fragment
+t.test(men, women)$p.value
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+#| output-location: fragment
+tvalue <- abs(t.test(men, women)$statistic)
+df <- t.test(men, women)$parameter
+2 * integrate(dt, tvalue, Inf, df = df)$value
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+#| output-location: fragment
+2 * (1 - pt(abs(t.test(men, women)$statistic), t.test(men, women)$parameter) )
+```
+
+## Intervalles de confiance
+
+Les intervalles de confiance peuvent être interprétés comme des régions
+de significativité (ou des régions de **compatibilité** avec l'hypothèse
+nulle). Par conséquent, un intervalle de confiance contient la même
+information qu'une p-valeur et s'interprète de manière similaire.
+
+. . .
+
+On ne peut pas dire qu'un intervalle de confiance a une probabilité de
+95% de contenir la vraie valeur (i.e., la valeur dans la population) de
+$\theta$ (cf. the [inverse
+fallacy](https://en.wikipedia.org/wiki/Confusion_of_the_inverse)),
+contrairement à l'intervalle de crédibilité bayésien.
+
+. . .
+
+Un intervalle de confiance à 95% représente une degré de "recouvrement"
+(coverage). Le "95%" fait référence à une propriété fréquentiste
+(i.e., sur le long-terme) de la procédure, mais ne fait pas référence au
+paramètre $\theta$. Autrement dit, sur le long-terme, 95% des
+intervalles de confiance à 95% que l'on pourrait calculer (dans une
+réplication exacte de notre expérience) contiendraient la valeur du
+paramètre dans la population (i.e., la "vraie" valeur de $\theta$).
+Cependant, nous ne pouvons pas dire qu'un intervalle de confiance en
+particulier a une probabilité de 95% de contenir la "vraie" valeur de
+$\theta$... soit ce dernier contient la vraie valeur de $\theta$, soit
+il ne la contient pas.
+
+## {background-iframe="https://rpsychologist.com/d3/CI/"}
+
+## Facteur de Bayes
+
+On compare deux modèles :
+
+-   $\mathcal{H}_{0}: \mu_{1} = \mu_{2} \rightarrow \delta = 0$
+-   $\mathcal{H}_{1}: \mu_{1} \neq \mu_{2} \rightarrow \delta \neq 0$
+
+. . .
+
+$$
+\underbrace{\dfrac{p(\mathcal{H}_{0} \given D)}{p(\mathcal{H}_{1} \given D)}}_{\text{posterior odds}} = \underbrace{\dfrac{p(D \given \mathcal{H}_{0})}{p(D \given \mathcal{H}_{1})}}_{\text{Bayes factor}} \times \underbrace{\dfrac{p(\mathcal{H}_{0})}{p(\mathcal{H}_{1})}}_{\text{prior odds}}
+$$
+
+$$\text{evidence}\ = p(D \given \mathcal{H}) = \int p(\theta \given \mathcal{H}) p(D \given \theta, \mathcal{H}) \text{d}\theta$$
+
+. . .
+
+L'évidence en faveur d'un modèle correspond à la **vraisemblance
+marginale** d'un modèle (le dénominateur du théorème de Bayes), c'est à
+dire à la vraisemblance moyennée sur le prior... Ce qui fait du facteur
+de Bayes un ratio de vraisemblances, pondéré par (ou moyenné sur) le
+prior.
+
+## Facteur de Bayes, exemple d'application
+
+On lance une pièce 100 fois et on essaye d'estimer la probabilité
+$\theta$ (le biais de la pièce) d'obtenir Face. On compare deux modèles
+qui diffèrent par leur prior sur $\theta$.
+
+$$
+\begin{align}
+\mathcal{M_{1}} : y_{i} &\sim \mathrm{Binomial}(n, \theta) \\
+\theta &\sim \mathrm{Beta}(6, 10) \\
+\end{align}
+$$
+
+$$
+\begin{align}
+\mathcal{M_{2}} : y_{i} &\sim \mathrm{Binomial}(n, \theta) \\
+\theta &\sim \mathrm{Beta}(20, 12) \\
+\end{align}
+$$
+
+```{r, echo = FALSE, fig.width = 10, fig.height = 5}
+data.frame(x = seq(from = 0, to = 1, length.out = 1e2) ) %>%
+    mutate(M1 = dbeta(x, 6, 10), M2 = dbeta(x, 20, 12) ) %>%
+    gather(prior, value, M1:M2) %>%
+    ggplot(aes(x = x, y = value, fill = prior) ) +
+    geom_area(alpha = 0.75, position = "identity") +
+    scale_fill_manual(values = c("#016392", "#c72e29") ) +
+    xlab(expression(paste("Probabilité d'obtenir Face ", theta) ) ) +
+    ylab("Densité de probabilité")
+```
+
+## Facteur de Bayes, exemple d'application
+
+<br>
+
+$$
+\begin{align}
+\mathcal{M_{1}} : y_{i} &\sim \mathrm{Binomial}(n, \theta) \\
+\theta &\sim \mathrm{Beta}(6, 10) \\
+\end{align}
+$$
+
+$$
+\begin{align}
+\mathcal{M_{2}} : y_{i} &\sim \mathrm{Binomial}(n, \theta) \\
+\theta &\sim \mathrm{Beta}(20, 12) \\
+\end{align}
+$$
+
+<br>
+
+$$
+\text{BF}_{12} = \dfrac{p(D \given \mathcal{M_{1}} )}{p(D \given \mathcal{M_{2}} )} = \dfrac{\int p(\theta \given \mathcal{M_{1}} ) p(D \given \theta, \mathcal{M_{1}} ) \text{d}\theta}{\int p(\theta \given \mathcal{M_{2}}) p(D \given \theta, \mathcal{M_{2}} ) \text{d}\theta} = \dfrac{\int \mathrm{Binomial}(n, \theta)\mathrm{Beta}(6, 10)\text{d}\theta}{\int \mathrm{Binomial}(n, \theta)\mathrm{Beta}(20, 12) \text{d}\theta}
+$$
+
+## Facteur de Bayes, exemple d'application
+
+```{r echo = FALSE, out.width = "800px"}
+knitr::include_graphics("figures/bf.gif")
+```
+
+## Le facteur de Bayes est la nouvelle p-valeur
+
+Attention à ne pas interpréter le BF comme un rapport des chances a posteriori (posterior odds)...
+
+Le BF est un facteur qui nous indique de combien notre rapport des chances a priori (prior odds) doit changer, au vu des données. Il ne nous dit pas quelle est l'hypothèse la plus probable, sachant les données (sauf si les prior
+odds sont de $1/1$). Par exemple :
+
+. . .
+
+-   $\mathcal{H}_{0}$: la précognition n'existe pas.
+-   $\mathcal{H}_{1}$: la précognition existe.
+
+. . .
+
+On fait une expérience et on calcule un $\text{BF}_{10} = 27$. Quelle est la
+probabilité a posteriori de $\mathcal{H}_{1}$ ?
+
+. . .
+
+<br>
+
+$$
+\underbrace{\dfrac{p(\mathcal{H}_{1} \given D)}{p(\mathcal{H}_{0} \given D)}}_{\text{posterior odds}} = \underbrace{\dfrac{27}{1}}_{\text{Bayes factor}} \times \underbrace{\dfrac{1}{1000}}_{\text{prior odds}} = \dfrac{27}{1000} = 0.027
+$$
+
+<!--
+
+## Facteur de Bayes - Test d'hypothèse nulle
+
+```{r eval = TRUE, echo = TRUE}
+library(BayesFactor)
+ttestBF(men, women)
+```
+
+Prior "JZS", en référence à Jeffreys (1961), et Zellner & Siow (1980).
+
+## Prior JZS
+
+```{r eval = TRUE, echo = TRUE, fig.width = 6, fig.height = 6}
+data.frame(x = c(-10, 10) ) %>%
+    ggplot(aes(x = x) ) +
+    stat_function(
+        fun = dcauchy, args = list(location = 0, scale = sqrt(2) / 2), size = 1.5
+        ) +
+    labs(x = expression(delta), y = "Densité de probabilité")
+```
+
+## Facteur de Bayes
+
+```{r echo = FALSE, out.width = "800px"}
+knitr::include_graphics("figures/bayes_factor.png")
+```
+
+-->
+
+## Double sens
+
+Dans le cadre bayésien, le terme de **prior** peut faire référence soit :
+
+-   À la probabilité a priori ou a posteriori d'un modèle (par
+    rapport à un autre modèle), c'est à dire $\Pr(\mathcal{M}_{i})$. Voir ce
+    [blogpost](http://www.nicebread.de/two-meanings-of-priors-1/).
+
+-   Aux priors qu'on définit sur les paramètres d'un modèle, par exemple
+    $\beta \sim \mathrm{Normal}(0, 1)$. Voir ce
+    [blogpost](http://www.nicebread.de/two-meanings-of-priors-2/).
+
+. . .
+
+```{r eval = TRUE, echo = FALSE, fig.align = "center", fig.width = 7.5, fig.height = 5}
+data.frame(x = c(-20, 20) ) %>%
+    ggplot(aes(x = x) ) +
+    stat_function(fun = dnorm, args = list(mean = 0, sd = 1), size = 1.5) +
+    stat_function(fun = dnorm, args = list(mean = 0, sd = 2), size = 1.5) +
+    stat_function(fun = dnorm, args = list(mean = 0, sd = 5), size = 1.5) +
+    stat_function(fun = dnorm, args = list(mean = 0, sd = 10), size = 1.5) +
+    labs(x = expression(theta), y = "Densité de probabilité")
+```
+
+## Comparaison de modèles
+
+Deux problèmes récurrents à éviter en modélisation : le
+sous-apprentissage (underfitting) et sur-apprentissage (overfitting). Comment s'en sortir ?
+
+-   Utiliser des priors pour **régulariser**, pour contraindre le
+    posterior (i.e., accorder moins de poids à la vraisemblance).
+-   Utiliser des critères d'information (e.g., AIC, WAIC).
+
+. . .
+
+<br>
+
+$$
+R^{2} = \frac{\text{var}(\text{outcome}) - \text{var}(\text{residuals})}{\text{var}(\text{outcome})} =
+1 - \frac{\text{var}(\text{residuals})}{\text{var}(\text{outcome})}
+$$
+
+## Overfitting
+
+```{r eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 7.5, fig.height = 5}
+ppnames <- c("afarensis", "africanus", "habilis", "boisei",
+        "rudolfensis", "ergaster", "sapiens")
+brainvolcc <- c(438, 452, 612, 521, 752, 871, 1350)
+masskg <- c(37.0, 35.5, 34.5, 41.5, 55.5, 61.0, 53.5)
+
+d <- data.frame(species = ppnames, brain = brainvolcc, mass = masskg)
+
+d %>%
+    ggplot(aes(x = mass, y = brain, label = species) ) +
+    geom_point() +
+    ggrepel::geom_label_repel(hjust = 0, nudge_y = 50, size = 5) +
+    xlim(30, 70)
+```
+
+## Overfitting
+
+```{r eval = TRUE, echo = TRUE}
+mod1.1 <- lm(brain ~ mass, data = d)
+(var(d$brain) - var(residuals(mod1.1) ) ) / var(d$brain)
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+mod1.2 <- lm(brain ~ mass + I(mass^2), data = d)
+(var(d$brain) - var(residuals(mod1.2) ) ) / var(d$brain)
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+mod1.3 <- lm(brain ~ mass + I(mass^2) + I(mass^3), data = d)
+(var(d$brain) - var(residuals(mod1.3) ) ) / var(d$brain)
+```
+
+## Overfitting
+
+```{r eval = TRUE, echo = TRUE}
+mod1.4 <- lm(brain ~ mass + I(mass^2) + I(mass^3) + I(mass^4), data = d)
+(var(d$brain) - var(residuals(mod1.4) ) ) / var(d$brain)
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+mod1.5 <- lm(brain ~ mass + I(mass^2) + I(mass^3) + I(mass^4) +
+    I(mass^5), data = d)
+(var(d$brain) - var(residuals(mod1.5) ) ) / var(d$brain)
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+mod1.6 <- lm( brain ~ mass + I(mass^2) + I(mass^3) + I(mass^4) +
+    I(mass^5) + I(mass^6), data = d)
+(var(d$brain) - var(residuals(mod1.6) ) ) / var(d$brain)
+```
+
+## Overfitting
+
+```{r eval = TRUE, echo = FALSE, fig.width = 18, fig.height = 9}
+library(patchwork)
+library(gridExtra)
+library(ggplot2)
+
+# p <- list()
+# 
+# for (i in 1:2) {
+#     
+#     p[[i]] <-
+#         ggplot(data = d, aes(x = mass, y = brain) ) +
+#         geom_point() +
+#         theme_bw(base_size = 20) +
+#         ylim(-400, 2000) +
+#         ggtitle(bquote(R^'2'~'='~.(round(summary(get(paste0("mod1.", i) ) )$r.squared, 2) ) ) ) +
+#         geom_line(
+#             data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+#                 mutate(pred = predict(get(paste0("mod1.", i) ), newdata = .) ), aes(x = mass, y = pred) ) +
+#         geom_hline(yintercept = 0, linetype = 2)
+#     
+# }
+# 
+# do.call(grid.arrange, p)
+
+p1 <- 
+  ggplot(data = d, aes(x = mass, y = brain) ) +
+  geom_point() +
+  ylim(-400, 2000) +
+  ggtitle(bquote(R^'2'~'='~.(round(summary(mod1.1)$r.squared, 2) ) ) ) +
+  geom_line(
+      data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+          mutate(pred = predict(mod1.1, newdata = .) ), aes(x = mass, y = pred) ) +
+  geom_hline(yintercept = 0, linetype = 2)
+
+p2 <- 
+  ggplot(data = d, aes(x = mass, y = brain) ) +
+  geom_point() +
+  ylim(-400, 2000) +
+  ggtitle(bquote(R^'2'~'='~.(round(summary(mod1.2)$r.squared, 2) ) ) ) +
+  geom_line(
+      data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+          mutate(pred = predict(mod1.2, newdata = .) ), aes(x = mass, y = pred) ) +
+  geom_hline(yintercept = 0, linetype = 2)
+
+p1 + p2
+```
+
+## Overfitting
+
+```{r eval = TRUE, echo = FALSE, fig.align = "center", fig.width = 18, fig.height = 9}
+p3 <- 
+  ggplot(data = d, aes(x = mass, y = brain) ) +
+  geom_point() +
+  ylim(-400, 2000) +
+  ggtitle(bquote(R^'2'~'='~.(round(summary(mod1.3)$r.squared, 2) ) ) ) +
+  geom_line(
+      data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+          mutate(pred = predict(mod1.3, newdata = .) ), aes(x = mass, y = pred) ) +
+  geom_hline(yintercept = 0, linetype = 2)
+
+p4 <- 
+  ggplot(data = d, aes(x = mass, y = brain) ) +
+  geom_point() +
+  ylim(-400, 2000) +
+  ggtitle(bquote(R^'2'~'='~.(round(summary(mod1.4)$r.squared, 2) ) ) ) +
+  geom_line(
+      data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+          mutate(pred = predict(mod1.4, newdata = .) ), aes(x = mass, y = pred) ) +
+  geom_hline(yintercept = 0, linetype = 2)
+
+p3 + p4
+```
+
+## Overfitting
+
+```{r eval = TRUE, echo = FALSE, fig.width = 18, fig.height = 9}
+p5 <- 
+  ggplot(data = d, aes(x = mass, y = brain) ) +
+  geom_point() +
+  ylim(-400, 2000) +
+  ggtitle(bquote(R^'2'~'='~.(round(summary(mod1.5)$r.squared, 2) ) ) ) +
+  geom_line(
+      data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+          mutate(pred = predict(mod1.5, newdata = .) ), aes(x = mass, y = pred) ) +
+  geom_hline(yintercept = 0, linetype = 2)
+
+p6 <- 
+  ggplot(data = d, aes(x = mass, y = brain) ) +
+  geom_point() +
+  ylim(-400, 2000) +
+  ggtitle(bquote(R^'2'~'='~.(round(summary(mod1.6)$r.squared, 2) ) ) ) +
+  geom_line(
+      data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+          mutate(pred = predict(mod1.6, newdata = .) ), aes(x = mass, y = pred) ) +
+  geom_hline(yintercept = 0, linetype = 2)
+
+p5 + p6
+```
+
+## Underfitting
+
+$$
+\begin{align}
+v_{i} &\sim \mathrm{Normal}(\mu_{i}, \sigma) \\
+\mu_{i} &= \alpha \\
+\end{align}
+$$
+
+```{r eval = TRUE, echo = TRUE}
+mod1.7 <- lm(brain ~ 1, data = d)
+```
+
+```{r eval = TRUE, echo = FALSE, fig.width = 6, fig.height = 6}
+d %>%
+  ggplot(aes(x = mass, y = brain) ) +
+  geom_point() +
+  ylim(-400, 2000) +
+  ggtitle(bquote(R^'2'~'='~.(round(summary(mod1.7)$r.squared, 2) ) ) ) +
+  geom_line(
+      data = data.frame(mass = seq(min(d$mass), max(d$mass), length.out = 100) ) %>%
+          mutate(pred = predict(mod1.7, newdata = .) ), aes(x = mass, y = pred) ) +
+  geom_hline(yintercept = 0, linetype = 2)
+```
+
+## Théorie de l'information
+
+Il nous faut une autre mesure des capacités de prédiction pour évaluer
+nos modèles. Idéalement, on voudrait pouvoir mesurer la "distance" entre
+notre modèle et le "full model" (i.e., la "réalité", la nature)... mais
+on ne sait (encore) pas faire cela.
+
+. . .
+
+Par contre, on peut mesurer de combien notre incertitude est réduite en
+découvrant un outcome (une observation) supplémentaire. Cette
+réduction est la définition de l'**information**.
+
+. . .
+
+Mais il nous faut tout d'abord une mesure de l'incertitude (pour savoir
+si on l'a réduite, ou pas)... S'il existe $n$ évènements possibles, et
+que chaque évènement $i$ a pour probabilité $p_{i}$, alors une mesure de
+l'incertitude est donnée par l'entropie (de Shannon) $H$ :
+
+$$H(p) = - \mathbb{E} [\log(p_{i})] = \sum_{i=1}^{n}p_{i} \log\left(\frac{1}{p_{i}}\right) = - \sum_{i=1}^{n}p_{i} \log(p_{i})$$
+
+. . .
+
+> En d'autres termes : l'incertitude contenue dans une distribution de
+probabilités est la log-probabilité moyenne d'un évènement.
+
+## Incertitude (exemple)
+
+Exemple de prédiction météorologique. Si on imagine que la probabilité
+qu'il pleuve ou qu'il fasse beau (à Grenoble) est de $p_{1} = 0.3$ et
+$p_{2} = 0.7$.
+
+. . .
+
+Alors, $H(p) = - (p_{1} \times \log(p_{1}) + p_{2} \times \log(p_{2})) \approx 0.61$.
+
+```{r eval = TRUE, echo = TRUE}
+p <- c(0.3, 0.7) # distribution des probabilités de pluie et soleil à Grenoble
+- sum(p * log(p) ) # équivalent à sum(p * log(1 / p) )
+```
+
+. . .
+
+Imaginons que nous habitions à Abu Dhabi et que la probabilité qu'il y
+pleuve ou qu'il y fasse beau soit de $p_{1} = 0.01$ et $p_{2} = 0.99$.
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+p <- c(0.01, 0.99) # distribution des probabilités de pluie et soleil à Abu Dhabi
+- sum(p * log(p) ) # toujours équivalent à sum(p * log(1 / p) )
+```
+
+## Divergence
+
+On a donc un moyen de quantifier l'incertitude. Comment utiliser cette
+mesure pour quantifier la distance entre notre modèle et la réalité ?
+
+. . .
+
+**Divergence** : incertitude ajoutée par l'utilisation d'une
+distribution de probabilités pour décrire... une autre distribution de
+probabilités ([Kullback-Leibler
+divergence](https://fr.wikipedia.org/wiki/Divergence_de_Kullback-Leibler),
+ou "entropie relative").
+
+$$
+D_{\text{KL}}(p, q) = \sum_{i} p_{i}\big(\log(p_{i}) - \log(q_{i})\big) = \sum_{i} p_{i} \log\bigg(\frac{p_{i}}{q_{i}}\bigg)
+$$
+
+. . .
+
+La divergence est la différence moyenne en log-probabilités entre la
+distribution cible ($p$) et le modèle ($q$).
+
+## Divergence
+
+$$
+D_{KL}(p, q) = \sum_{i} p_{i}\big(\log(p_{i}) - \log(q_{i})\big) = \sum_{i} p_{i} \log\bigg(\frac{p_{i}}{q_{i}}\bigg)
+$$
+
+Par exemple, supposons que la "véritable" distribution de nos évènements
+(soleil vs pluie) soit $p_{1} = 0.3$ et $p_{2} = 0.7$. Si nous pensons
+plutôt que ces évènements arrivent avec une probabilité $q_{1} = 0.25$ et
+$q_{2} = 0.75$, quelle quantité d'incertitude avons-nous ajoutée ?
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+p <- c(0.3, 0.7)
+q <- c(0.25, 0.75)
+
+sum(p * log(p / q) )
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+# NB : La divergence n'est pas symétrique...
+sum(q * log(q / p) ) 
+```
+
+## Divergence
+
+[La divergence n'est pas
+symétrique](https://twitter.com/ari_seff/status/1303741288911638530?s=20)
+(ce n'est pas une distance)...
+
+```{r echo = FALSE, out.width = "75%"}
+knitr::include_graphics("figures/divergence.gif")
+```
+
+## Entropie croisée et divergence
+
+**Entropie croisée** : $H(p, q) = \sum_{i} p_{i} \log (q_{i})$
+
+```{r eval = FALSE, echo = TRUE}
+sum(p * (log(q) ) )
+```
+
+. . .
+
+La **Divergence** est définie comme l'entropie additionnelle ajoutée en
+utilisant $q$ pour décrire $p$.
+
+$$
+\begin{align}
+D_{\text{KL}}(p, q) &= H(p, q) - H(p) \\
+&= - \sum_{i} p_{i} \log(q_{i}) - \left( - \sum_{i} p_{i} \log(p_{i}) \right) \\
+&= - \sum_{i} p_{i} \left(\log(q_{i}) - \log(p_{i}) \right) \\ 
+\end{align}
+$$
+
+```{r eval = TRUE, echo = TRUE}
+- sum(p * (log(q) - log(p) ) )
+sum(p * log(p / q) )
+```
+
+## Vers la déviance...
+
+OK, mais nous ne connaissons pas la distribution "cible" (la réalité),
+à quoi cela peut donc nous servir ?
+
+. . .
+
+Astuce : si nous comparons deux modèles, $q$ et $r$, pour approximer
+$p$, nous allons comparer leurs divergences... Et donc
+$\mathbb{E} [\log(p_{i})]$ sera la même quantité pour les deux modèles !
+
+```{r eval = TRUE, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/mind_blowing.jpg")
+```
+
+## Vers la déviance...
+
+On peut donc utiliser $\mathbb{E} [\log(q_{i})]$ et
+$\mathbb{E} [\log(r_{i})]$ comme estimateurs de la distance **relative**
+entre chaque modèle et notre distribution cible. On a seulement
+besoin de la **log-probabilité moyenne des modèles**. Comme on ne connaît
+pas la distribution cible, cela veut dire qu'on ne peut pas interpréter
+cette quantité en termes absolus mais seulement en termes relatifs. Ce
+qui nous intéresse c'est $\mathbb{E} [\log(q_{i})] - \mathbb{E} [\log(r_{i})]$ (i.e., des différences de divergences).
+
+```{r eval = TRUE, echo = FALSE}
+knitr::include_graphics("figures/KL_distance.png")
+```
+
+## Vers la déviance (exemple d'application)
+
+Exemple d'une distribution cible uniforme $p$, et 4 modèles $q1, q2, q3, q4$ (exemple tiré de [cet article](https://en.wikipedia.org/wiki/Kullback–Leibler_divergence#Basic_example)).
+
+```{r eval = TRUE, echo = TRUE}
+p <- c(1/3, 1/3, 1/3) # distribution cible (distribution uniforme avec p = 1/3)
+q1 <- c(0.36, 0.48, 0.16) # modèle q1
+q2 <- c(0.2, 0.6, 0.2) # modèle q2
+q3 <- c(0.1, 0.8, 0.1) # modèle q3
+q4 <- c(0.3, 0.4, 0.3) # modèle q4
+```
+
+```{r eval = TRUE, echo = FALSE}
+# plotting the distributions
+data.frame(p, q1, q2, q3, q4) %>%
+    mutate(x = c(0, 1, 2) ) %>%
+    pivot_longer(cols = 1:5) %>%
+    ggplot(aes(x = x, y = value) ) +
+    geom_bar(stat = "identity") +
+    facet_wrap(~name, ncol = 5) +
+    labs(x = expression(theta), y = "")
+```
+
+## Vers la déviance (exemple d'application)
+
+```{r eval = TRUE, echo = TRUE}
+divergence_q1 <- sum(p * log(p / q1) ) # divergence du modèle q1
+divergence_q2 <- sum(p * log(p / q2) ) # divergence du modèle q2
+divergence_q3 <- sum(p * log(p / q3) ) # divergence du modèle q3
+divergence_q4 <- sum(p * log(p / q4) ) # divergence du modèle q4
+
+# vecteur de divergences
+divergences <- c(divergence_q1, divergence_q2, divergence_q3, divergence_q4)
+
+# vecteur de negative log-scores
+neg_log_scores <- c(-sum(log(q1) ), -sum(log(q2) ), -sum(log(q3) ), -sum(log(q4) ) )
+```
+
+```{r eval = TRUE, echo = FALSE}
+# relation entre les deux
+data.frame(divergences = divergences, neglogscore = neg_log_scores) %>%
+    ggplot(aes(x = divergences, y = neglogscore) ) +
+    geom_line() +
+    geom_point() +
+    labs(x = "KL Divergence", y = "Negative log-score")
+```
+
+## Déviance
+
+Pour approximer la valeur de $\mathbb{E} [\log(q_{i})]$, on peut
+utiliser la [déviance](https://en.wikipedia.org/wiki/Deviance_%28statistics%29) d'un
+modèle, qui est une mesure du fit **relatif** du modèle.
+
+$$D(q) = -2 \sum_{i} \log(q_{i})$$
+
+où $i$ indice chaque observation et $q_{i}$ est la **vraisemblance** de
+chaque observation.
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+# on standardise la variable "mass"
+d$mass.s <- scale(d$mass)
+
+# on "fit" un modèle de régression linéaire Gaussien
+mod1.8 <- lm(formula = brain ~ mass.s, data = d)
+
+# calcul de la déviance
+-2 * logLik(mod1.8)
+```
+
+## Déviance
+
+```{r eval = TRUE, echo = TRUE}
+# on récupère les paramètres estimés via MLE (intercept et pente)
+alpha <- coef(mod1.8)[1]
+beta <- coef(mod1.8)[2]
+
+# calcul de la log-vraisemblance
+ll <- sum(dnorm(
+    x = d$brain,
+    mean = alpha + beta * d$mass.s,
+    sd = sigma(mod1.8),
+    log = TRUE
+    ) )
+
+# calcul de la déviance
+(-2) * ll
+```
+
+## Log-pointwise-predictive density
+
+Dans le monde fréquentiste, on multiplie le log-score par $-2$ car la différence de
+deux déviances suit une loi de $\chi^{2}$, ce qui est utile pour tester
+l'hypothèse nulle. Mais sans besoin de tester l'hypothèse nulle (avec
+une forme prédéfinie), on peut très bien travailler directement avec le
+log-score $S(q) = \sum_{i} \log(q_{i})$, qu'on traite comme une
+estimation de $\mathbb{E} [\log(q_{i})]$.
+
+. . .
+
+On peut calculer $S(q)$ sur toute la distribution postérieure, ce qui
+donne la version bayésienne du log-score, la **log-pointwise-predictive
+density** :
+
+$$\text{lppd}(y, \Theta) = \sum_{i} \log \frac{1}{S} \sum_{s} p(y_{i} \given \Theta_{s})$$
+
+Où $S$ est le nombre d'échantillons et $\Theta_{s}$ est le $s$-ième
+ensemble de valeurs de paramètres échantillonnés de la distribution
+postérieure.
+
+## In-sample and out-of-sample
+
+La déviance a le même problème que le $R^{2}$, lorsqu'elle est calculée
+sur l'échantillon observé. Dans ce cas, on l'appelle déviance
+**in-sample**.
+
+. . .
+
+Si on est intéressé par les capacités de prédiction de notre modèle,
+nous pouvons calculer la déviance du modèle sur de nouvelles données...
+qu'on appellera dans ce cas déviance **out-of-sample**. Cela revient à
+se demander si notre modèle est performant pour prédire de nouvelles
+données (non observées).
+
+. . .
+
+Imaginons que nous disposions d'un échantillon de taille $N$, que nous
+appellerons échantillon d'apprentissage (training). Nous pouvons
+calculer la déviance du modèle sur cet échantillon ($D_{\text{train}}$ ou
+$D_{\text{in}}$). Si nous acquérons ensuite un nouvel échantillon de taille $N$
+issu du même processus de génération de données (que nous appellerons
+échantillon de test), nous pouvons calculer une déviance sur ce nouvel
+échantillon, en utilisant les paramètres estimés avec l'échantillon
+d'entraînement (que nous appellerons $D_{\text{test}}$ ou $D_{\text{out}}$).
+
+## In sample and out of sample deviance
+
+$$
+\begin{align}
+y_{i} &\sim \mathrm{Normal}(\mu_{i}, 1) \\
+\mu_{i} &= (0.15) x_{1, i} - (0.4) x_{2, i} \\
+\end{align}
+$$
+
+```{r eval = TRUE, echo = FALSE, out.width = "60%"}
+knitr::include_graphics("figures/inout1.png")
+```
+
+On a réalisé ce processus 10.000 fois pour cinq modèles de régression
+linéaire de complexité croissante. Les points bleus représentent la
+déviance calculée sur l'échantillon d'apprentissage et les points noirs
+la déviance calculée sur l'échantillon de test.
+
+## Régularisation
+
+Une autre manière de lutter contre le sur-apprentissage (overfitting) est d'utiliser des priors "sceptiques" qui vont venir ralentir l'apprentissage réalisé sur
+les données (i.e., accorder plus de poids au prior).
+
+```{r eval = TRUE, echo = FALSE, fig.width = 10, fig.height = 6}
+data.frame(x = c(-3, 3) ) %>%
+    ggplot(aes(x = x) ) +
+    stat_function(
+        fun = dnorm, args = list(mean = 0, sd = 0.25),
+        size = 1.5, linetype = 1) +
+    stat_function(
+        fun = dnorm, args = list(mean = 0, sd = 0.5),
+        size = 1.5, linetype = 2) +
+    stat_function(
+        fun = dnorm, args = list(mean = 0, sd = 1),
+        size = 1.5, linetype = 3) +
+    labs(x = expression(theta), y = "Densité de probabilité")
+```
+
+## Régularisation
+
+```{r eval = TRUE, echo = FALSE, out.width = "60%"}
+knitr::include_graphics("figures/inout2.png")
+```
+
+Comment décider de la précision du prior ? Est-ce que le prior est
+"assez" régularisateur ou pas ? On peut diviser le jeu de données en
+deux parties (training et testing) afin de choisir le prior qui produit
+la déviance **out-of-sample** la plus faible. On appelle cette stratégie
+la **validation croisée** (cross-validation).
+
+## Critères d'information
+
+```{r eval = TRUE, echo = FALSE, out.width = "60%"}
+knitr::include_graphics("figures/inout3.png")
+```
+
+On mesure ici la différence entre la déviance **in-sample** (en bleu) et
+la déviance **out-of-sample** (en noir). On remarque que la déviance
+**out-of-sample** est presque exactement égale à la déviance
+**in-sample**, plus deux fois le nombre de paramètres du modèle...
+
+## Akaike information criterion
+
+L'AIC fournit une approximation de la déviance **out-of-sample** :
+
+$$\text{AIC} = D_{\text{train}} + 2p = -2 \text{lppd} + 2p \approx D_{\text{test}}$$
+
+où $p$ est le nombre de paramètres libres (i.e., à estimer) dans le
+modèle. L'AIC donne donc une approximation des capacités de prédiction
+(out-of-sample) du modèle.^[NB : l'AIC fonctionne bien uniquement quand le nombre d'observations $N$ est largement supérieur au nombre de paramètres $p$. Dans le cas
+contraire, on utilise plutôt l'AICc [@burnham2002; @burnham2004].]
+
+```{r echo = FALSE, fig.align = "center", out.width = "400px"}
+knitr::include_graphics("figures/mind_blowing2.gif")
+```
+
+## Deviance information criterion
+
+Une condition d’application de l'AIC est que les priors soient plats
+ou dépassés par la vraisemblance (e.g., lorsqu'on a beaucoup de
+données). Le DIC est un indice qui ne requiert pas cette condition, en
+s'accommodant de priors informatifs.
+
+. . .
+
+Le DIC est calculé à partir de la distribution a posteriori de la
+déviance $D$ calculée sur l'échantillon d'apprentissage (i.e.,
+$D_{\text{train}}$).
+
+$$\text{DIC} = \bar{D} + (\bar{D} - \hat{D} ) = \bar{D} + p_{D}$$
+
+où $\bar{D}$ est la moyenne de la distribution a posteriori $D$ calculée
+pour chaque valeur de paramètre échantillonnée, et $\hat{D}$ la déviance
+calculée à la moyenne de la distribution a posteriori. La différence
+$\bar{D} - \hat{D} = p_{D}$ est analogue au nombre de paramètres utilisé
+dans le calcul de l'AIC (en cas de prior plat, cette différence revient
+à compter le nombre de paramètres).
+
+## Widely applicable information criterion
+
+Une condition d'application de l'AIC et du DIC est que la distribution a
+posteriori soit une distribution gaussienne multivariée. Le WAIC relâche
+cette condition et il est souvent plus précis que le DIC.
+
+. . .
+
+Un aspect important du WAIC est qu'il est dit "pointwise", c'est à dire
+qu'il considère l'imprécision de prédiction point par point (donnée par
+donnée), indépendamment pour chaque observation.
+
+. . .
+
+On va commencer par calculer la **log-pointwise-predictive-density**
+(lppd), définie de la manière suivante :
+
+$$\text{lppd}(y, \Theta) = \sum_{i} \log \frac{1}{S} \sum_{s} p(y_{i} \given \Theta_{s})$$
+
+En Français : la log-densité prédictive point par point est **la somme du
+log de la vraisemblance moyenne de chaque observation**. Il s'agit de
+l'analogue point par point de la déviance, moyennée sur toute la
+distribution postérieure.
+
+## Widely applicable information criterion
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+library(brms)
+data(cars)
+
+priors <- c(
+  prior(normal(0, 100), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.1), class = sigma)
+  )
+
+mod1 <- brm(
+  formula = dist ~ 1 + speed,
+  prior = priors,
+  data = cars
+  )
+```
+
+## Widely applicable information criterion
+
+$$\text{lppd}(y, \Theta) = \sum_{i} \log \frac{1}{S} \sum_{s} p(y_{i} \given \Theta_{s})$$
+
+```{r eval = TRUE, echo = TRUE}
+# pointwise log-likelihood (S samples * N observations)
+ll <- log_lik(mod1) %>% data.frame()
+
+(lppd <-
+  ll %>% 
+  pivot_longer(
+    cols = everything(),
+    names_to = "i",
+    values_to = "loglikelihood"
+    ) %>%
+  # log-likelihood to likelihood
+  mutate(likelihood = exp(loglikelihood) ) %>%
+  # pour chaque observation
+  group_by(i) %>%
+  # logarithme de la vraisemblance moyenne
+  summarise(log_mean_likelihood = log(mean(likelihood) ) ) %>%
+  # on prend la somme de ces valeurs
+  summarise(lppd = sum(log_mean_likelihood) ) %>%
+  ungroup() %>%
+  pull(lppd) )
+```
+
+## Widely applicable information criterion
+
+La deuxième partie du calcul du WAIC est le nombre de paramètres
+effectif, $p_{\text{WAIC}}$. On définit
+$\text{var}_{\theta}\log[p(y_{i} \given \theta)]$ comme la variance de la
+log-vraisemblance pour chaque observation $i$ de l'échantillon
+d'entraînement.
+
+$$p_{\text{WAIC}} = \sum_{i} \text{var}_{\theta}\log[p(y_{i} \given \theta)]$$
+
+```{r eval = TRUE, echo = TRUE}
+(pwaic <-
+  ll %>% 
+  pivot_longer(
+    everything(),
+    names_to = "i",
+    values_to = "loglikelihood"
+    ) %>%
+  # pour chaque observation
+  group_by(i) %>%
+  # variance de la log-vraisemblance
+  summarise(var_loglikelihood = var(loglikelihood) ) %>%
+  # somme de ces variances
+  summarise(pwaic = sum(var_loglikelihood) ) %>%
+  ungroup() %>%
+  pull(pwaic) )
+```
+
+## Widely applicable information criterion
+
+Ensuite, le WAIC est défini par :
+
+$$
+\text{WAIC}(y, \Theta) = - 2 \big(\text{lppd} - \underbrace{\sum_{i} \text{var}_{\theta}\log[p(y_{i} \given \theta) ]}_{\text{penalty term}}\big)
+$$
+
+```{r eval = TRUE, echo = TRUE}
+(WAIC <- -2 * (lppd - pwaic) )
+```
+
+## Widely applicable information criterion
+
+Le WAIC est également un estimateur de la déviance **out-of-sample**. La
+fonction `brms::waic()` permet de le calculer directement.
+
+```{r eval = TRUE, echo = TRUE}
+waic(mod1)
+```
+
+## Critères d'information et régularisation
+
+```{r echo = FALSE, out.width = "25%"}
+knitr::include_graphics("figures/combining.png")
+```
+
+Le DIC et le WAIC peuvent être conceptualisés (au même titre que l'AIC)
+comme des approximations de la déviance **out-of-sample**. On remarque que
+le WAIC produit des approximations plus précises que le DIC, et que
+l'utilisation de priors régularisateurs permet de réduire la déviance
+**out-of-sample**.
+
+## Et ensuite ?
+
+**Sélection de modèle** : On choisit le meilleur modèle un utilisant un
+des outils présentés et on base nos conclusions sur les paramètres
+estimés par ce meilleur modèle.
+
+. . .
+
+**Comparaison de modèles** : On utilise la validation croisée ou des
+critères d'informations mais aussi les outils de **posterior predictive
+checking** discutés précédemment, pour chaque modèle, afin d'étudier
+leurs forces et faiblesses.
+
+. . .
+
+**Moyennage de modèles** : On va construire des posterior predictive
+checks qui exploitent ce qu'on sait des capacités de prédiction de
+chaque modèle (e.g., via le WAIC).
+
+## Comparaison de modèles
+
+On essaye de prédire les kcal par gramme de lait (`kcal.per.g`)
+avec les prédicteurs `neocortex` et le logarithme de `mass`. Nous allons
+ensuite fitter 4 modèles qui correspondent aux 4 combinaisons possibles
+de prédicteurs et les comparer en utilisant le WAIC.
+
+. . .
+
+```{r eval = TRUE, echo = TRUE}
+library(imsb)
+d <- open_data(milk)
+d <- milk[complete.cases(milk), ] # removing NAs
+d$neocortex <- d$neocortex.perc / 100 # rescaling explanatory variable
+head(d)
+```
+
+## Comparaison de modèles
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod2.1 <- brm(
+  formula = kcal.per.g ~ 1,
+  family = gaussian,
+  data = d,
+  prior = c(
+    prior(normal(0, 100), class = Intercept),
+    prior(exponential(0.01), class = sigma)
+    ),
+  iter = 2000, warmup = 1000,
+  backend = "cmdstanr" # on peut changer le backend de brms
+  )
+
+mod2.2 <- brm(
+  formula = kcal.per.g ~ 1 + neocortex,
+  family = gaussian,
+  data = d,
+  prior = c(
+    prior(normal(0, 100), class = Intercept),
+    prior(normal(0, 10), class = b),
+    prior(exponential(0.01), class = sigma)
+    ),
+  iter = 2000, warmup = 1000,
+  backend = "cmdstanr"
+  )
+```
+
+## Comparaison de modèles
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod2.3 <- brm(
+  formula = kcal.per.g ~ 1 + log(mass),
+  family = gaussian,
+  data = d,
+  prior = c(
+    prior(normal(0, 100), class = Intercept),
+    prior(exponential(0.01), class = sigma)
+    ),
+  iter = 2000, warmup = 1000,
+  backend = "cmdstanr"
+  )
+
+mod2.4 <- brm(
+  formula = kcal.per.g ~ 1 + neocortex + log(mass),
+  family = gaussian,
+  data = d,
+  prior = c(
+    prior(normal(0, 100), class = Intercept),
+    prior(normal(0, 10), class = b),
+    prior(exponential(0.01), class = sigma)
+    ),
+  iter = 2000, warmup = 1000,
+  backend = "cmdstanr"
+  )
+```
+
+## Comparaison de modèles
+
+On peut utiliser la méthode `update()` qui permet de fitter plus
+rapidement un nouveau modèle qui ressemble à un modèle déjà existant.
+
+```{r eval = FALSE, echo = TRUE, results = "hide"}
+mod2.3 <- update(
+  object = mod2.2,
+  newdata = d,
+  formula = kcal.per.g ~ 1 + log(mass)
+  )
+
+mod2.4 <- update(
+  object = mod2.3,
+  newdata = d,
+  formula = kcal.per.g ~ 1 + neocortex + log(mass)
+  )
+```
+
+## Comparaison de modèles
+
+```{r eval = TRUE, echo = TRUE}
+# calcul du WAIC et ajout du WAIC à chaque modèle
+
+mod2.1 <- add_criterion(mod2.1, "waic")
+mod2.2 <- add_criterion(mod2.2, "waic")
+mod2.3 <- add_criterion(mod2.3, "waic")
+mod2.4 <- add_criterion(mod2.4, "waic")
+
+# comparaison des WAIC de chaque modèle
+
+w <- loo_compare(mod2.1, mod2.2, mod2.3, mod2.4, criterion = "waic")
+print(w, simplify = FALSE)
+```
+
+## Akaike's weights
+
+Le poids d'un modèle est une estimation de la probabilité que ce modèle
+fera les meilleures prédictions possibles sur un nouveau jeu de données,
+conditionnellement au set de modèles considéré.
+
+$$w_{i} = \frac{\exp \left(-\frac{1}{2}\text{dWAIC}_{i}\right)}{\sum_{j=1}^{m} \exp \left(-\frac{1}{2}\text{dWAIC}_{j}\right)}$$
+
+. . .
+
+Cette fonction permet simplement de passer du WAIC à une probabilité
+(équivalent à une fonction softmax). Le modèle `mod2.4` a un poids de $0.96$, qui le place en tête du jeu de modèles. N'oublions cependant pas que nous disposons seulement
+de 17 observations...
+
+```{r eval = TRUE, echo = TRUE}
+model_weights(mod2.1, mod2.2, mod2.3, mod2.4, weights = "waic") %>% round(digits = 3)
+```
+
+## Moyennage de modèles (model averaging)
+
+Pourquoi ne conserver uniquement le premier modèle et oublier les autres
+? Une autre stratégie consisterait à pondérer les prédictions des
+modèles par leurs poids respectifs. C'est ce qu'on appelle le moyennage
+de modèles (model averaging).
+
+-   Calculer le WAIC de chaque modèle.
+-   Calculer le poids de chaque modèle.
+-   Simuler des données à partir de chaque modèle.
+-   Combiner ces valeurs simulées dans un **ensemble** de prédictions pondérées par le poids du modèle.
+
+## Moyennage de modèles (model averaging)
+
+On peut utiliser la fonction `brms::pp_average()` qui pondère les
+prédictions de chaque modèle par leur poids.
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+# grille de valeurs pour lesquelles on va générer des prédictions
+new_data <- data.frame(
+  neocortex = seq(from = 0.5, to = 0.8, length.out = 30),
+  mass = 4.5
+  )
+
+# prédictions du modèle mod2.4
+f <- fitted(mod2.4, newdata = new_data) %>%
+  as.data.frame() %>%
+  bind_cols(new_data)
+
+# prédictions moyennées sur les 4 modèles
+averaged_predictions <- pp_average(
+  mod2.1, mod2.2, mod2.3, mod2.4,
+  weights = "waic",
+  method  = "fitted",
+  newdata = new_data
+  ) %>%
+  as.data.frame() %>%
+  bind_cols(new_data)
+```
+
+## Moyennage de modèles (model averaging)
+
+Voici les prédictions de tous les modèles considérés, pondérés par leur
+poids respectif. Comme le modèle `mod2.4` concentrait quasiment tout le
+poids, il fait sens que cette prédiction moyennée soit similaire aux
+prédictions du modèle `mod2.4`.
+
+```{r eval = TRUE, echo = FALSE, fig.width = 9, fig.height = 6}
+averaged_predictions %>%
+  ggplot(aes(x = neocortex, y = Estimate) ) +
+  geom_ribbon(
+    aes(ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.25
+    ) +
+  geom_line() +
+  geom_ribbon(
+    data = f,
+    aes(ymin = Q2.5, ymax = Q97.5),
+    color = "steelblue",
+    fill = "steelblue",
+    alpha = 0.5,
+    linetype = 2
+    ) +
+  geom_line(
+    data = f,
+    color = "steelblue",
+    linetype = 2
+    ) +
+  geom_point(
+    data = d,
+    aes(y = kcal.per.g), 
+    size = 2
+    ) +
+  labs(y = "kcal.per.g") +
+  coord_cartesian(xlim = range(d$neocortex), ylim = range(d$kcal.per.g) )
+```
+
+## R-squared
+
+```{r eval = TRUE, echo = TRUE}
+bayes_R2(mod2.4) %>% round(digits = 3)
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 4, dev = "png", dpi = 200}
+posterior_plot(samples = bayes_R2(mod2.4, summary = FALSE)[, 1])
+```
+
+## R-squared
+
+```{r eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
+posterior_plot(
+    samples = bayes_R2(mod2.4, summary = FALSE)[, 1] -
+        bayes_R2(mod2.3, summary = FALSE)[, 1],
+    compval = 0
+    ) + labs(x = "Différence de R2")
+```
+
+## Conclusions
+
+Se méfier des interprétations intuitives (et souvent erronées) de la
+p-valeur, des intervalles de confiance, ou du facteur de Bayes.
+
+. . .
+
+Retenir que la difficulté en modélisation est de trouver un juste
+équilibre entre sous-apprentissage (underfitting) et
+sur-apprentissage (overfitting).
+
+. . .
+
+Pour contraindre l'apprentissage réalisé par le modèle sur les données
+observées (et ainsi éviter que le modèle accorde trop de poids à ces
+données), on peut utiliser des priors dits **régularisateurs** et/ou des
+outils comme la validation croisée ou les critères d'informations
+permettant d'estimer les capacités de prédiction du modèle sur de
+nouvelles données.
+
+## Travaux pratiques
+
+```{r eval = TRUE, echo = TRUE}
+# import des données "howell"
+d <- open_data(howell) %>% mutate(age = scale(age) )
+
+# on définit une graine (afin de pouvoir reproduire les résultats)
+set.seed(666)
+
+# on échantillonne des lignes du jeu de données
+i <- sample(1:nrow(d), size = nrow(d) / 2)
+
+# on définit l'échantillon d'entraînement
+d1 <- d[i, ]
+
+# on définit l'échantillon de test
+d2 <- d[-i, ]
+```
+
+Nous avons maintenant deux dataframes, de 272 lignes chacune. On va
+utiliser `d1` pour fitter nos modèles et `d2` pour les évaluer.
+
+## Travaux pratiques
+
+Soit $h_{i}$ les valeurs de taille et $x_{i}$ les valeurs centrées
+d'âge, sur la ligne $i$. Construisez les modèles suivants avec `d1`, en
+utilisant `brms::brm()` et des priors faiblement régularisateurs.
+
+```{=tex}
+\begin{align}
+\mathcal{M_{1}} : h_{i} &\sim \mathrm{Normal}(\mu_{i},\sigma) \\
+\mu_{i} &= \alpha + \beta_{1} x_{i} \\
+
+\mathcal{M_{2}} : h_{i} &\sim \mathrm{Normal}(\mu_{i},\sigma) \\
+\mu_{i} &= \alpha + \beta_{1} x_{i} + \beta_{2} x_{i}^{2} \\
+
+\mathcal{M_{3}} : h_{i} &\sim \mathrm{Normal}(\mu_{i},\sigma) \\
+\mu_{i} &= \alpha + \beta_{1} x_{i} + \beta_{2} x_{i}^{2} + \beta_{3} x_{i}^{3} \\
+
+\mathcal{M_{4}} : h_{i} &\sim \mathrm{Normal}(\mu_{i},\sigma) \\
+\mu_{i} &= \alpha + \beta_{1} x_{i} + \beta_{2} x_{i}^{2} + \beta_{3} x_{i}^{3} + \beta_{4} x_{i}^{4} \\
+
+\mathcal{M_{5}} : h_{i} &\sim \mathrm{Normal}(\mu_{i},\sigma) \\
+\mu_{i} &= \alpha + \beta_{1} x_{i} + \beta_{2} x_{i}^{2} + \beta_{3} x_{i}^{3} + \beta_{4} x_{i}^{4} + \beta_{5} x_{i}^{5} \\
+
+\mathcal{M_{6}} : h_{i} &\sim \mathrm{Normal}(\mu_{i},\sigma) \\
+\mu_{i} &= \alpha + \beta_{1} x_{i} + \beta_{2} x_{i}^{2} + \beta_{3} x_{i}^{3} + \beta_{4} x_{i}^{4} + \beta_{5} x_{i}^{5} + \beta_{6} x_{i}^{6} \\
+
+\end{align}
+```
+
+## Travaux pratiques
+
+::: nonincremental
+-   Comparer ces modèles en utilisant le WAIC. Comparer les rangs des
+    modèles et leurs poids.
+
+-   Pour chaque modèle, produire un plot de la moyenne estimée et
+    l'intervalle de confiance à 97% de la moyenne, surimposée aux
+    données brutes. Comment ces prédictions diffèrent-elles selon les
+    modèles ?
+
+-   Faire un plot des prédictions moyennées sur tous les modèles (sur
+    les trois meilleurs). En quoi ces prédictions diffèrent-elles des
+    prédictions du modèle avec le plus petit WAIC ?
+
+-   Calculer la déviance **out-of-sample** pour chaque modèle. Comparer
+    les déviances obtenues à la question précédente aux valeurs de WAIC.
+    Basé sur les déviances obtenues, quel modèle fait les meilleures
+    prédictions ? Est-ce que le WAIC est un bon estimateur de la
+    déviance **out-of-sample** ?
+:::
+
+## Solution - Question 1
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod3.1 <- brm(
+  formula = height ~ 1 + age,
+  family = gaussian(),
+  data = d1,
+  prior = c(
+    prior(normal(0, 100), class = Intercept),
+    prior(exponential(0.01), class = sigma)
+    ),
+  backend = "cmdstanr"
+  )
+
+mod3.2 <- update(
+  mod3.1,
+  newdata = d1,
+  formula = height ~ 1 + age + I(age^2)
+  )
+
+mod3.3 <- update(
+  mod3.1,
+  newdata = d1,
+  formula = height ~ 1 + age + I(age^2) + I(age^3)
+  )
+```
+
+## Solution - Question 1
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod3.4 <- update(
+  mod3.1,
+  newdata = d1,
+  formula = height ~ 1 + age + I(age^2) + I(age^3) + I(age^4)
+  )
+
+mod3.5 <- update(
+  mod3.1,
+  newdata = d1,
+  formula = height ~ 1 + age + I(age^2) + I(age^3) + I(age^4) + I(age^5)
+  )
+
+mod3.6 <- update(
+  mod3.1,
+  newdata = d1,
+  formula = height ~ 1 + age + I(age^2) + I(age^3) + I(age^4) + I(age^5) + I(age^6)
+  )
+```
+
+## Solution - Question 1
+
+```{r eval = TRUE, echo = TRUE}
+# calcul du WAIC et ajout du WAIC à chaque modèle
+
+mod3.1 <- add_criterion(mod3.1, "waic")
+mod3.2 <- add_criterion(mod3.2, "waic")
+mod3.3 <- add_criterion(mod3.3, "waic")
+mod3.4 <- add_criterion(mod3.4, "waic")
+mod3.5 <- add_criterion(mod3.5, "waic")
+mod3.6 <- add_criterion(mod3.6, "waic")
+
+# comparaison des WAIC de chaque modèle
+
+mod_comp <- loo_compare(mod3.1, mod3.2, mod3.3, mod3.4, mod3.5, mod3.6, criterion = "waic")
+print(mod_comp, digits = 2, simplify = FALSE)
+```
+
+## Solution - Question 2
+
+```{r eval = TRUE, echo = TRUE}
+# on crée un vecteur de valeurs possibles pour "age"
+age_seq <- data.frame(age = seq(from = -2, to = 3, length.out = 1e2) )
+
+# on récupère les prédictions du modèle pour ces valeurs
+mu <- data.frame(fitted(mod3.1, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on récupère les prédictions du modèle pour ces valeurs
+pred_age <- data.frame(predict(mod3.1, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on affiche les dix premières prédictions
+head(pred_age, 10)
+```
+
+## Solution - Question 2
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = pred_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height")
+```
+
+## Solution - Question 2
+
+```{r eval = TRUE, echo = FALSE, fig.width = 16, fig.height = 8}
+# on crée un vecteur de valeurs possibles pour "age"
+age_seq <- data.frame(age = seq(from = -2, to = 3, length.out = 1e2) )
+
+# on récupère les prédictions du modèle pour ces valeurs
+mu <- data.frame(fitted(mod3.1, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on récupère les prédictions du modèle pour ces valeurs
+pred_age <- data.frame(predict(mod3.1, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+p1 <- d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = pred_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height", title = "Predictions of mod3.1")
+
+# on récupère les prédictions du modèle pour ces valeurs
+mu <- data.frame(fitted(mod3.2, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on récupère les prédictions du modèle pour ces valeurs
+pred_age <- data.frame(predict(mod3.2, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+p2 <- d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = pred_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height", title = "Predictions of mod3.2")
+
+# on récupère les prédictions du modèle pour ces valeurs
+mu <- data.frame(fitted(mod3.3, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on récupère les prédictions du modèle pour ces valeurs
+pred_age <- data.frame(predict(mod3.3, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+p3 <- d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = pred_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height", title = "Predictions of mod3.3")
+
+# on récupère les prédictions du modèle pour ces valeurs
+mu <- data.frame(fitted(mod3.4, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on récupère les prédictions du modèle pour ces valeurs
+pred_age <- data.frame(predict(mod3.4, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+p4 <- d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = pred_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height", title = "Predictions of mod3.4")
+
+# on récupère les prédictions du modèle pour ces valeurs
+mu <- data.frame(fitted(mod3.5, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on récupère les prédictions du modèle pour ces valeurs
+pred_age <- data.frame(predict(mod3.5, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+p5 <- d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = pred_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height", title = "Predictions of mod3.5")
+
+# on récupère les prédictions du modèle pour ces valeurs
+mu <- data.frame(fitted(mod3.6, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+# on récupère les prédictions du modèle pour ces valeurs
+pred_age <- data.frame(predict(mod3.6, newdata = age_seq) ) %>% bind_cols(age_seq)
+
+p6 <- d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = pred_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height", title = "Predictions of mod3.6")
+
+(p1 + p2 + p3) / (p4 + p5 + p6)
+```
+
+## Solution - Question 3
+
+```{r eval = TRUE, echo = TRUE}
+# prédictions moyennées sur les 4 modèles
+averaged_predictions_mu <- pp_average(
+  mod3.1, mod3.2, mod3.3, mod3.4, mod3.5, mod3.6,
+  weights = "waic",
+  method  = "fitted",
+  newdata = age_seq
+  ) %>%
+  as.data.frame() %>%
+  bind_cols(age_seq)
+
+# prédictions moyennées sur les 4 modèles
+averaged_predictions_age <- pp_average(
+  mod3.1, mod3.2, mod3.3, mod3.4, mod3.5, mod3.6,
+  weights = "waic",
+  method  = "predict",
+  newdata = age_seq
+  ) %>%
+  as.data.frame() %>%
+  bind_cols(age_seq)
+```
+
+## Solution - Question 3
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+d1 %>%
+  ggplot(aes(x = age, y = height) ) +
+  geom_ribbon(
+    data = averaged_predictions_mu, aes(x = age, ymin = Q2.5, ymax = Q97.5),
+    alpha = 0.8, inherit.aes = FALSE
+    ) +
+  geom_smooth(
+    data = averaged_predictions_age, aes(y = Estimate, ymin = Q2.5, ymax = Q97.5),
+    stat = "identity", color = "black", alpha = 0.5, size = 1
+    ) +
+  geom_point(colour = "white", fill = "black", pch = 21, size = 3, alpha = 0.8) +
+  labs(x = "Age", y = "Height", title = "Model-averaged predictions")
+```
+
+## Solution - Question 4
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+# calcul de la log-vraisemblance (log-likelihood) du modèle mod3.1
+# chaque ligne est une itération et chaque colonne une observation
+log_lik_mod3.1 <- log_lik(mod3.1)
+
+# NB : la déviance possède également une distribution dans le monde bayésien...
+dev.mod3.1 <- mean(-2 * rowSums(log_lik_mod3.1) )
+
+# calcul de la log-vraisemblance (log-likelihood) du modèle mod3.2
+dev.mod3.2 <- mean(-2 * rowSums(log_lik(mod3.2) ) )
+
+# calcul de la log-vraisemblance (log-likelihood) du modèle mod3.3
+dev.mod3.3 <- mean(-2 * rowSums(log_lik(mod3.3) ) )
+
+# calcul de la log-vraisemblance (log-likelihood) du modèle mod3.4
+dev.mod3.4 <- mean(-2 * rowSums(log_lik(mod3.4) ) )
+
+# calcul de la log-vraisemblance (log-likelihood) du modèle mod3.5
+dev.mod3.5 <- mean(-2 * rowSums(log_lik(mod3.5) ) )
+
+# calcul de la log-vraisemblance (log-likelihood) du modèle mod3.6
+dev.mod3.6 <- mean(-2 * rowSums(log_lik(mod3.6) ) )
+```
+
+## Solution - Question 4
+
+```{r eval = TRUE, echo = TRUE}
+deviances <- c(dev.mod3.1, dev.mod3.2, dev.mod3.3, dev.mod3.4, dev.mod3.5, dev.mod3.6)
+comparison <- mod_comp %>% data.frame %>% select(waic) %>% rownames_to_column()
+waics <- comparison %>% arrange(rowname) %>% pull(waic)
+```
+
+```{r eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+data.frame(deviance = deviances, waic = waics) %>%
+    gather(type, value) %>%
+    mutate(x = rep(1:6, 2) ) %>%
+    ggplot(aes(x = x, y = value, colour = type) ) +
+    scale_colour_brewer(palette = "Dark2") +
+    geom_point(size = 2) +
+    geom_line(size = 1, linetype = 2) +
+    geom_line(aes(group = x) ) +
+    scale_x_continuous(breaks = 1:6) +
+    labs(x = "Modèle", y = "Déviance - WAIC")
+```
+
+## Références {.refs}

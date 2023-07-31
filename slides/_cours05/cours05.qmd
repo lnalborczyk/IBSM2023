@@ -1,0 +1,1994 @@
+---
+title: Introduction à la modélisation statistique bayésienne
+subtitle: Un cours en R et Stan avec brms
+author: Ladislas Nalborczyk (LPC, LNC, CNRS, Aix-Marseille Univ)
+from: markdown+emoji
+format:
+  revealjs:
+    incremental: true
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IMSB2022"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "Voir le code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+---
+
+## Planning
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(tidyverse)
+library(brms)
+library(imsb)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# defining constant colour variables
+prior_color <- "steelBlue"
+likelihood_color <- "orangered"
+posterior_color <- "magenta4"
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+Cours n°01 : Introduction à l'inférence bayésienne <br> Cours n°02 :
+Modèle Beta-Binomial <br> Cours n°03 : Introduction à brms, modèle de
+régression linéaire <br> Cours n°04 : Modèle de régression linéaire
+(suite) <br> **Cours n°05 : Markov Chain Monte Carlo** <br> Cours n°06 :
+Modèle linéaire généralisé <br> Cours n°07 : Comparaison de modèles <br>
+Cours n°08 : Modèles multi-niveaux <br> Cours n°09 : Modèles
+multi-niveaux généralisés <br> Cours n°10 : Data Hackathon <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## Rappels de notation
+
+La notation $p(y \given \theta)$ peut faire référence à deux choses selon le contexte : la fonction de vraisemblance et le modèle d'observation. De plus, on trouve de nombreuses notations ambigues en statistique. Essayons de clarifier ci-dessous.
+
+- $\Pr(Y = y \given \Theta = \theta)$ désigne une **probabilité** (e.g., `dbinom(x = 2, size = 10, prob = 0.5)`).
+- $p(Y = y \given \Theta = \theta)$ désigne une **densité** de probabilité (e.g., `dbeta(x = 0.4, shape1 = 2, shape2 = 3)`).
+- $p(Y = y \given \Theta)$ désigne une fonction de vraisemblance (likelihood) discrète ou continue, $y$ est connu/fixé, $\Theta$ est une variable aléatoire, la somme (ou l'intégrale) de cette distribution **n'est pas égale à 1** (e.g., `dbinom(x = 2, size = 10, prob = seq(0, 1, 0.1) )`).
+- $p(Y \given \Theta = \theta)$ désigne une fonction de masse (ou densité) de probabilité (dont la somme ou l'intégrale est égale à 1), qu'on appelle aussi "modèle d'observation" (observation model) ou "distribution d'échantillonnage" (sampling distribution), $Y$ est une variable aléatoire, $\theta$ est connu/fixé (e.g., `dbinom(x = 0:10, size = 10, prob = 0.5)`)
+
+. . .
+
+Le but de l'analyse bayésienne (i.e., ce qu'on obtient à la fin d'une telle analyse) est la distribution postérieure $p(\theta \given y)$. On peut la résumer pour faciliter la communication des résultats, mais toute l'information souhaitée est contenue dans **la distribution toute entière** (pas seulement sa moyenne, son mode, ou autre).
+
+## Rappels de notation
+
+```{r greek, echo = FALSE, fig.cap = "Illustration tirée de <https://masterofmemory.com/mmem-0333-learn-the-greek-alphabet/>."}
+knitr::include_graphics("figures/greek.jpeg")
+```
+
+## Rappels : prior predictive checking
+
+```{r, eval = FALSE, echo = TRUE}
+########################################################################
+# On définit un modèle avec :                                          #
+# Une fonction de vraisemblance Gaussienne : y ~ Normal(mu, sigma)     #
+# Un prior Gaussien pour la moyenne : mu ~ Normal(100, 10)             #
+# Et un prior Exponentiel pour l'écart-type : sigma ~ Exponential(0.1) #
+########################################################################
+
+# on simule 10.000 observations issues d'une distribution Gaussienne sans incertitude (épistémique)
+rnorm(n = 1e4, mean = 100, sd = 10) |> hist(breaks = "FD")
+
+# on tire 10.000 échantillons issus du prior Gaussien pour mu (i.e., p(mu))
+# ce prior représente ce qu'on sait de mu avant de voir les données...
+mu_prior <- rnorm(n = 1e4, mean = 100, sd = 10)
+
+# 10.000 observations issues d'une distribution Gaussienne avec incertitude sur mu
+rnorm(n = 1e4, mean = mu_prior, sd = 10) |> hist(breaks = "FD")
+
+# on tire 10.000 échantillons issus du prior Exponentiel pour sigma (i.e., p(sigma))
+# ce prior représente ce qu'on sait de sigma avant de voir les données...
+sigma_prior <- rexp(n = 1e4, rate = 0.1)
+
+# 10.000 observations issues d'une distribution Gaussienne avec incertitude sur mu ET sigma
+# ce que le modèle suppose à propos de y sur la base de nos priors pour mu et sigma...
+rnorm(n = 1e4, mean = mu_prior, sd = sigma_prior) |> hist(breaks = "FD")
+```
+
+## Rappels : prior predictive checking
+
+```{r, eval = TRUE, echo = FALSE, out.width = "75%", fig.asp = 0.75}
+################################################################################
+# Assume a model with a Normal likelihood function: y ~ Normal(mu, sigma)      #
+# A Normal prior on the mean: mu ~ Normal(100, 10)                             #
+# And an Exponential prior on the standard deviation: sigma ~ Exponential(0.1) #
+################################################################################
+
+# graphical parameters (three rows and one column)
+par(mfrow = c(3, 1) )
+
+# number of samples to draw
+nsamples <- 1e4
+
+# simulating data from a normal distribution without (epistemic) uncertainty
+rnorm(n = nsamples, mean = 100, sd = 10) |>
+    hist(breaks = "FD", xlim = c(-50, 250) )
+
+# drawing samples from the normal prior for mu (i.e., p(mu))
+# what we know about mu before seeing the data
+mu_prior <- rnorm(n = nsamples, mean = 100, sd = 10)
+
+# simulating data from a normal distribution with uncertainty on mu
+rnorm(n = nsamples, mean = mu_prior, sd = 10) |>
+    hist(breaks = "FD", xlim = c(-50, 250) )
+
+# drawing samples from the exponential prior for sigma (i.e., p(sigma))
+# what we know about sigma before seeing the data
+sigma_prior <- rexp(n = nsamples, rate = 0.1)
+
+# simulating data from a normal distribution with uncertainty on both mu and sigma
+# what we (the model) assume(s) about y according to our priors for mu and sigma
+rnorm(n = nsamples, mean = mu_prior, sd = sigma_prior) |>
+    hist(breaks = "FD", xlim = c(-50, 250) )
+```
+
+## Le problème avec la distribution postérieure
+
+$$
+\color{purple}{p(\mu, \sigma \given h)} = \frac{\prod_{i} \color{orangered}{\mathrm{Normal}(h_{i} \given \mu, \sigma)}\color{steelblue}{\mathrm{Normal}(\mu \given 178, 20)\mathrm{Uniform}(\sigma \given 0, 50)}}
+{\color{green}{\int \int \prod_{i} \mathrm{Normal}(h_{i} \given \mu, \sigma)\mathrm{Normal}(\mu \given 178, 20)\mathrm{Uniform}(\sigma \given 0, 50) \mathrm{d} \mu \mathrm{d} \sigma}}
+$$
+
+Petit problème : La constante de normalisation (en vert) s'obtient en calculant la somme (pour
+des variables discrètes) ou l'intégrale (pour des variables continues)
+de la densité conjointe $p(\text{data}, \theta)$ sur toutes les valeurs
+possibles de $\theta$. Cela se complique lorsque le modèle comprend
+plusieurs paramètres et/ou que la forme de la distribution postérieure est complexe...
+
+## Le problème avec la distribution postérieure
+
+```{r, eval = FALSE, echo = FALSE}
+# from https://plotly.com/r/3d-surface-plots/
+
+z <- c(
+  c(8.83,8.89,8.81,8.87,8.9,8.87),
+  c(8.89,8.94,8.85,8.94,8.96,8.92),
+  c(8.84,8.9,8.82,8.92,8.93,8.91),
+  c(8.79,8.85,8.79,8.9,8.94,8.92),
+  c(8.79,8.88,8.81,8.9,8.95,8.92),
+  c(8.8,8.82,8.78,8.91,8.94,8.92),
+  c(8.75,8.78,8.77,8.91,8.95,8.92),
+  c(8.8,8.8,8.77,8.91,8.95,8.94),
+  c(8.74,8.81,8.76,8.93,8.98,8.99),
+  c(8.89,8.99,8.92,9.1,9.13,9.11),
+  c(8.97,8.97,8.91,9.09,9.11,9.11),
+  c(9.04,9.08,9.05,9.25,9.28,9.27),
+  c(9,9.01,9,9.2,9.23,9.2),
+  c(8.99,8.99,8.98,9.18,9.2,9.19),
+  c(8.93,8.97,8.97,9.18,9.2,9.18)
+  )
+
+dim(z) <- c(15, 6)
+# z2 <- z + 1
+# z3 <- z - 1
+
+fig <- plot_ly(showscale = FALSE)
+fig <- fig %>% add_surface(z = ~z)
+# fig <- fig %>% add_surface(z = ~z2, opacity = 0.98)
+# fig <- fig %>% add_surface(z = ~z3, opacity = 0.98)
+
+# exporting it to an html object
+# orca(fig, file = "figures/plotly.png")
+htmlwidgets::saveWidget(fig, file = "plotly1.html")
+```
+
+```{r, eval = TRUE}
+#| echo: false
+#| out.width: "100%"
+knitr::include_url(url = "plotly1.html", height = "600px")
+```
+
+## Rappels Cours n°02
+
+Trois méthodes pour résoudre (contourner) ce problème :
+
+-   La distribution a priori est un **prior conjugué** de la fonction de
+    vraisemblance (e.g., modèle Beta-Binomial). Dans ce cas, il existe
+    une solution analytique (i.e., qu'on peut calculer de manière exacte) pour
+    la distribution postérieure.
+
+-   Autrement, pour des modèles simples, on peut utiliser la méthode par
+    grille. On calcule la valeur exacte de la probabilité postérieure en
+    un nombre fini de points dans l'espace des paramètres.
+
+-   Pour les modèles plus complexes, explorer tout l'espace des
+    paramètres n'est pas tractable. On va plutôt échantillonner
+    **intelligemment** un grand nombre de points dans l'espace des
+    paramètres.
+
+## Objectifs du cours
+
+$\longrightarrow~$ Présenter le principe de base de l'échantillonnage :
+Markov Chain Monte Carlo
+
+$\longrightarrow~$ Présenter deux algorithmes (Metropolis-Hastings et HMC)
+
+$\longrightarrow~$ Montrer les forces mais aussi les faiblesses de ces
+méthodes
+
+$\longrightarrow~$ Donner des outils de contrôle sur ces méthodes
+
+$\longrightarrow~$ Appliquer ces méthodes à un cas simple
+
+## Markov Chain Monte Carlo
+
+-   Markov chain **Monte Carlo** <br> $\longrightarrow~$ Échantillonnage
+    aléatoire <br> $\longrightarrow~$ Le résultat est un ensemble de
+    valeurs du paramètre
+
+-   Markov **chain** Monte Carlo<br> $\longrightarrow~$ Les valeurs sont
+    générées sous forme de séquences (liaison de dépendance) <br>
+    $\longrightarrow~$ Indice temporel pour identifier la place dans la
+    chaîne <br> $\longrightarrow~$ Le résultat est de la forme :
+    $\theta^1, \theta^2, \theta^3, \dots, \theta^t$
+
+-   **Markov** chain Monte Carlo <br> $\longrightarrow~$ La valeur de
+    paramètre générée ne dépend que de la valeur du paramètre précédent
+    $\Pr(\theta^{t+1} \given \theta^{t}, \theta^{t-1}, \ldots, \theta^{1}) = \Pr(\theta^{t + 1} \given \theta^{t})$
+
+## Méthodes Monte Carlo
+
+Le terme de **méthode de Monte-Carlo** désigne une famille d'algorithmes
+visant à calculer (ou approcher) une valeur numérique en utilisant des
+procédés aléatoires, c'est-à-dire des techniques probabilistes. Cette
+méthode a été formalisée en 1947 par Nicholas Metropolis, et publiée
+pour la première fois en 1949 dans un article co-écrit avec Stanislaw
+Ulam.<br>
+
+```{r metropolis_picture, echo = FALSE, out.width = "20%"}
+knitr::include_graphics("figures/Nicholas_Metropolis_cropped.png")
+```
+
+## Méthodes Monte Carlo : Estimation de $\pi$
+
+Soit un point $M$ de coordonnées $(x, y)$, où $0 < x < 1$ et
+$0 < y < 1$. On tire aléatoirement les valeurs de $x$ et $y$ entre $0$
+et $1$ suivant une loi uniforme. Le point $M$ appartient au disque de
+centre $(0, 0)$ de rayon $r = 1$ si et seulement si
+$\sqrt{x^{2} + y^{2}} \leqslant 1$. On sait que le quart de disque est de surface
+$\sigma = \pi r^{2} / 4 = \pi / 4$ et que le carré qui le
+contient est de surface $s = r^{2} = 1$. Si la loi de probabilité du tirage de point est uniforme,
+la probabilité que le point $M$ appartienne
+au disque est donc de $\sigma / s = \pi / 4$. En faisant le rapport du
+nombre de points dans le disque au nombre de tirages $\frac{N_{\text{inner}}}{N_{\text{total}}}$,
+on obtient alors une approximation de $\pi / 4$.
+
+```{r pi_gif, echo = FALSE, out.width = "25%"}
+knitr::include_graphics("figures/Pi_30K.gif")
+```
+
+## Méthodes Monte Carlo : Estimation de $\pi$
+
+```{r pi1, eval = TRUE, echo = TRUE, out.width = "25%"}
+trials <- 1e5 # nombre d'échantillons
+radius <- 1 # rayon du cercle
+x <- runif(n = trials, min = 0, max = radius) # tirages pour x
+y <- runif(n = trials, min = 0, max = radius) # tirages pour y
+distance <- sqrt(x^2 + y^2) # distance à l'origine
+inside <- distance < radius # à l'intérieur (ou pas) du quart de cercle ?
+pi_estimate <- 4 * sum(inside) / trials # estimation de pi
+```
+
+```{r pi2, eval = TRUE, echo = FALSE, out.width = "33%", dev = "png"}
+data.frame(x, y, inside) %>%
+    ggplot(aes(x, y, color = inside) ) +
+    ggtitle(paste(round(trials), "Trials,", "Estimate =", pi_estimate) ) +
+    guides(color = "none") +
+    geom_point(size = 1 / trials)
+```
+
+## Méthodes Monte Carlo
+
+Autre exemple : déterminer la superficie d'un lac ou encore déterminer
+le maximum d'une fonction (optimisation) via **recuit simulé**
+(simulated annealing, voir [Wikipedia](https://en.wikipedia.org/wiki/Simulated_annealing)).
+
+```{r simulated_annealing, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/Hill_Climbing_with_Simulated_Annealing.gif")
+```
+
+## Méthodes Monte Carlo
+
+**Monte Carlo** désigne une famille d'algorithmes qui ont pour but
+d'approcher des valeurs numériques à partir de procédés aléatoires.
+Pourrait-on s'en servir pour obtenir une approximation de la
+distribution postérieure ?
+
+. . .
+
+On connaît les priors $p(\theta_{1})$ et $p(\theta_{2})$ <br> On connaît
+la fonction de vraisemblance $p(\text{data} \given \theta_{1}, \theta_{2})$
+<br>
+
+. . .
+
+Mais on ne sait pas calculer la distribution postérieure...
+$p(\theta_{1}, \theta_{2} \given \text{data}) = \dfrac{p(\text{data} \given \theta_{1}, \theta_{2}) p(\theta_{1}) p(\theta_{2})}{p(\text{data})}$
+<br>
+
+. . .
+
+Ou plutôt, on ne sait pas calculer $p(\text{data})$... ! Mais on sait
+calculer la distribution postérieure à une constante près. Or, comme
+$p(\text{data})$ est une constante, elle ne change pas la forme de la
+distribution postérieure... ! On va donc explorer l'espace des
+paramètres et produire des échantillons proportionnellement à leur
+(densité de) probablité relative.
+
+## Influence de la constante de normalisation
+
+```{r, eval = FALSE, echo = FALSE}
+# from https://plotly.com/r/3d-surface-plots/
+
+z <- c(
+  c(8.83,8.89,8.81,8.87,8.9,8.87),
+  c(8.89,8.94,8.85,8.94,8.96,8.92),
+  c(8.84,8.9,8.82,8.92,8.93,8.91),
+  c(8.79,8.85,8.79,8.9,8.94,8.92),
+  c(8.79,8.88,8.81,8.9,8.95,8.92),
+  c(8.8,8.82,8.78,8.91,8.94,8.92),
+  c(8.75,8.78,8.77,8.91,8.95,8.92),
+  c(8.8,8.8,8.77,8.91,8.95,8.94),
+  c(8.74,8.81,8.76,8.93,8.98,8.99),
+  c(8.89,8.99,8.92,9.1,9.13,9.11),
+  c(8.97,8.97,8.91,9.09,9.11,9.11),
+  c(9.04,9.08,9.05,9.25,9.28,9.27),
+  c(9,9.01,9,9.2,9.23,9.2),
+  c(8.99,8.99,8.98,9.18,9.2,9.19),
+  c(8.93,8.97,8.97,9.18,9.2,9.18)
+  )
+
+dim(z) <- c(15, 6)
+z2 <- z * 3 - 15
+
+fig <- plot_ly(showscale = FALSE)
+fig <- fig %>% add_surface(z = ~z)
+fig <- fig %>% add_surface(z = ~z2, opacity = 0.98)
+
+# exporting it to an html object
+htmlwidgets::saveWidget(fig, file = "plotly2.html")
+```
+
+```{r, eval = TRUE}
+#| echo: false
+#| out.width: "100%"
+knitr::include_url(url = "plotly2.html", height = "600px")
+```
+
+## Méthodes Monte Carlo : Exemple
+
+Considérons un exemple simple : Soit un paramètre $\theta$ avec 7
+valeurs possibles et la fonction de répartition suivante, où $p(\theta) = \theta$.
+
+```{r distribution_theta1, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+# knitr::include_graphics("figures/distributionTheta1-7.png")
+
+theta <- c(1, 2, 3, 4, 5, 6, 7)
+
+theta %>%
+  data.frame %>%
+  ggplot(aes(x = theta, y = theta) ) +
+  geom_bar(stat = "identity", width = 0.5) +
+  labs(x = expression(theta), y = expression(paste(p, "(", theta, ")") ) ) +
+  scale_x_continuous(breaks = 1:7)
+```
+
+## Méthodes Monte Carlo : Exemple
+
+Approximation de cette distribution par tirage aléatoire : Cela revient à
+tirer aléatoirement un grand nombre de points "au hasard" parmi ces 28
+cases (comme pour le calcul de $\pi$) !
+
+```{r distribution_theta2, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/DistribCarré1-7.png")
+```
+
+## Méthodes Monte Carlo : Exemple
+
+```{r, eval = FALSE, echo = TRUE}
+niter <- 100 # nombre d'itérations
+theta <- 1:7 # valeurs possibles de theta
+ptheta <- theta # densité de probabilité de theta
+samples <- sample(x = theta, prob = ptheta, size = niter, replace = TRUE) # échantillons
+```
+
+```{r, eval = TRUE, echo = FALSE, fig.width = 25}
+set.seed(667)
+
+trajLength <- 100
+theta <- 1:7
+ptheta <- theta
+trajectory <- sample(theta, prob = ptheta, size = trajLength, replace = TRUE)
+
+layout(matrix(1:2, ncol = 2), widths = c(0.75, 0.25) )
+
+plot(
+    trajectory,
+    main = "Distribution postérieure basée sur 100 tirages",
+    ylab = bquote(theta), xlim = c(0, trajLength),
+    xlab = "Numéro d'itération",
+    type = "o", pch = 20, col = posterior_color,
+    cex.lab = 2, cex.main = 3, cex.axis = 2
+    )
+
+barplot(
+    table(trajectory),
+    col = posterior_color,
+    horiz = TRUE, axes = FALSE, axisnames = FALSE
+    )
+```
+
+- La distribution des échantillons obtenus converge vers la "vraie" distribution.
+- Mais, cela nécessite généralement beaucoup d'échantillons...
+- Aucun contrôle sur la vitesse de convergence...
+- Et si on abandonnait l'échantillonnage indépendant ?
+
+## Algorithme Metropolis
+
+Cet algorithme a été présenté pour la première fois en 1953 par Nicholas
+Metropolis, Arianna W. Rosenbluth, Marshall Rosenbluth, Augusta H.
+Teller, et Edward Teller. Le problème des algorithmes Monte-Carlo n'est
+pas la convergence, mais la vitesse à laquelle la méthode converge. Pour
+augmenter la vitesse de convergence, il faudrait **faciliter l'accès aux
+valeurs de paramètres les plus représentées**.
+
+. . .
+
+Principe :
+
+- On fait une proposition de déplacement sur la base de la
+valeur courante du paramètre.
+- On réalise un tirage aléatoire pour accepter ou rejeter la
+nouvelle position.
+
+. . .
+
+Deux idées centrales :
+
+- La proposition doit favoriser les valeurs de paramètre les
+plus probables : On parcourt plus souvent ces valeurs de paramètres.
+
+. . .
+
+- La proposition doit se limiter aux valeurs adjacentes au
+paramètre courant : On augmente la vitesse de
+convergence en restant là où se trouve l'information (i.e., en
+parcourant l'espace des paramètres de manière **locale** plutôt que
+**globale**).
+
+## Algorithme Metropolis
+
+Sélectionner un point de départ (on peut sélectionner n'importe quelle
+valeur).
+
+```{r metro1, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+theta %>%
+  data.frame() %>%
+  ggplot(aes(x = theta, y = theta) ) +
+  geom_bar(stat = "identity", width = 0.5) +
+  labs(x = expression(theta), y = expression(paste(p, "(", theta, ")") ) ) +
+  scale_x_continuous(breaks = 1:7) +
+  annotate(
+    geom = "segment", x = 4, y = 9.5, xend = 4, yend = 7.5,
+    arrow = arrow(length = unit(5, "mm") )
+    ) +
+  annotate(
+      geom = "text", x = 4, y = 10,
+      label = "Position de départ", hjust = "center", size = 5
+      )
+```
+
+## Algorithme Metropolis
+
+Faire une proposition de déplacement centrée sur la valeur courante de
+$\theta$.
+
+```{r metro2, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+theta %>%
+  data.frame() %>%
+  ggplot(aes(x = theta, y = theta) ) +
+  geom_bar(stat = "identity", width = 0.5) +
+  labs(x = expression(theta), y = expression(paste(p, "(", theta, ")") ) ) +
+  scale_x_continuous(breaks = 1:7) +
+  annotate(
+    geom = "segment", x = 3, y = 9.5, xend = 3, yend = 7.5,
+    arrow = arrow(length = unit(5, "mm") )
+    ) +
+  annotate(
+    geom = "segment", x = 5, y = 9.5, xend = 5, yend = 7.5,
+    arrow = arrow(length = unit(5, "mm") )
+    ) +
+  annotate(
+      geom = "text", x = 3, y = 10,
+      label = "50%", hjust = "center", size = 5
+      ) +
+  annotate(
+      geom = "text", x = 5, y = 10,
+      label = "50%", hjust = "center", size = 5
+      )
+```
+
+## Algorithme Metropolis
+
+Calculer la **probabilité** d'accepter le déplacement selon la règle suivante :
+
+$$\Pr_{\text{move}} = \text{min} \left(\frac{\Pr(\theta_{\text{proposed}})}{\Pr(\theta_{\text{current}})}, 1 \right)$$
+```{r metro3, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+theta %>%
+  data.frame() %>%
+  ggplot(aes(x = theta, y = theta) ) +
+  geom_bar(stat = "identity", width = 0.5) +
+  labs(x = expression(theta), y = expression(paste(p, "(", theta, ")") ) ) +
+  scale_x_continuous(breaks = 1:7) +
+  annotate(
+    geom = "segment", x = 5, y = 9.5, xend = 5, yend = 7.5,
+    arrow = arrow(length = unit(5, "mm") )
+    ) +
+  annotate(
+      geom = "text", x = 5, y = 10, label = "Pr(proposed) / Pr(current) = 5 / 4 > 1",
+      hjust = "center", size = 5
+      )
+```
+
+## Algorithme Metropolis
+
+La position calculée devient la nouvelle position de départ et on répète
+l'algorithme.
+
+```{r metro4, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+theta %>%
+  data.frame() %>%
+  ggplot(aes(x = theta, y = theta) ) +
+  geom_bar(stat = "identity", width = 0.5) +
+  labs(x = expression(theta), y = expression(paste(p, "(", theta, ")") ) ) +
+  scale_x_continuous(breaks = 1:7) +
+  annotate(
+    geom = "segment", x = 5, y = 9.5, xend = 5, yend = 7.5,
+    arrow = arrow(length = unit(5, "mm") )
+    ) +
+  annotate(
+      geom = "text", x = 5, y = 10,
+      label = "Nouvelle position", hjust = "center", size = 5
+      )
+```
+
+## Algorithme Metropolis
+
+```{r metropolis, eval = TRUE, echo = TRUE}
+metropolis <- function (niter = 1e2, startval = 4) {
+    
+    x <- rep(0, niter) # initialise la chaîne (le vecteur) de longueur niter
+    x[1] <- startval # définit la valeur de départ du paramètre
+    
+    for (i in 2:niter) {
+        
+        current <- x[i - 1] # valeur courante du paramètre
+        proposal <- current + sample(c(-1, 1), size = 1)
+        # on s'assure que la valeur proposée est bien dans l'intervalle [1, 7]
+        if (proposal < 1) proposal <- 1
+        if (proposal > 7) proposal <- 7
+        # calcul de la probabilité de déplacement
+        prob_move <- min(1, proposal / current)
+        # on se déplace (ou pas) suivant cette probabilité
+        # x[i] <- ifelse(prob_move > runif(n = 1, min = 0, max = 1), proposal, current)
+        x[i] <- sample(c(proposal, current), size = 1, prob = c(prob_move, 1 - prob_move) )
+        
+    }
+    
+    return (x)
+    
+}
+```
+
+## Méthodes Monte Carlo vs. Algorithme Metropolis
+
+```{r metropolis1, eval = TRUE, echo = FALSE, fig.width = 25, fig.height = 6, fig.align = "center"}
+set.seed(666)
+
+theta <- 1:7
+ptheta <- theta
+trajLength <- 200
+trajectory <- sample(theta, prob = ptheta, size = trajLength, replace = TRUE)
+
+layout(matrix(1:2, ncol = 2), widths = c(0.75, 0.25) )
+
+plot(
+    trajectory,
+    main = "Méthode Monte Carlo",
+    ylab = bquote(theta), xlim = c(0, trajLength), xlab = "Nombre d'itérations",
+    type = "o", pch = 20, col = prior_color,
+    cex.lab = 2, cex.main = 3, cex.axis = 2
+    )
+
+barplot(
+    table(trajectory), col = prior_color,
+    horiz = TRUE, axes = FALSE, axisnames = FALSE
+    )
+```
+
+```{r metropolis2, eval = TRUE, echo = FALSE, fig.width = 25, fig.height = 6, fig.align = "center"}
+set.seed(666)
+
+trajectory <- metropolis(niter = trajLength, startval = 4)
+
+layout(matrix(1:2, ncol = 2), widths = c(0.75, 0.25) )
+
+plot(
+  trajectory,
+  main = "Algorithme Metropolis",
+  ylab = bquote(theta), xlim = c(0, trajLength), xlab = "Nombre d'itérations",
+  type = "o", pch = 20, col = prior_color, cex.lab = 2, cex.main = 3, cex.axis = 2
+  )
+
+barplot(
+  table(trajectory), col = prior_color,
+  horiz = TRUE, axes = FALSE, axisnames = FALSE
+  )
+```
+
+## Algorithme Metropolis
+
+**Application au lancer de pièce (cas continu)**
+
+$~\bullet~$ La fonction de vraisemblance est donnée par :
+$\color{orangered}{p(y \given \theta, n) \propto \theta^y(1 - \theta)^{(n - y)}}$ <br>
+$~\bullet~$ Le prior est donné par :
+$\color{steelblue}{p(\theta \given a, b) \propto \theta^{(a - 1)}(1 - \theta)^{(b - 1)}}$
+<br> $~\bullet~$ Le paramètre que l'on cherche à estimer prend ses
+valeurs dans l'intervalle $\left[0, 1 \right]$
+
+. . .
+
+**Problème n°1 :** Comment définir la proposition de déplacement ?
+
+On peut modéliser le déplacement par une distribution normale :
+$\Delta \theta \sim \mathrm{Normal}(0, \sigma)$ <br> $\longrightarrow~$
+La moyenne $\mu$ vaut $0$ : le déplacement se fait autour de la valeur
+courante du paramètre <br> $\longrightarrow~$ La variance reste à
+déterminer, elle contrôle l'éloignement de la nouvelle valeur
+
+## Algorithme Metropolis
+
+**Problème n°2 :** Quelle probabilité utiliser pour accepter ou refuser
+le déplacement ? Nous utilisons le produit de la vraisemblance et du
+prior :
+$\color{orangered}{\theta^y(1 - \theta)^{(n - y)}}\color{steelblue}{\theta^{(a - 1)}(1 - \theta)^{(b - 1)}}$<br>
+
+. . .
+
+La probabilité d'accepter le déplacement est donnée par :
+$\Pr_{\text{move}} = \text{min} \left(\frac{\Pr(\theta_{\text{current}} + \Delta\theta)}{\Pr(\theta_{\text{current}})}, 1 \right)$
+
+```{r, echo = FALSE, out.width = "75%"}
+knitr::include_graphics("figures/MetroAlgoAcceptProposal.png")
+```
+
+REMARQUE : Le rapport
+$\frac{\Pr(\theta_{\text{current}} + \Delta\theta)}{\Pr(\theta_{\text{current}})}$
+est le même que l'on utilise la distribution postérieure ou le produit
+prior par vraisemblance (car la constante de normalisation s'annule) !
+
+## Algorithme Metropolis
+
+$\longrightarrow~$ Sélectionner un point de départ <br> $~\bullet~$ Il
+faut choisir $\theta \in \left[0,1\right]$ <br> $~\bullet~$ Seule
+contrainte : $\Pr(\theta_{\text{initial}}) \ne 0$
+
+. . .
+
+$\longrightarrow~$ Choisir une direction de déplacement <br> $~\bullet~$
+Faire un tirage suivant $\mathrm{Normal}(0, \sigma)$
+
+. . .
+
+$\longrightarrow~$ Accepter ou rejeter la proposition de déplacement,
+suivant la probabilité : <br>
+
+$$\Pr_{\text{move}} = \text{min} \left(\frac{\Pr(\theta_{\text{current}} + \Delta\theta)}{\Pr(\theta_{\text{current}})}, 1 \right)$$
+
+$\longrightarrow~$ La position calculée devient la nouvelle position
+
+## Algorithme Metropolis
+
+```{r eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8}
+# source("code/DBDA2E-utilities.R")
+
+# specifies the data to be used in the likelihood function
+myData <- c(rep(0, 6), rep(1, 14) )
+
+# defines the Bernoulli likelihood function p(D|theta)
+# the argument theta could be a vector, not just a scalar
+
+likelihood <- function (theta, data) {
+  
+  z <- sum(data)
+  N <- length(data)
+  pDataGivenTheta <- theta^z * (1 - theta)^(N - z)
+  
+  # the theta values passed into this function are generated at random,
+  # and therefore might be inadvertently greater than 1 or less than 0.
+  # the likelihood for theta > 1 or for theta < 0 is zero:
+  
+  pDataGivenTheta[theta > 1 | theta < 0] = 0
+  
+  return (pDataGivenTheta)
+  
+}
+
+# defines the prior density function
+
+prior_prob <- function (theta) {
+  
+  pTheta <- dbeta(theta, 1, 1)
+  
+  # the theta values passed into this function are generated at random,
+  # and therefore might be inadvertently greater than 1 or less than 0.
+  # the prior for theta > 1 or for theta < 0 is zero:
+  
+  pTheta[theta > 1 | theta < 0] = 0
+  
+  return (pTheta)
+  
+}
+
+# defines the relative probability of the target distribution, 
+# as a function of vector theta. For our application, this
+# target distribution is the unnormalized posterior distribution.
+
+targetRelProb <- function (theta, data) {
+  
+  targetRelProb <- likelihood(theta, data) * prior_prob(theta)
+  
+  return (targetRelProb)
+  
+}
+
+# specifies the length of the trajectory, that is, the number of jumps to try
+trajLength <- 50000 # arbitrary large number
+
+# initialises the vector that will store the results:
+trajectory <- rep(0, trajLength)
+
+# specifies where to start the trajectory
+trajectory[1] <- 0.01 # arbitrary value
+
+# specifies the burn-in period
+burnIn <- ceiling(0.0 * trajLength) # arbitrary number, less than trajLength
+
+# initialises accepted, rejected counters, just to monitor performance:
+nAccepted <- 0
+nRejected <- 0
+
+# now generate the random walk. The 't' index is time or trial in the walk.
+# specifies seed to reproduce same random walk:
+set.seed(47405)
+
+# specifies standard deviation of proposal distribution
+proposalSD <- c(0.02, 0.2, 2.0)[2]
+
+for (t in 1:(trajLength - 1) ) {
+  
+	currentPosition <- trajectory[t]
+	
+	# uses the proposal distribution to generate a proposed jump
+	
+	proposedJump <- rnorm(1, mean = 0, sd = proposalSD)
+	
+	# computes the probability of accepting the proposed jump
+	
+	probAccept <- min(
+	  1, targetRelProb(currentPosition + proposedJump, myData) / targetRelProb(currentPosition, myData)
+	  )
+	
+	# generates a random uniform value from the interval [0,1] to
+	# decide whether or not to accept the proposed jump
+	
+	if (runif(1) < probAccept) {
+	  
+		# accept the proposed jump
+		trajectory[t + 1] <- currentPosition + proposedJump
+		
+		# increment the accepted counter, just to monitor performance
+		if (t > burnIn) {nAccepted = nAccepted + 1}
+		
+	} else {
+	  
+		# rejects the proposed jump, stay at current position
+		trajectory[t + 1] = currentPosition
+		
+		# increments the rejected counter, just to monitor performance
+		if (t > burnIn) {nRejected = nRejected + 1}
+	
+	}
+	
+}
+
+# extracts the post-burnIn portion of the trajectory
+acceptedTraj <- trajectory[ (burnIn+1) : length(trajectory) ]
+
+##########################################
+# Display the chain
+###################################
+
+# layout(matrix(1:3, nrow = 3) )
+# par(mar = c(3, 4, 2, 1), mgp = c(2, 0.7, 0) )
+
+# layout(matrix(c(1,3,2,3), 2, 2, byrow = TRUE) )
+layout(matrix(c(1, 2, 3, 3), 2, 2, byrow = TRUE) )
+
+# trajectory, a.k.a. trace plot, beginning of chain
+idxToPlot <- 1:100
+
+plot(
+  trajectory[idxToPlot], idxToPlot, main = "Beginning of Chain",
+  xlab = bquote(theta), xlim = c (0, 1), ylab = "Step in Chain",
+  type = "o", pch = 20, col = posterior_color, cex.lab = 1.5
+  )
+
+# indicates burn in limit (might not be visible if not in range)
+if (burnIn > 0) {
+  
+  abline(h = burnIn, lty = "dotted")
+  text(0.5, burnIn + 1, "Burn In", adj = c(0.5, 1.1) )
+  
+}
+
+# trajectory, a.k.a. trace plot, end of chain
+idxToPlot <- (trajLength - 100):trajLength
+
+plot(
+  trajectory[idxToPlot], idxToPlot, main = "End of Chain",
+  xlab = bquote(theta), xlim = c(0, 1), ylab = "Step in Chain",
+  type = "o", pch = 20, col = posterior_color, cex.lab = 1.5
+  )
+
+# displays proposal SD and acceptance ratio in the plot
+text(
+  0.0, trajLength, adj = c(0.0, 1.1), cex = 1.5,
+  labels = bquote(
+    frac(N[acc], N[pro]) == .(signif(nAccepted / length(acceptedTraj), 3) )
+    )
+  )
+
+paramInfo <- BEST::plotPost(
+  paramSampleVec =acceptedTraj, xlim = c(0, 1), xlab = bquote(theta), 
+  cex = 2, cex.main = 1.5, col = posterior_color,
+  # main = paste0(
+  #     "Proposal SD = ", proposalSD,
+  #     ", ESS = ", round(coda::effectiveSize(acceptedTraj), 1)
+  #     )
+  )
+
+# displays proposal SD and acceptance ratio in the plot
+text(
+  x = 0.2, y = 1, # adj = c(0.0, 1.1),
+  cex = 1.5,
+  labels = paste0(
+      "Proposal SD = ", proposalSD,
+      "\nESS = ", round(coda::effectiveSize(acceptedTraj), 1)
+      )
+  )
+```
+
+## Algorithme Metropolis
+
+Comment choisir $\sigma$ pour la proposition de déplacement ? Deux indices permettent d'évaluer la qualité de l'échantillonnage : <br>
+
+$\rightarrow$ Le rapport entre le nombre de déplacements proposés et le
+nombre de déplacements acceptés <br>
+
+$\rightarrow$ L'effective sample size (i.e., le nombre de déplacements
+qui ne sont pas corrélés avec les précédents)
+
+## Algorithme Metropolis
+
+```{r eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8}
+# source("code/DBDA2E-utilities.R")
+
+# specifies the data to be used in the likelihood function
+myData <- c(rep(0, 6), rep(1, 14) )
+
+# defines the Bernoulli likelihood function p(D|theta)
+# the argument theta could be a vector, not just a scalar
+
+likelihood <- function(theta, data) {
+  
+  z <- sum(data)
+  N <- length(data)
+  pDataGivenTheta <- theta^z * (1 - theta)^(N - z)
+  
+  # the theta values passed into this function are generated at random,
+  # and therefore might be inadvertently greater than 1 or less than 0.
+  # the likelihood for theta > 1 or for theta < 0 is zero:
+  
+  pDataGivenTheta[theta > 1 | theta < 0] = 0
+  
+  return(pDataGivenTheta)
+  
+}
+
+# defines the prior density function
+
+prior_prob <- function(theta) {
+  
+  pTheta <- dbeta(theta, 1, 1)
+  
+  # the theta values passed into this function are generated at random,
+  # and therefore might be inadvertently greater than 1 or less than 0.
+  # the prior for theta > 1 or for theta < 0 is zero:
+  
+  pTheta[theta > 1 | theta < 0] = 0
+  
+  return(pTheta)
+  
+}
+
+# defines the relative probability of the target distribution, 
+# as a function of vector theta. For our application, this
+# target distribution is the unnormalized posterior distribution.
+
+targetRelProb <- function(theta, data) {
+  
+  targetRelProb <- likelihood(theta, data) * prior_prob(theta)
+  
+  return(targetRelProb)
+  
+}
+
+# specifies the length of the trajectory, that is, the number of jumps to try
+trajLength <- 50000 # arbitrary large number
+
+# initialises the vector that will store the results:
+trajectory <- rep(0 , trajLength)
+
+# specifies where to start the trajectory
+trajectory[1] <- 0.01 # arbitrary value
+
+# specifies the burn-in period
+burnIn <- ceiling(0.0 * trajLength) # arbitrary number, less than trajLength
+
+# initialises accepted, rejected counters, just to monitor performance:
+nAccepted <- 0
+nRejected <- 0
+
+# now generate the random walk. The 't' index is time or trial in the walk.
+# specifies seed to reproduce same random walk:
+set.seed(47405)
+
+# specifies standard deviation of proposal distribution
+proposalSD <- c(0.02, 0.2, 2.0)[1]
+
+for (t in 1:(trajLength - 1) ) {
+  
+	currentPosition <- trajectory[t]
+	
+	# uses the proposal distribution to generate a proposed jump
+	
+	proposedJump <- rnorm(1, mean = 0, sd = proposalSD)
+	
+	# computes the probability of accepting the proposed jump
+	
+	probAccept <- min(
+	  1,
+		targetRelProb(currentPosition + proposedJump, myData) / targetRelProb(currentPosition, myData)
+		)
+	
+	# generates a random uniform value from the interval [0,1] to
+	# decide whether or not to accept the proposed jump
+	
+	if (runif(1) < probAccept) {
+	  
+		# accept the proposed jump
+		trajectory[t + 1] <- currentPosition + proposedJump
+		
+		# increment the accepted counter, just to monitor performance
+		if (t > burnIn) {nAccepted = nAccepted + 1}
+		
+	} else {
+	  
+		# rejects the proposed jump, stay at current position
+		trajectory[t + 1] = currentPosition
+		
+		# increments the rejected counter, just to monitor performance
+		if (t > burnIn) {nRejected = nRejected + 1}
+	
+	}
+	
+}
+
+# extracts the post-burnIn portion of the trajectory
+acceptedTraj <- trajectory[ (burnIn+1) : length(trajectory) ]
+
+##########################################
+# Display the chain
+###################################
+
+# layout(matrix(1:3, nrow = 3) )
+# par(mar = c(3, 4, 2, 1), mgp = c(2, 0.7, 0) )
+
+# layout(matrix(c(1,3,2,3), 2, 2, byrow = TRUE) )
+layout(matrix(c(1, 2, 3, 3), 2, 2, byrow = TRUE) )
+
+# trajectory, a.k.a. trace plot, beginning of chain
+idxToPlot <- 1:100
+
+plot(
+  trajectory[idxToPlot], idxToPlot, main = "Beginning of Chain",
+  xlab = bquote(theta), xlim = c (0, 1), ylab = "Step in Chain",
+  type = "o", pch = 20, col = posterior_color, cex.lab = 1.5
+  )
+
+# indicates burn in limit (might not be visible if not in range)
+if (burnIn > 0) {
+  
+  abline(h = burnIn, lty = "dotted")
+  text(0.5, burnIn + 1, "Burn In", adj = c(0.5, 1.1) )
+  
+}
+
+# trajectory, a.k.a. trace plot, end of chain
+idxToPlot <- (trajLength - 100):trajLength
+
+plot(
+  trajectory[idxToPlot], idxToPlot, main = "End of Chain",
+  xlab = bquote(theta), xlim = c(0, 1), ylab = "Step in Chain",
+  type = "o", pch = 20, col = posterior_color, cex.lab = 1.5
+  )
+
+# displays proposal SD and acceptance ratio in the plot
+text(
+  0.0, trajLength, adj = c(0.0, 1.1), cex = 1.5,
+  labels = bquote(
+    frac(N[acc], N[pro]) == .(signif(nAccepted / length(acceptedTraj), 3) )
+    )
+  )
+
+# posterior histogram
+paramInfo <- BEST::plotPost(
+  acceptedTraj, xlim = c(0, 1), xlab = bquote(theta), 
+  cex = 2, cex.main = 1.5, col = posterior_color,
+  # main = bquote(list(
+  #   "Proposal SD" == .(proposalSD),
+  #   "ESS" == .(round(coda::effectiveSize(acceptedTraj), 1) )
+  #   ) )
+  )
+
+# displays proposal SD and acceptance ratio in the plot
+text(
+  x = 0.2, y = 1, # adj = c(0.0, 1.1),
+  cex = 1.5,
+  labels = paste0(
+      "Proposal SD = ", proposalSD,
+      "\nESS = ", round(coda::effectiveSize(acceptedTraj), 1)
+      )
+  )
+```
+
+## Algorithme Metropolis
+
+**Le choix de sigma dans la proposition de déplacement**
+
+$\rightarrow~$ Toutes les propositions de déplacement (ou presque) sont
+acceptées
+
+$\rightarrow~$ Peu de valeurs effectives
+
+Il faut beaucoup d'itérations pour avoir un résultat satisfaisant...
+
+## Algorithme Metropolis
+
+```{r eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8}
+# source("code/DBDA2E-utilities.R")
+
+# specifies the data to be used in the likelihood function
+myData <- c(rep(0, 6), rep(1, 14) )
+
+# defines the Bernoulli likelihood function p(D|theta)
+# the argument theta could be a vector, not just a scalar
+
+likelihood <- function(theta, data) {
+  
+  z <- sum(data)
+  N <- length(data)
+  pDataGivenTheta <- theta^z * (1 - theta)^(N - z)
+  
+  # the theta values passed into this function are generated at random,
+  # and therefore might be inadvertently greater than 1 or less than 0.
+  # the likelihood for theta > 1 or for theta < 0 is zero:
+  
+  pDataGivenTheta[theta > 1 | theta < 0] = 0
+  
+  return(pDataGivenTheta)
+  
+}
+
+# defines the prior density function
+
+prior_prob <- function(theta) {
+  
+  pTheta <- dbeta(theta, 1, 1)
+  
+  # the theta values passed into this function are generated at random,
+  # and therefore might be inadvertently greater than 1 or less than 0.
+  # the prior for theta > 1 or for theta < 0 is zero:
+  
+  pTheta[theta > 1 | theta < 0] = 0
+  
+  return(pTheta)
+  
+}
+
+# defines the relative probability of the target distribution, 
+# as a function of vector theta. For our application, this
+# target distribution is the unnormalized posterior distribution.
+
+targetRelProb <- function(theta, data) {
+  
+  targetRelProb <- likelihood(theta, data) * prior_prob(theta)
+  
+  return(targetRelProb)
+  
+}
+
+# specifies the length of the trajectory, that is, the number of jumps to try
+trajLength <- 50000 # arbitrary large number
+
+# initialises the vector that will store the results:
+trajectory <- rep(0 , trajLength)
+
+# specifies where to start the trajectory
+trajectory[1] <- 0.01 # arbitrary value
+
+# specifies the burn-in period
+burnIn <- ceiling(0.0 * trajLength) # arbitrary number, less than trajLength
+
+# initialises accepted, rejected counters, just to monitor performance:
+nAccepted <- 0
+nRejected <- 0
+
+# now generate the random walk. The 't' index is time or trial in the walk.
+# specifies seed to reproduce same random walk:
+set.seed(47405)
+
+# specifies standard deviation of proposal distribution
+proposalSD <- c(0.02, 0.2, 2.0)[3]
+
+for (t in 1:(trajLength - 1) ) {
+  
+	currentPosition <- trajectory[t]
+	
+	# uses the proposal distribution to generate a proposed jump
+	
+	proposedJump <- rnorm(1, mean = 0, sd = proposalSD)
+	
+	# computes the probability of accepting the proposed jump
+	
+	probAccept <- min(
+	  1,
+		targetRelProb(currentPosition + proposedJump, myData) / targetRelProb(currentPosition, myData)
+		)
+	
+	# generates a random uniform value from the interval [0,1] to
+	# decide whether or not to accept the proposed jump
+	
+	if (runif(1) < probAccept) {
+	  
+		# accept the proposed jump
+		trajectory[t + 1] <- currentPosition + proposedJump
+		
+		# increment the accepted counter, just to monitor performance
+		if (t > burnIn) {nAccepted = nAccepted + 1}
+		
+	} else {
+	  
+		# rejects the proposed jump, stay at current position
+		trajectory[t + 1] = currentPosition
+		
+		# increments the rejected counter, just to monitor performance
+		if (t > burnIn) {nRejected = nRejected + 1}
+	
+	}
+	
+}
+
+# extracts the post-burnIn portion of the trajectory
+acceptedTraj <- trajectory[ (burnIn+1) : length(trajectory) ]
+
+##########################################
+# Display the chain
+###################################
+
+# layout(matrix(1:3, nrow = 3) )
+# par(mar = c(3, 4, 2, 1), mgp = c(2, 0.7, 0) )
+
+# layout(matrix(c(1,3,2,3), 2, 2, byrow = TRUE) )
+layout(matrix(c(1, 2, 3, 3), 2, 2, byrow = TRUE) )
+
+# trajectory, a.k.a. trace plot, beginning of chain
+idxToPlot <- 1:100
+
+plot(
+  trajectory[idxToPlot], idxToPlot, main = "Beginning of Chain",
+  xlab = bquote(theta), xlim = c (0, 1), ylab = "Step in Chain",
+  type = "o", pch = 20, col = posterior_color, cex.lab = 1.5
+  )
+
+# indicates burn in limit (might not be visible if not in range)
+if (burnIn > 0) {
+  
+  abline(h = burnIn, lty = "dotted")
+  text(0.5, burnIn + 1, "Burn In", adj = c(0.5, 1.1) )
+  
+}
+
+# trajectory, a.k.a. trace plot, end of chain
+idxToPlot <- (trajLength - 100):trajLength
+
+plot(
+  trajectory[idxToPlot], idxToPlot, main = "End of Chain",
+  xlab = bquote(theta), xlim = c(0, 1), ylab = "Step in Chain",
+  type = "o", pch = 20, col = posterior_color, cex.lab = 1.5
+  )
+
+# displays proposal SD and acceptance ratio in the plot
+text(
+  0.0, trajLength, adj = c(0.0, 1.1), cex = 1.5,
+  labels = bquote(
+    frac(N[acc], N[pro]) == .(signif(nAccepted / length(acceptedTraj), 3) )
+    )
+  )
+
+# posterior histogram
+paramInfo <- BEST::plotPost(
+  acceptedTraj, xlim = c(0, 1), xlab = bquote(theta), 
+  cex = 2, cex.main = 1.5, col = posterior_color,
+  # main = bquote(list(
+  #   "Proposal SD" == .(proposalSD),
+  #   "ESS" == .(round(coda::effectiveSize(acceptedTraj), 1) )
+  #   ) )
+  )
+
+# displays proposal SD and acceptance ratio in the plot
+text(
+  x = 0.2, y = 1, # adj = c(0.0, 1.1),
+  cex = 1.5,
+  labels = paste0(
+      "Proposal SD = ", proposalSD,
+      "\nESS = ", round(coda::effectiveSize(acceptedTraj), 1)
+      )
+  )
+```
+
+## Algorithme Metropolis
+
+**Le choix de sigma dans la proposition de déplacement**
+
+$\rightarrow$ Les propositions de déplacement sont rarement acceptées
+
+$\rightarrow$ Peu de valeurs effectives...
+
+Il faut beaucoup d'itérations pour obtenir un résultat satisfaisant...
+
+## Algorithme Metropolis^[L'algorithme Metropolis-Hastings est une extension de l'algorithme Metropolis qui permet de faire des propositions de déplacement non symmétrique. Voir <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>.]
+
+```{r metropolis-beta-binomial1, eval = TRUE, echo = TRUE}
+metropolis_beta_binomial <- function (niter = 1e2, startval = 0.5) {
+    
+    x <- rep(0, niter) # initialise la chaîne (le vecteur) de longueur niter
+    x[1] <- startval # définit la valeur de départ du paramètre
+    
+    for (i in 2:niter) {
+        
+        current <- x[i - 1] # valeur courante du paramètre
+        current_plaus <- dbeta(current, 2, 3) * dbinom(1, 2, current)
+        # proposal <- runif(n = 1, min = current - w, max = current + w) # valeur proposée
+        proposal <- rnorm(n = 1, mean = current, sd = 0.1) # valeur proposée
+        # on s'assure que la valeur proposée est bien dans l'intervalle [0, 1]
+        if (proposal < 0) proposal <- 0
+        if (proposal > 1) proposal <- 1
+        proposal_plaus <- dbeta(proposal, 2, 3) * dbinom(1, 2, proposal)
+        # calcul de la probabilité de déplacement
+        alpha <- min(1, proposal_plaus / current_plaus)
+        # on se déplace (ou pas) suivant cette probabilité
+        x[i] <- sample(c(current, proposal), size = 1, prob = c(1 - alpha, alpha) )
+        
+    }
+    
+    return (x)
+    
+}
+```
+
+## Algorithme Metropolis
+
+```{r metropolis-beta-binomial2, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+z1 <- metropolis_beta_binomial(niter = 1e4, startval = 0.5)
+z2 <- metropolis_beta_binomial(niter = 1e4, startval = 0.5)
+
+data.frame(z1 = z1, z2 = z2) %>%
+  mutate(sample = 1:nrow(.) ) %>%
+  pivot_longer(cols = z1:z2) %>%
+  ggplot(aes(x = sample, y = value, colour = name) ) +
+  geom_line(show.legend = FALSE) +
+  labs(x = "Nombre d'itérations", y = expression(theta) ) + ylim(c(0, 1) )
+```
+
+## Algorithme Metropolis
+
+```{r metropolis-beta-binomial3, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+data.frame(z1 = z1, z2 = z2) %>%
+  pivot_longer(cols = z1:z2) %>%
+  rownames_to_column() %>%
+  mutate(rowname = as.numeric(rowname) ) %>%
+  ggplot(aes(x = value) ) +
+  geom_histogram(aes(y = ..density..), color = "white", alpha = 0.8) +
+  stat_function(fun = dbeta, args = list(3, 4), color = "magenta4", size = 1) +
+  facet_wrap(~name) +
+  labs(x = expression(theta), y = "Densité")
+```
+
+## Algorithme Metropolis-Hastings {background-iframe="https://chi-feng.github.io/mcmc-demo/app.html?algorithm=RandomWalkMH&target=standard"}
+
+<!--
+
+## Algorithme Gibbs - Modèle bivarié
+
+L'algorithme Gibbs est utilisé pour évaluer la distribution postérieure
+de modèles composés d'au moins deux variables et diffère de l'algorithme
+de Metropolis-Hastings en ce qu'il accepte toutes les propositions de
+déplacements...
+
+. . .
+
+**Définition du modèle bivarié :** On considère une situation dans
+laquelle on dispose de deux pièces de monnaie. À chaque pièce on associe
+un paramètre ou biais $\theta_{1}$ et $\theta_{2}$ (la probabilité
+d'obtenir $\text{Face}$). On cherche à estimer les biais de ces deux
+pièces : $p(\theta_1, \theta_2~|~D)$. Nos variables $\theta_{1}$ et
+$\theta_{2}$ sont indépendantes et identiquement distribuées (iid).
+
+. . .
+
+**Définition du prior :** On considère que chacun des biais est décrit
+par une distribution Beta :
+$\theta_1 \sim \mathrm{Beta}(\theta_1~|~a_1,b_1)$ et
+$~\theta_2 \sim \mathrm{Beta}(\theta_2~|~a_2,b_2)$.
+
+## Algorithme Gibbs - Modèle bivarié
+
+On peut donc calculer la distribution a priori de
+$P(\theta_1, \theta_2)$ :
+
+$$
+\begin{align}
+p(\theta_1, \theta_2) &= p(\theta_1) p(\theta_2) \\
+&= \theta_1^{(a_1-1)}~(1-\theta_1)^{(b_1-1)}\theta_2^{(a_2-1)}~(1-\theta_2)^{(b_2-1)}
+\end{align}
+$$
+
+```{r bivariate_prior, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/BayesianInferenceBivariate_PRIOR.png")
+```
+
+## Algorithme Gibbs - Modèle bivarié
+
+### Description des données
+
+On dispose d'un ensemble de lancers pour les deux pièces. On appelle
+$~D_1$ les données issues de la première pièce, composé de $~z_1$ *Face*
+sur $~N_1$ lancers. On appelle $~D_2$ les données issues de la seconde
+pièce, composé de $~z_2$ *Face* sur $~N_2$ lancers. On note les données
+: $D = \{ z_1, N_1, z_2, N_2 \}$
+
+. . .
+
+### Définition de la fonction de vraisemblance
+
+$$
+\begin{align}
+P(D~|~\theta_{1}, \theta_{2}) &= \prod_{y_{1i} \in D_{1}} P(y_{1i}~|~\theta_{1},\theta_{2})~ \prod_{y_{2i} \in D_{2}} P(y_{2i}~|~\theta_{1},\theta_{2}) &&\mbox{Règle d'indépendance}\\
+&= \theta_1^{z_{1}}~(1 - \theta_{1})^{(N{1} - z_{1})}\theta_{2}^{z_2}~(1 - \theta_{2})^{(N_{2} - z_{2})}~ 
+\end{align}
+$$
+
+## Algorithme Gibbs - Modèle bivarié
+
+Résolution analytique :
+
+$$
+\begin{align}
+\color{purple}{p(\theta_1,\theta_2~|~D)} &= \color{orangered}{p(D~|~\theta_1,\theta_2)}~\color{steelBlue}{p(\theta_1,\theta_2)}/\color{green}{p(D)} \\
+&= \color{orangered}{\theta_1^{z_1}~(1-\theta_1)^{(N1-z_1)}\theta_2^{z_2}~(1-\theta_2)^{(N2-z_2)}}~\color{steelBlue}{p(\theta_1,\theta_2)}/\color{green}{p(D)} \\
+&= \frac{\theta_1^{(\color{orangered}{z_1}+\color{steelBlue}{a_1-1})}(1-\theta_1)^{(\color{orangered}{N_1-z_1}+\color{steelBlue}{b_1-1})}\theta_2^{(\color{orangered}{z_2}+\color{steelBlue}{a_2-1})}(1-\theta_2)^{(\color{orangered}{N_2-z_2}+\color{steelBlue}{b_2-1})}~}{\color{green}{p(D)}~\color{steelBlue}{B(a_1,b_1)~B(a_2,b_2)}} 
+\end{align}
+$$
+
+. . .
+
+Donc finalement :
+
+$$
+\begin{align}
+\color{purple}{p(\theta_1,\theta_2~|~D)} =& \ \color{purple}{\mathrm{Beta}(\theta_1~|~z_1+a_1,N_1-z_1+b_1)} \color{purple}{\mathrm{Beta}(\theta_2~|~z_2+a_2,N_2-z_2+b_2)}
+\end{align}
+$$
+
+On voit que lorsque le prior est le produit de deux distributions Beta
+indépendantes, alors la distribution postérieure est également le
+produit de deux distributions Beta indépendantes.
+
+## Algorithme Gibbs - Modèle bivarié
+
+```{r bivariate, echo = FALSE, out.width = "33%"}
+knitr::include_graphics("figures/BayesianInferenceBivariate.png")
+```
+
+## Modèle à deux variables - Algorithme Metropolis
+
+La proposition de saut repose sur une une loi normale bivariée.
+
+$\longrightarrow$ La position suivante peut-être n'importe où sur la
+grille.
+
+```{r metropolis-2d, echo = FALSE, out.width = "75%"}
+knitr::include_graphics("figures/MetroAlgo2Var.png")
+```
+
+## Algorithme Gibbs - Description
+
+On voit que l'efficacité de l'algorithme Metropolis repose sur la
+proposition de déplacement. Cette fonction peut-être difficile à
+calibrer : <br>
+
+$\longrightarrow~$ On voudrait que le SD soit petit dans les zones à
+forte densité <br> $\longrightarrow~$ Au contraire, on voudrait que le
+SD soit grand dans les zones à faible densité
+
+. . .
+
+L'algorithme Gibbs résout ce problème. L'algorithme de Gibbs parcourt
+l'espace des paramètres comme l'algorithme Metropolis, mais plutôt que
+de modifier tous les paramètres en même temps, il ne modifie qu'un
+paramètre après l'autre. La proposition de déplacement est donc basée
+sur la fonction de densité conditionnelle. Le déplacement est toujours
+accepté, mais l'algorithme requiert que l'on puisse calculer la densité
+postérieure conditionnelle...
+
+## Algorithme Gibbs - Description
+
+$\longrightarrow~$ Sélectionner un point de départ
+$(\theta_{1init},\theta_{2init})$<br> *On peut sélectionner n'importe
+quelle valeur*
+
+. . .
+
+$\longrightarrow~$ Sélectionner le premier paramètre par exemple
+$\theta_1$ <br>
+
+. . .
+
+$\longrightarrow~$ Générer une valeur aléatoire de $\theta_1$ <br>
+*Faire un tirage directement suivant la probabilité*
+$p(\theta_{1}~|~\theta_{2}, D)$
+
+. . .
+
+$\longrightarrow~$ Générer une valeur aléatoire de $\theta_2$ <br>
+*Faire un tirage suivant la probabilité* $p(\theta_{2}~|~\theta_{1}, D)$
+<br> *Avec pour valeur de* $\theta_{1}$ la valeur calculée précédemment
+
+. . .
+
+$\longrightarrow~$ On boucle sur les deux dernières étapes pour
+parcourir
+
+## Algorithme Gibbs - Description
+
+```{r gibbs1, echo = FALSE, out.width = "25%"}
+knitr::include_graphics("figures/MetroAlgoVarByVar.png")
+```
+
+## Algorithme Gibbs - Description
+
+```{r gibbs2, echo = FALSE, out.width = "75%"}
+knitr::include_graphics("figures/MetroAlgo2VarResults.png")
+```
+
+On voit que l'effective sample size est beaucoup plus grand que celui
+obtenu avec l'algorithme Metropolis...
+
+## Algorithme Gibbs - Implémentation
+
+On suppose que $Y \sim \mathrm{Normal}(\mu, \frac{1}{\tau})$. On
+souhaite approximer la distribution postérieure de $\mu$ et $\tau$ en
+utilisant l'algorithme Gibbs. On note que $\mu$ représente la moyenne
+dans la population, $\tau$ représente la précision (réciproque de la
+variance) dans la population, $n$ représente la taille d'échantillon,
+$\bar{y}$ représente la moyenne dans l'échantillon et $s^{2}$ la
+variance de l'échantillon. L'algorithme Gibbs peut être résumé de la
+manière suivante (from [Casella & Georges,
+1992](https://www.tandfonline.com/doi/abs/10.1080/00031305.1992.10475878))
+:
+
+-   Échantillonner $\mu^{(i)}$ à partir de
+    $\ p(\mu \ | \ \tau^{(i - 1)}, \text{données})$
+-   Échantillonner $\tau^{(i)}$ à partir de
+    $\ p(\tau \ | \ \mu^{(i)}, \text{données})$
+
+. . .
+
+On définit les priors suivants : $p(\mu, \tau) = p(\mu) \times p(\tau)$
+où $p(\mu) \propto 1$ et $p(\tau) \propto \tau^{-1}$.
+
+Dans cette configuration la distribution postérieure conditionnelle pour
+la moyenne, sachant la précision, est donnée par
+$(\mu \mid \tau, \text { data }) \sim \mathrm{Normal}\left(\bar{y}, \frac{1}{n \tau}\right)$.
+La distribution postérieure conditionnelle pour la précision, sachant la
+moyenne, est donnée par
+$(\tau \mid \mu, \text { data }) \sim \operatorname{Gamma}\left(\frac{n}{2}, \frac{2}{(n-1) s^{2}+n(\mu-\bar{y})^{2}}\right)$.
+
+## Algorithme Gibbs - Implémentation
+
+```{r gibbs2_code1, echo = TRUE}
+# code from https://stats.stackexchange.com/questions/266665/gibbs-sampler-examples-in-r
+n <- 30 # sample size
+ybar <- 15 # sample mean
+s2 <- 3 # sample variance
+
+mu <- rep(NA, 11000) # initialises mu vector
+tau <- rep(NA, 11000) # initialises tau vector
+
+burn <- 1000 # burnin period
+tau[1] <- 1 # initialisation value for tau
+
+# samples from the joint posterior (mu, tau | data)
+for(i in 2:11000) {
+  
+  mu[i]  <- rnorm(n = 1, mean = ybar, sd = sqrt(1 / (n * tau[i - 1]) ) )    
+  tau[i] <- rgamma(n = 1, shape = n / 2, scale = 2 / ((n - 1) * s2 + n * (mu[i] - ybar)^2) )
+  
+}
+
+mu  <- mu[-(1:burn)] # removes burnin
+tau <- tau[-(1:burn)] # removes burnin
+```
+
+## Algorithme Gibbs - Implémentation
+
+```{r gibbs2_code2, echo = TRUE, fig.width = 12, out.width = "66%"}
+data.frame(mu = mu, tau = tau) %>%
+  pivot_longer(cols = mu:tau) %>%
+  ggplot(aes(x = value) ) +
+  geom_histogram() +
+  facet_wrap(~name, scales = "free") +
+  labs(x = "Valeur du paramètre", y = "Nombre d'échantillons")
+```
+
+## Algorithme Gibbs {background-iframe="https://chi-feng.github.io/mcmc-demo/app.html?algorithm=GibbsSampling&target=standard"}
+
+## Algorithme Gibbs - Conclusions
+
+-   L'algorithme Gibbs est particulièrement utile lorsque la
+    distribution jointe $p(\{\theta_i\} | \text{data})$ n'est pas
+    calculable ou n'est pas facile à échantillonner, mais que les
+    densités conditionnelles
+    $p(\theta_i | \{\theta_{j \ne i}\}, \text{data})$ le sont.
+
+-   L'algorithme Gibbs peut être vu comme un cas particulier de
+    l'algorithme Metropolis pour lequel la proposition de saut dépend de
+    la position dans l'espace des paramètres et du paramètre
+    sélectionné.
+
+-   En général, l'algorithme Gibbs améliore les performances de
+    l'algorithme Metropolis.
+
+## Algorithme Hamiltonian Monte Carlo
+
+On a vu que l'algoritme Gibbs améliore les performances de convergence
+de l'algorithme Metropolis. Mais il nécessite de pouvoir calculer les
+densités conditionnelles $p(\theta_i | \theta_{j \ne i}, \text{data})$.
+L'algorithme est performant lorsqu'il y a indépendance des paramètres
+$p(\theta_i | \theta_{j \ne i}, \text{data}) = p(\theta_i | \text{data})$...
+mais ce n'est pas le cas en général !
+
+```{r gibbs_error, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/Gibbs Error.png")
+```
+
+-->
+
+## Algorithme Hamiltonian Monte Carlo
+
+Les algorithmes Metropolis et Metropolis-Hastings (ou Gibbs) ont de mauvaises
+performances lorsque les paramètres du modèle sont fortement corrêlés.
+L'algorithme **Hamiltonian Monte Carlo** résout ces problème en utilisant la géométrie de l'espace postérieur. On va adapter la proposition de
+déplacement à la géométrie de la distribution postérieure aux alentours de la position courante.
+
+. . .
+
+On utilise l'opérateur hamiltonien (hamiltonians)
+qui représente l'énergie totale d'un système. Cette énergie se décompose
+en l'énergie potentielle (qui dépend de la position dans l'espace des
+paramètres $\theta$) et son énergie cinétique, qui dépend de son
+**moment** (momentum, $m$) :
+
+$$
+H(\theta, m) = \underbrace{U(\theta)}_{\text{énergie potentielle}} + \underbrace{KE(m)}_{\text{énergie cinétique}}
+$$
+
+. . .
+
+L'énergie potentielle est donnée par le négatif du log de la densité
+postérieure (non-normalisée) ;
+
+$$U(\theta) = -\log[p(\text{data} \given \theta) \times p(\theta)]$$
+
+Quand la densité postérieure augmente, l'énergie potentielle diminue
+(i.e., devient plus négative).
+
+## Algorithme Hamiltonian Monte Carlo
+
+```{r hmc1, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/HMC alorithme.png")
+```
+
+## Algorithme Hamiltonian Monte Carlo
+
+- Sélectionner un point de départ $\theta_{0}$ : On peut sélectionner
+n'importe quelle valeur de $\theta$ dans l'espace postérieur.
+
+- On génère aléatoirement la force avec laquelle on lance
+la bille (moment), par exemple à partir d'une loi normale multivariée :
+$m \sim \mathrm{MVNormal}(\mu, \Sigma)$.
+
+- On utilise un algorithme d'approximation de la trajectoire (e.g., leapfrog) pour estimer la trajectoire et la position finale de la bille dans l'espace postérieur pour une certaine durée.
+
+- Après un certain temps, on enregistre la position finale de la bille et son moment.
+
+- On accepte ou rejette la proposition de déplacement
+suivant la probabilité suivante (où $\phi$ (phi) est le moment associé à la bille) :
+
+. . .
+
+$$
+\Pr_{\text{move}} = \min \left(\frac{p(\theta_{\text{proposed}} \given \text{data})\ p(\phi_{\text{proposed}})}{p(\theta_{\text{current}} \given \text{data})\ p(\phi_{\text{current}})}, 1 \right)
+$$
+
+- On enregistre la nouvelle position et on recommence...
+
+## Influence de la durée de déplacement...
+
+```{r hmc_erreur, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/HMC alorithme ERREUR1.png")
+```
+
+## Influence de la variabilité du moment initial...
+
+```{r hmc_erreur2, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/HMC alorithme ERREUR2.png")
+```
+
+## Algorithme Hamiltonian Monte Carlo {background-iframe="https://chi-feng.github.io/mcmc-demo/app.html?algorithm=HamiltonianMC&target=standard"}
+
+## Évaluation des MCMC
+
+Ces méthodes peuvent ne pas converger vers la "vraie" distribution
+postérieure, en raison du temps de calcul limité, du paramétrage de
+certains hyper-paramètres (e.g., variance de la distribution normale de
+la proposition, ou variance du moment initial pour HMC).
+
+Ces méthodes produisent des chaînes de valeurs de paramètres
+(échantillons). L'utilisation de tel ou tel algorithme MCMC pour
+échantillonner la distribution postérieure repose sur trois objectifs :
+
+-   Les valeurs de la chaîne doivent être représentatives de la
+    distribution postérieure. Ces valeurs ne doivent pas
+    dépendre du point de départ. Ces valeurs ne doivent
+    pas être cantonnées à une région particulière de l'espace des
+    paramètres.
+
+-   La chaîne doit être suffisamment longue pour assurer la précision et
+    la stabilité du résultat. La tendance centrale et le
+    HDI calculés à partir de la chaîne ne doivent pas changer si on
+    relance la procédure.
+
+-   La chaîne doit être générée de manière efficace (i.e., avec le moins
+    d'itérations possible).
+
+## Évaluation des MCMC - Représentativité
+
+::: nonincremental
+-   Vérification visuelle des trajectoires : Les chaînes doivent occuper
+    le même espace, la convergence ne dépend pas du point de départ,
+    aucune chaîne ne doit avoir de trajectoire particulière (e.g.,
+    cyclique).
+
+-   Vérification visuelle des densités : Les densités doivent se
+    superposer.
+:::
+
+```{r repres1, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/Verif_representativité1.png")
+```
+
+## Évaluation des MCMC - Représentativité
+
+Cette affichage ne montre que les 500 premières itérations. Les
+trajectoires ne se superposent pas au début (zone orange). La densité
+est également affectée. En pratique on supprime ces premières itérations
+(période de "burn-in" ou de "warm-up").
+
+```{r repres2, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/Verif_representativité2.png")
+```
+
+## Évaluation des MCMC - Représentativité
+
+Vérification numérique des chaînes : Le **shrink factor** (aussi connu
+comme $\hat{R}$ ou `Rhat`) est le rapport entre la variance
+inter-chaînes et intra-chaîne. Cette valeur devrait idéalement tendre
+vers 1 (on la considère comme acceptable jusqu'à 1.01).
+
+```{r repres3, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/Verif_representativité3.png")
+```
+
+## Évaluation des MCMC - Stabilité et précicion
+
+Plus la chaîne est longue et plus le résultat sera précis et stable. Si
+la chaîne "s'attarde" sur chaque position, et que le nombre d'itérations
+reste le même, alors on perd en précision. Il lui faudra plus
+d'itérations pour arriver au même niveau de précision. L'autocorrélation
+est la corrélation de la chaîne avec elle-même mais décalé de $k$
+itérations (lag).
+
+```{r autocorrelation, echo = FALSE, out.width = "40%"}
+knitr::include_graphics("figures/Verif_autocorrelation.png")
+```
+
+## Évaluation des MCMC - Stabilité et précicion
+
+La fonction d'autocorrélation est représentée pour chaque chaîne (en
+haut à droite). Un autre résultat rend compte de la précision de
+l'échantillon : l'effective sample size,
+$ESS = \frac{N}{1 + 2 \sum_k ACF(k)}$. Il représente la taille d'un
+échantillon non-autocorrélé extrait de la somme de toutes les chaînes.
+Pour une précision raisonnable du HDI, il est recommandé d'avoir un ESS
+supérieur à 1000.
+
+```{r repres4, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/Verif_representativité4.png")
+```
+
+## Évaluation des MCMC - Stabilité et précicion
+
+L'erreur standard d'un ensemble d'échantillons est donné par :
+$SE = SD / \sqrt{N}$. Plus $N$ augmente, plus l'erreur standard diminue.
+On peut généraliser cette idée aux chaînes de Markov :
+$MCSE = SD / \sqrt{ESS}$. Pour une précision raisonnable de la tendance
+centrale, il faut que cette valeur soit faible.
+
+```{r repres5, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/Verif_representativité5.png")
+```
+
+## Évaluation des MCMC - Implémentation via brms
+
+```{r diagnostics1, eval = TRUE, echo = TRUE, results = "hide"}
+library(tidyverse)
+library(imsb)
+library(brms)
+
+d <- open_data(howell)
+d2 <- d %>% filter(age >= 18)
+
+priors <- c(
+  prior(normal(150, 20), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod1 <- brm(
+  formula = height ~ 1 + weight,
+  prior = priors,
+  family = gaussian(),
+  data = d2, 
+  chains = 4, # nombre de MCMCs
+  iter = 2000, # nombre total d'itérations (par chaîne)
+  warmup = 1000, # nombre d'itérations pour le warm-up
+  thin = 1 # thinning (1 = no thinning)
+  )
+```
+
+## Évaluation des MCMC - Implémentation via brms
+
+```{r diagnostics2, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+# combo can be hist, dens, dens_overlay, trace, trace_highlight...
+# cf. https://mc-stan.org/bayesplot/reference/MCMC-overview.html
+plot(x = mod1, combo = c("dens_overlay", "trace") )
+```
+
+## Évaluation des MCMC - Implémentation via brms
+
+```{r diagnostics3, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+library(bayesplot)
+post <- posterior_samples(mod1, add_chain = TRUE)
+post %>% mcmc_acf(pars = vars(b_Intercept:sigma), lags = 10)
+```
+
+## Évaluation des MCMC - Implémentation via brms
+
+```{r diagnostics4, eval = TRUE, echo = TRUE}
+summary(mod1)
+```
+
+## Évaluation des MCMC - Implémentation via brms
+
+Bulk-ESS fait référence à l'ESS calculé sur la distribution des
+échantillons normalisée par leur rang, et plus particulièrement autour
+de la position centrale de cette distribution (e.g., moyenne ou
+médiane). On recommande que le Bulk-ESS soit au moins 100 fois plus
+élevé que le nombre de chaînes (i.e., pour 4 chaînes, le Bulk-ESS
+devrait être d'au moins 400).
+
+. . .
+
+Tail-ESS donne le minimum de l'ESS calculé pour les quantiles à 5% et
+95% (i.e., pour les queues de la distribution des échantillons
+normalisés par leur rang). Cette valeur doit être élevée si nous
+accordons de l'importance à l'estimation des valeurs extrêmees (par
+exemple pour calculer un intervalle de crédibilité).
+
+. . .
+
+Quand tout va mal, voir ces
+[recommendations](https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations)
+de l'équipe de Stan concernant les choix de prior, ou ce
+[guide](https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup)
+concernant les messages d'erreur fréquents. Voir aussi [l'article
+récent](https://arxiv.org/abs/1903.08008) ou cet [article de
+blog](https://statmodeling.stat.columbia.edu/2019/03/19/maybe-its-time-to-let-the-old-ways-die-or-we-broke-r-hat-so-now-we-have-to-fix-it/)
+introduisant ces nouveaux indices.
+
+## Évaluation des MCMC - Implémentation via brms
+
+```{r diagnostics5, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+post %>% # rank plots
+  mcmc_rank_overlay(pars = vars(b_Intercept:sigma) ) +
+  labs(x = "Rang", y = "Fréquence") +
+  coord_cartesian(ylim = c(25, NA) )
+```
+
+## Résumé du cours
+
+Nous avons introduit et discuté l'utilisation d'échantillonneurs
+pour obtenir des échantillons issus de la distribution
+postérieure (non-normalisée). Ces échantillons peuvent ensuite être
+utilisés pour calculer différentes statistiques de la distribution
+postérieure (e.g., moyenne, médiane, HDI).
+
+. . .
+
+L'algorithme Metropolis-Hastings peut être utilisé pour n'importe quel
+problème pour lequel une vraisemblance peut être calculée. Cependant,
+bien que cet algorithme soit simple à coder, sa convergence peut être
+très lente... De plus, cet algorithme ne fonctionne pas bien lorsqu'il
+existe de fortes corrélations entre les différents paramètres...
+
+. . .
+
+L'algorithme HMC évite ces problèmes en prenant en considération la
+géométrie de l'espace postérieur lors de son exploration (i.e., lorsque
+l'algorithme décide où il doit aller ensuite). Cet algorithme converge
+beaucoup plus rapidement, et donc moins d'échantillons
+seront nécessaires pour approcher la distribution postérieure.
+
+. . .
+
+Le résultat d'une inférence bayésienne est donc, en pratique, un
+ensemble d'échantillons obtenus en utilisant des MCMCs. La fiabilité des
+ces estimations doit être évaluée en vérifiant (visuellement et
+numériquement) que les MCMCs ont bien convergé vers une solution
+optimale.
+
+## Travaux pratiques
+
+On s'intéresse à la performance économique des capitales `rgdppc_2000`
+en fonction de deux paramètres : la rudesse du paysage (plus ou moins
+vallonné) `rugged` et son appartenance au continent africain
+`cont_africa`.
+
+```{r rugged, eval = TRUE, echo = TRUE}
+library(tidyverse)
+library(imsb)
+
+d <- open_data(rugged) %>% mutate(log_gdp = log(rgdppc_2000) )
+df1 <- d[complete.cases(d$rgdppc_2000), ]
+str(df1)
+```
+
+## Travaux pratiques
+
+Écrire le modèle qui prédit `log_gdp` en fonction de la rudesse du
+terrain, du continent, et de l'interaction de ces deux variables avec
+`brms::brm()`, en spécifiant vos propres priors. Examinez ensuite les
+estimations de ce modèle (interprétation des paramètres, diagnostiques des MCMCs).
+
+$$
+\begin{aligned}
+\log(\text{gdp}_{i}) &\sim \mathrm{Normal}(\mu_{i}, \sigma_{i}) \\
+\mu_{i} &= \alpha + \beta_{1} \times \text{rugged}_{i} + \beta_{2} \times \text{continent}_{i} + \beta_{3} \times (\text{rugged}_{i} \times \text{continent}_{i}) \\
+\alpha &\sim \ldots \\
+\beta_{1}, \beta_{2}, \beta_{3} &\sim \ldots \\
+\end{aligned}
+$$
+
+## Proposition de réponse
+
+```{r mod2, eval = TRUE, echo = TRUE, results = "hide"}
+priors2 <- c(
+  prior(normal(0, 100), class = Intercept),
+  prior(normal(0, 10), class = b),
+  prior(exponential(0.01), class = sigma)
+  )
+
+mod2 <- brm(
+  formula = log_gdp ~ 1 + rugged * cont_africa,
+  prior = priors2,
+  family = gaussian(),
+  data = df1,
+  chains = 4, # nombre de MCMCs
+  iter = 2000, # nombre total d'itérations (par chaîne)
+  warmup = 1000 # nombre d'itérations pour le warm-up
+  )
+```
+
+## Proposition de réponse
+
+```{r mod2-summary, eval = TRUE, echo = TRUE}
+summary(mod2)
+```
+
+## Proposition de réponse
+
+```{r mod2-diagnostics, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+plot(x = mod2, combo = c("dens_overlay", "trace"), pars = "^b_")
+```
+
+## Proposition de réponse
+
+```{r mod2-pairs, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6}
+pairs(x = mod2, np = nuts_params(mod2) ) # voir ?nuts_params
+```

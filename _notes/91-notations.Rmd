@@ -1,0 +1,32 @@
+# Notations {#notations}
+
+## Événements et ensembles {.unlisted .unnumbered}
+
+\begin{longtable}{@{}p{2cm}@{}p{\dimexpr\textwidth-2cm\relax}@{}}
+
+\nomenclature{$A$ ou $B$}{Les lettres majuscules représentent des \textit{événements}.}
+\nomenclature{$\Pr(A)$}{La probabilité de l'événement $A$.}
+\nomenclature{$\Pr(A \given B)$}{La probabilité conditionnelle de l'événement $A$ sachant $B$.}
+\nomenclature{$\binom{n}{k}$}{Coefficient binomial.}
+
+\end{longtable}
+
+## Variables aléatoires {.unlisted .unnumbered}
+
+\begin{longtable}{@{}p{2cm}@{}p{\dimexpr\textwidth-2cm\relax}@{}}
+
+\nomenclature{$X$ ou $Y$}{Les lettres majuscules représentent des variables aléatoires.}
+\nomenclature{$E[X]$}{Espérance de $X$.}
+\nomenclature{$Var[X]$}{Variance de $X$.}
+\nomenclature{$p(x)$}{Fonction de masse / densité de la variable aléatoire $X$.}
+
+\end{longtable}
+
+## L'ambiguité de la notation $p(y \given \theta)$ {.unlisted .unnumbered}
+
+La notation $p(y \given \theta)$ peut faire référence à deux choses selon le contexte : la fonction de vraisemblance et le modèle d'observation. De plus, on trouve de nombreuses notations ambiguës en statistique. Essayons de clarifier ci-dessous.
+
+- $\Pr(Y = y \given \Theta = \theta)$ désigne une **probabilité** (e.g., `dbinom(x = 2, size = 10, prob = 0.5)`).
+- $p(Y = y \given \Theta = \theta)$ désigne une **densité** de probabilité (e.g., `dbeta(x = 0.4, shape1 = 2, shape2 = 3)`).
+- $p(Y = y \given \Theta)$ désigne une fonction de vraisemblance (likelihood) discrète ou continue, $y$ est connu/fixé, $\Theta$ est une variable aléatoire, la somme (ou l'intégrale) de cette distribution **n'est pas égale à 1** (e.g., `dbinom(x = 2, size = 10, prob = seq(0, 1, 0.1) )`).
+- $p(Y \given \Theta = \theta)$ désigne une fonction de masse (ou densité) de probabilité (dont la somme ou l'intégrale est égale à 1), qu'on appelle aussi "modèle d'observation" (observation model) ou "distribution d'échantillonnage" (sampling distribution), $Y$ est une variable aléatoire, $\theta$ est connu/fixé (e.g., `dbinom(x = 0:10, size = 10, prob = 0.5)`).

@@ -1,0 +1,1183 @@
+---
+title: Introduction à la modélisation statistique bayésienne
+subtitle: Un cours en R et Stan avec brms
+author: Ladislas Nalborczyk (LPC, LNC, CNRS, Aix-Marseille Univ)
+from: markdown+emoji
+format:
+  revealjs:
+    incremental: true
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IMSB2022"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "Voir le code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+## Planning
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(tidyverse)
+library(patchwork)
+library(brms)
+library(imsb)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+Cours n°01 : Introduction à l'inférence bayésienne <br> Cours n°02 :
+Modèle Beta-Binomial <br> Cours n°03 : Introduction à brms, modèle de
+régression linéaire <br> Cours n°04 : Modèle de régression linéaire
+(suite) <br> Cours n°05 : Markov Chain Monte Carlo <br> **Cours n°06 :
+Modèle linéaire généralisé** <br> Cours n°07 : Comparaison de modèles <br>
+Cours n°08 : Modèles multi-niveaux <br> Cours n°09 : Modèles
+multi-niveaux généralisés <br> Cours n°10 : Data Hackathon <br>
+
+## Introduction
+
+$$
+\begin{align}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)}\\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \beta_{1} \times x_{1i} + \beta_{2} \times x_{2i}} \\
+\end{align}
+$$
+
+Le modèle linéaire Gaussien qu'on a vu aux Cours n°03 et n°04 est caractérisé par un ensemble de postulats, entre autres choses :
+
+- Les résidus sont distribués selon une loi Normale.
+- La variance de cette distribution Normale est constante (postulat d'homogénéité de la variance).
+- Les prédicteurs agissent sur la moyenne de cette distribution.
+- La moyenne suit un modèle linéaire ou multi-linéaire.
+
+## Introduction
+
+Cette modélisation (le choix d'une distribution Normale) induit plusieurs contraintes, par exemple :
+
++ Les données observées sont définies sur un espace continu.
++ Cet espace n'est pas borné.
+
+. . .
+
+Comment modéliser certaines données qui ne respectent pas ces contraintes ? Par exemple, la proportion de bonnes réponses à un test (bornée entre 0 et 1), un temps de réponse (restreint à des valeurs positives et souvent distribué de manière approximativement log-normale), un nombre d'avalanches...
+
+## Introduction
+
+Nous avons déjà rencontré un modèle différent : le modèle Beta-Binomial (cf. Cours n°02).
+
+$$
+\begin{align}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n, p)} \\
+\color{steelblue}{p} \ &\color{steelblue}{\sim \mathrm{Beta}(a, b)} \\
+\end{align}
+$$
+
+- Les données observées sont binaires (e.g., 0 vs. 1) ou le résultat d'une somme d'observations binaires (e.g., une proportion).
+- La probabilité de succès (obtenir 1) a priori se caractérise par une distribution Beta.
+- La probabilité de succès (obtenir 1) ne dépend d'aucun prédicteur.
+
+## Introduction
+
+Cette modélisation induit deux contraintes :
+
++ Les données observées sont définies sur un espace discret.
++ Cet espace est borné.
+
+. . .
+
+Comment pourrait-on ajouter des prédicteurs à ce modèle ?
+
+## Modèle linéaire généralisé
+
+$$
+\begin{align}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n, p_{i})} \\
+\color{black}{f(p_{i})} \ &\color{black}{= \alpha + \beta \times x_{i}} \\
+\end{align}
+$$
+
+Objectifs :
+
+- Rendre compte de données discrètes (e.g., échec/succès) générées par un processus unique.
+- Introduire des prédicteurs dans le modèle.
+
+. . .
+
+Deux changements par rapport au modèle Gaussien :
+
+- L'utilisation d'une distribution de probabilité Binomiale.
+- Le modèle linéaire ne sert plus à décrire directement un des paramètres de la distribution, mais une fonction de ce paramètre (on peut aussi considérer que le modèle Gaussien était formulé avec une fonction identité).
+
+## Fonction de lien
+
+Les fonctions de lien ont pour tâche de mettre en correspondance l'espace d'un modèle linéaire (non borné) avec l'espace d'un paramètre potentiellement borné comme une probabilité, définie sur l'intervalle $[0, 1]$.
+
+```{r, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+# plot from https://bookdown.org/content/4857/big-entropy-and-the-generalized-linear-model.html#generalized-linear-models
+
+tibble(x = seq(from = -1, to = 3, by = 0.01) ) %>%
+  mutate(probability = 0.35 + x * 0.5) %>%
+  ggplot(aes(x = x, y = probability) ) +
+  geom_rect(xmin = -1, xmax = 3, ymin = 0,  ymax = 1, fill = "gray90") +
+  geom_hline(yintercept = 0:1, linetype = 2) +
+  geom_line(aes(linetype = probability > 1), size = 1) +
+  geom_segment(x = 1.3, xend = 3, y = 1, yend = 1, size = 2 / 3) +
+  scale_y_continuous(breaks = c(0, 0.5, 1) ) +
+  coord_cartesian(xlim = c(0, 2), ylim = c(0, 1.2) ) +
+  theme(legend.position = "none", panel.grid = element_blank() ) +
+  labs(x = "Prédicteur", y = "Probabilité")
+```
+
+## Fonction de lien
+
+Les fonctions de lien  ont pour tâche de mettre en correspondance l'espace d'un modèle linéaire (non borné) avec l'espace d'un paramètre potentiellement borné comme une probabilité, définie sur l'intervalle $[0, 1]$.
+
+```{r, eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+# plot from https://bookdown.org/content/4857/big-entropy-and-the-generalized-linear-model.html#generalized-linear-models
+
+# make data for the horizontal lines
+alpha <- 0
+beta  <- 4
+
+lines <-
+  tibble(x = seq(from = -1, to = 1, by = 0.25) ) %>% 
+  mutate(
+    `log-odds` = alpha + x * beta,
+    probability = exp(alpha + x * beta) / (1 + exp(alpha + x * beta) )
+    )
+
+# make the primary data 
+beta <- 2
+
+d <-
+  tibble(x = seq(from = -1, to = 1, length.out = 50) ) %>% 
+  mutate(
+    `log-odds`  = alpha + x * beta,
+    probability = exp(alpha + x * beta) / (1 + exp(alpha + x * beta) )
+    ) 
+
+# make the individual plots
+p1 <-
+  d %>% 
+  ggplot(aes(x = x, y = `log-odds`) ) +
+  geom_hline(
+    data = lines,
+    aes(yintercept = `log-odds`),
+    color = "gray"
+  ) +
+  geom_line(size = 1) +
+  coord_cartesian(xlim = c(-1, 1) ) +
+  theme(panel.grid = element_blank() ) +
+  labs(x = "Prédicteur", y = "Log-odds")
+
+p2 <-
+  d %>% 
+  ggplot(aes(x = x, y = probability) ) +
+  geom_hline(
+    data = lines,
+    aes(yintercept = probability),
+    color = "gray"
+    ) +
+  geom_line(size = 1) +
+  coord_cartesian(xlim = c(-1, 1) ) +
+  theme(panel.grid = element_blank() ) +
+  labs(x = "Prédicteur", y = "Probabilité")
+
+p1 + p2
+```
+
+## Régression logistique
+
+La fonction logit du GLM binomial (on parle de "log-odds") :
+
+$$\text{logit}(p_{i}) = \log \left(\frac{p_{i}}{1 - p_{i}} \right)$$
+
+. . .
+
+La cote d'un évènement ("odds" en anglais) est le ratio entre la probabilité que l'évènement se produise et la probabilité qu'il ne se produise pas. Le logarithme de cette cote est prédit par un modèle linéaire.
+
+$$
+\log \left(\frac{p_{i}}{1 - p_{i}} \right) = \alpha + \beta \times x_{i}
+$$
+
+. . .
+
+Pour retrouver la probabilité d'un évènement, il faut utiliser la fonction de **lien inverse**, la fonction **logistique** (ou logit-inverse) :
+
+$$
+p_{i} = \frac{\exp(\alpha + \beta \times x_{i})}{1 + \exp(\alpha + \beta \times x_{i})}
+$$
+
+## Complications induites par la fonction de lien
+
+Ces fonctions de lien posent des problèmes d'interprétation : Un changement d'une unité sur un prédicteur n'a plus un effet constant sur la probabilité mais la modifie plus ou moins en fonction de son éloignement à l'origine. Quand $x = 0$, une augmentation d'une demi-unité (i.e., $\Delta x = 0.5$) se traduit par une augmentation de la probabilité de $0.25$. Puis, chaque augmentation d'une demi-unité se traduit par une augmentation de $p$ de plus en plus petite...
+
+```{r, eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+# plot from https://bookdown.org/content/4857/big-entropy-and-the-generalized-linear-model.html#generalized-linear-models
+
+# make data for the horizontal lines
+alpha <- 0
+beta  <- 4
+
+lines <-
+  tibble(x = seq(from = -1, to = 1, by = 0.25) ) %>% 
+  mutate(
+    `log-odds` = alpha + x * beta,
+    probability = exp(alpha + x * beta) / (1 + exp(alpha + x * beta) )
+    )
+
+# make the primary data 
+beta <- 2
+
+d <-
+  tibble(x = seq(from = -1, to = 1, length.out = 50) ) %>% 
+  mutate(
+    `log-odds`  = alpha + x * beta,
+    probability = exp(alpha + x * beta) / (1 + exp(alpha + x * beta) )
+    ) 
+
+# make the individual plots
+p1 <-
+  d %>% 
+  ggplot(aes(x = x, y = `log-odds`) ) +
+  geom_hline(
+    data = lines,
+    aes(yintercept = `log-odds`),
+    color = "gray"
+  ) +
+  geom_line(size = 1) +
+  coord_cartesian(xlim = c(-1, 1) ) +
+  theme(panel.grid = element_blank() ) +
+  labs(x = "Prédicteur", y = "Log-odds")
+
+p2 <-
+  d %>% 
+  ggplot(aes(x = x, y = probability) ) +
+  geom_hline(
+    data = lines,
+    aes(yintercept = probability),
+    color = "gray"
+    ) +
+  geom_line(size = 1) +
+  coord_cartesian(xlim = c(-1, 1) ) +
+  theme(panel.grid = element_blank() ) +
+  labs(x = "Prédicteur", y = "Probabilité")
+
+p1 + p2
+```
+
+## Complications induites par la fonction de lien
+
+Deuxième complication : cette fonction de lien "force" chaque prédicteur à interagir avec lui même et à interagir avec TOUS les autres prédicteurs, même si les interactions ne sont pas explicites...
+
+. . .
+
+Dans un modèle Gaussien, le taux de changement de $y$ en fonction de $x$ est donné par $\partial(\alpha + \beta x)~/~\partial x = \beta$ et ne dépend pas de $x$ (i.e., $\beta$ est constant).
+
+. . .
+
+Dans un GLM binomial (avec une fonction de lien logit), la probabilité d'un évènement est donnée par la fonction logistique :
+
+$$p_{i} = \frac{\exp(\alpha + \beta \times x_{i})}{1 + \exp(\alpha + \beta \times x_{i})}$$
+
+. . .
+
+Et le taux de changement de $p$ en fonction du prédicteur $x$ est donné par :
+
+$$
+\frac{\partial p}{\partial x} = \frac{\beta}{2(1 + \cosh(\alpha + \beta \times x))}
+$$
+
+On voit que la variation sur $p$ due au prédicteur $x$ est fonction du prédicteur $x$, et dépend également de la valeur de $\alpha$... !
+
+## Exemple de régression logistique : La prosocialité chez le chimpanzé
+
+```{r chimp, echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/chimp_exp.jpg")
+```
+
+## Régression logistique
+
+```{r, echo = TRUE}
+library(tidyverse)
+library(imsb)
+
+df1 <- open_data(chimpanzees) 
+str(df1)
+```
+
++ **pulled_left** : 1 lorsque le chimpanzé pousse le levier gauche, 0 sinon.
++ **prosoc_left** : 1 lorsque le levier gauche est associé à l'option prosociale, 0 sinon.
++ **condition** : 1 lorsqu'un partenaire est présent, 0 sinon.
+
+## Régression logistique 
+
+### Le problème
+
+On cherche à savoir si la présence d'un singe partenaire incite le chimpanzé à appuyer sur le levier prosocial, c'est à dire l'option qui donne de la nourriture aux deux individus. Autrement dit, est-ce qu'il existe une interaction entre l'effet de la latéralité et l'effet de la présence d'un autre chimpanzé sur la probabilité d'actionner le levier gauche.
+
+. . .
+
+### Les variables
+
++ Observations (`pulled_left`) : Ce sont des variables de Bernoulli. Elles prennent comme valeur 0/1. 
+
++ Prédicteur (`prosoc_left`) : Est-ce que les deux plats sont sur la gauche ou sur la droite ?
+
++ Prédicteur (`condition`) : Est-ce qu'un partenaire est présent ?
+
+## Régression logistique
+
+$$
+\begin{align}
+\color{orangered}{L_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(1, p_{i})} \\
+\text{(équivalent à)} \quad \color{orangered}{L_{i}} \ &\color{orangered}{\sim \mathrm{Bernoulli}(p_{i})} \\
+\color{black}{\text{logit}(p_{i})} \ &\color{black}{= \alpha} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, \omega)} \\
+\end{align}
+$$
+
+Modèle mathématique sans prédicteur. Comment choisir une valeur pour $\omega$... ?
+
+## Prior predictive check
+
+On écrit le modèle précédent avec `brms` et on échantillonne à partir du prior afin de vérifier que les prédictions du modèle (sur la base du prior seul) correspondent à nos attentes.
+
+```{r mod1, eval = TRUE, echo = TRUE, results = "hide"}
+library(brms)
+
+mod1.1 <- brm(
+  # "trials" permet de définir le nombre d'essais (i.e., n)
+  formula = pulled_left | trials(1) ~ 1,
+  family = binomial(),
+  prior = prior(normal(0, 10), class = Intercept),
+  data = df1,
+  # on veut récupérer les échantillons issus du prior
+  sample_prior = "yes"
+  )
+```
+
+## Prior predictive check
+
+```{r ppc-mod1.1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "60%"}
+# récupère les échantillons (sur la base) du prior
+prior_draws(x = mod1.1) %>%
+  # applique la fonction de lien inverse
+  mutate(p = brms::inv_logit_scaled(Intercept) ) %>%
+  ggplot(aes(x = p) ) +
+  geom_density(fill = "steelblue", adjust = 0.1) +
+  labs(x = "Probabilité a priori de tirer le levier gauche", y = "Densité de probabilité")
+```
+
+## Prior predictive check
+
+```{r ppc-mod1.2, eval = TRUE, echo = FALSE, results = "hide", fig.width = 12, fig.height = 6, out.width = "80%"}
+mod1.2 <- brm(
+  formula = pulled_left | trials(1) ~ 1,
+  family = binomial,
+  prior = prior(normal(0, 1), class = Intercept),
+  data = df1,
+  sample_prior = "yes"
+  )
+
+bind_rows(prior_draws(mod1.1), prior_draws(mod1.2) ) %>% 
+  mutate(
+    p = inv_logit_scaled(Intercept),
+    w = factor(rep(c(10, 1), each = n() / 2), levels = c(10, 1) )
+    ) %>%
+  ggplot(aes(x = p, fill = w) ) +
+  geom_density(alpha = 0.8, adjust = 0.1) +
+  scale_fill_manual(expression(italic(omega) ), values = c("steelblue", "blue") ) +
+  labs(x = "Probabilité a priori de tirer le levier gauche", y = "Densité de probabilité")
+```
+
+## Régression logistique 
+
+L'intercept s'interprète dans l'espace des log-odds... pour l'interpréter comme une probabilité, il faut appliquer la fonction de lien inverse. On peut utiliser la fonction `brms::inv_logit_scaled()` ou la fonction `plogis()`.
+
+. . .
+
+```{r, eval = TRUE, echo = TRUE}
+fixed_effects <- fixef(mod1.2) # effets fixes (i.e., que l'intercept ici)
+plogis(fixed_effects) # fonction de lien inverse
+```
+
+En moyenne (sans considérer les prédicteurs), il semblerait que les chimpanzés aient légèrement plus tendance à appuyer sur le levier gauche que sur le levier droit...
+
+## Régression logistique 
+
+```{r, eval = TRUE, echo = TRUE, results = "hide", fig.width = 9, fig.height = 6, out.width = "50%", dev = "png", dpi = 200}
+post <- as_draws_df(x = mod1.2) # récupère les échantillons du posterior
+intercept_samples <- plogis(post$b_Intercept) # échantillons pour l'intercept
+
+posterior_plot(samples = intercept_samples, compval = 0.5) + labs(x = "Probability of pulling left")
+```
+
+## Régression logistique 
+
+Et si on ajoutait des prédicteurs... comment choisir une valeur pour $\omega$ ?
+
+$$
+\begin{align}
+\color{orangered}{L_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(1, p_{i})} \\
+\color{black}{\text{logit}(p_{i})} \ &\color{black}{= \alpha + \beta_{P} P_{i} + \beta_{C} C_{i} + \beta_{PC} P_{i} C_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\beta_{P}, \beta_{C}, \beta_{PC}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, \omega)} \\
+\end{align}
+$$
+
++ $L_{i}$ indique si le singe a poussé le levier gauche (`pulled_left`).
++ $P_{i}$ indique si le coté gauche correspond au coté prosocial.
++ $C_{i}$ indique la présence d'un partenaire.
+
+## Régression logistique 
+
+```{r mod2, eval = TRUE, echo = TRUE, results = "hide"}
+# recoding predictors
+df1 <- df1 %>%
+  mutate(
+    prosoc_left = ifelse(prosoc_left == 1, 0.5, -0.5),
+    condition = ifelse(condition == 1, 0.5, -0.5)
+    )
+
+priors <- c(
+  prior(normal(0, 1), class = Intercept),
+  prior(normal(0, 10), class = b)
+  )
+
+mod2.1 <- brm(
+  formula = pulled_left | trials(1) ~ 1 + prosoc_left * condition,
+  family = binomial,
+  prior = priors,
+  data = df1,
+  sample_prior = "yes"
+  )
+```
+
+## Prior predictive check
+
+```{r ppc-mod2.1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "50%"}
+prior_draws(x = mod2.1) %>% # échantillons du prior
+  mutate(
+    condition1 = plogis(Intercept - 0.5 * b), # p dans condition 1
+    condition2 = plogis(Intercept + 0.5 * b) # p dans condition 0
+    ) %>%
+  ggplot(aes(x = condition2 - condition1) ) + # on plot la différence
+  geom_density(fill = "steelblue", adjust = 0.1) +
+  labs(
+    x = "Différence dans la probabilité a priori de tirer le levier gauche entre conditions",
+    y = "Densité de probabilité"
+    )
+```
+
+## Régression logistique 
+
+```{r mod2.2, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 1), class = Intercept),
+  prior(normal(0, 1), class = b)
+  )
+
+mod2.2 <- brm(
+  formula = pulled_left | trials(1) ~ 1 + prosoc_left * condition,
+  family = binomial,
+  prior = priors,
+  data = df1,
+  sample_prior = "yes"
+  )
+```
+
+## Prior predictive check
+
+```{r ppc-mod2.2, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "50%"}
+prior_draws(mod2.2) %>% # échantillons du prior
+  mutate(
+    condition1 = plogis(Intercept - 0.5 * b), # p dans condition 1
+    condition2 = plogis(Intercept + 0.5 * b) # p dans condition 0
+    ) %>%
+  ggplot(aes(x = condition2 - condition1) ) +
+  geom_density(fill = "steelblue", adjust = 0.1) +
+  labs(
+    x = "Différence dans la probabilité a priori de tirer le levier gauche entre conditions",
+    y = "Densité de probabilité"
+    )
+```
+
+## Régression logistique
+
+```{r, eval = TRUE, echo = TRUE}
+summary(mod2.2)
+```
+
+## Effet relatif vs. Effet absolu
+
+Le modèle linéaire ne prédit pas directement la probabilité mais le log-odds de la probabilité :
+
+$$
+\begin{align}
+\text{logit}(p_{i}) &= \log \left(\frac{p_{i}}{1 - p_{i}} \right) = \alpha + \beta \times x_{i} \\
+\end{align}
+$$
+
+. . .
+
+On peut distinguer et interpréter deux types d'effets.
+
+**Effet relatif** : L'effet relatif porte sur le logarithme du rapport des probabilités. Il indique une proportion de changement induit par le prédicteur sur **les chances** de succès (ou plutôt, sur la cote). Cela ne nous dit rien de la probabilité de l'évènement, dans l'absolu.
+
+. . .
+
+**Effet absolu** : Effet qui porte directement sur la probabilité d'un évènement. Il dépend de tous les paramètres du modèle et nous donne l'impact effectif d'un changement d'une unité d'un prédicteur (dans l'espace des probabilités).
+
+## Effet relatif
+
+Il s'agit d'une **proportion** de changement induit par le prédicteur sur le rapport des chances ou "cote" (odds). Illustration avec un modèle sans interaction.
+
+$$ 
+\begin{align}
+\log\left(\frac{p_{i}}{1 - p_{i}}\right) &= \alpha + \beta x_{i} \\
+\frac{p_{i}}{1 - p_{i}} &= \exp(\alpha + \beta x_{i}) \\
+\end{align}
+$$
+
+. . .
+
+La cote proportionnelle $q$ d'un évènement est le nombre par lequel la cote est multipliée lorsque $x_{i}$ augmente d'une unité.
+
+$$
+\begin{align}
+q = \frac{\exp(\alpha + \beta(x_{i} + 1))}{\exp(\alpha + \beta x_{i})} = \frac{\exp(\alpha) \exp(\beta x_{i}) \exp(\beta)}{\exp(\alpha) \exp(\beta x_{i})} = \exp(\beta)
+\end{align}
+$$
+
+Lorsque $q = 2$ (par exemple), une augmentation de $x_{i}$ d'une unité génère un doublement de la cote.
+
+## Interprétation de l'effet relatif
+
+L'effet relatif d'un paramètre **dépend également des autres paramètres**. Dans le modèle précédent, le prédicteur `prosoc_left` augmente le logarithme de la cote d'environ 0.54, ce qui se traduit par une augmentation de la cote de $\exp(0.54) \approx 1.72$ soit une augmentation d'environ 72% de la cote.
+
+. . .
+
+Supposons que l'intercept $\alpha = 4$.
+
++ La probabilité de pousser le levier sans autre considération est de $\text{logit}^{-1}(4) \approx 0.98$.
++ En considérant l'effet de `prosoc_left`, on obtient $\text{logit}^{-1}(4 + 0.54) \approx 0.99$.
+
+. . .
+
+Une augmentation de 72% sur le log-odds se traduit par une augmentation de seulement 1% sur la probabilité effective... Les effets relatifs peuvent conduire à de mauvaises interprétations lorsqu'on ne considère pas l'échelle de la variable mesurée.
+
+## Interprétation de l'effet relatif
+
+```{r, eval = TRUE, echo = TRUE}
+fixef(mod2.2) # récupère les estimations des effets dits "fixes"
+```
+
+. . .
+
+```{r, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6, out.width = "50%", dev = "png", dpi = 200}
+post <- as_draws_df(x = mod2.2) # échantillons du posterior
+posterior_plot(samples = exp(post$b_prosoc_left), compval = 1) + labs(x = "Odds ratio")
+```
+
+## Effet absolu
+
+L'effet absolu dépend de tous les paramètres du modèle et nous donne l'impact effectif d'un changement d'une unité d'un prédicteur (dans l'espace des probabilités).
+
+```{r, eval = TRUE, echo = TRUE}
+model_predictions <- fitted(mod2.2) %>% # prédiction pour p (i.e., la probabilité)
+  data.frame() %>% 
+  bind_cols(df1) %>%
+  mutate(condition = factor(condition), prosoc_left = factor(prosoc_left) )
+```
+
+```{r, eval = TRUE, echo = FALSE, fig.width = 9, fig.height = 6, out.width = "50%"}
+model_predictions %>%
+  ggplot(aes(
+    x = prosoc_left, y = Estimate,
+    ymin = Q2.5, ymax = Q97.5, colour = condition
+    ) ) +
+  geom_hline(yintercept = 0.5, lty = 2) +
+  geom_line(
+    aes(group = condition),
+    size = 1,
+    position = position_dodge(0.2)
+    ) +
+  geom_pointrange(
+    aes(color = condition),
+    size = 1, fatten = 2, show.legend = TRUE,
+    position = position_dodge(0.2)
+    ) +
+  ylim(0, 1) +
+  scale_x_discrete(labels = c("Non", "Oui") ) +
+  scale_colour_discrete(labels = c("Seul", "Social") ) +
+  labs(
+  x = "Est-ce que l'option prosociale était à gauche ?",
+  y = "Probabilité de tirer le levier gauche"
+  )
+```
+
+## Régression binomiale agrégée 
+
+Ces données représentent le nombre de candidatures à l'université de Berkeley par sexe et par département. Chaque candidature est acceptée ou rejetée et les résultats sont agrégés par département et par sexe.
+
+```{r eval = TRUE, echo = TRUE}
+(df2 <- open_data(admission) )
+```
+
+Existe-t-il un biais de recrutement lié au sexe ?
+
+## Régression binomiale agrégée 
+
+On va construire un modèle de la décision d'admission en prenant comme prédicteur le sexe du candidat.
+
+$$
+\begin{align}
+\color{orangered}{\text{admit}_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n_{i}, p_{i})} \\
+\color{black}{\text{logit}(p_i)} \ &\color{black}{= \alpha + \beta_{m} \times m_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\beta_{m}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\end{align}
+$$
+
+. . .
+
+Les variables :
+
++ $\text{admit}_{i}$ : Le nombre de candidatures acceptées (`admit`).
++ $n_{i}$ : Le nombre total de candidatures (`applications`).
++ $m_{i}$ : Le sexe du candidat (`1 = Male`).
+
+## Régression binomiale agrégée 
+
+```{r mod3, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(prior(normal(0, 1), class = Intercept) )
+
+mod3 <- brm(
+  formula = admit | trials(applications) ~ 1,
+  family = binomial(link = "logit"),
+  prior = priors,
+  data = df2,
+  sample_prior = "yes"
+  )
+```
+
+## Régression binomiale agrégée 
+
+```{r mod4, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 1), class = Intercept),
+  prior(normal(0, 1), class = b)
+  )
+
+# dummy-coding
+df2$male <- ifelse(df2$gender == "Male", 1, 0)
+
+mod4 <- brm(
+  formula = admit | trials(applications) ~ 1 + male,
+  family = binomial(link = "logit"),
+  prior = priors,
+  data = df2,
+  sample_prior = "yes"
+  )
+```
+
+## Régression binomiale agrégée 
+
+```{r eval = TRUE, echo = TRUE}
+summary(mod4)
+```
+
+Être un homme semble être un avantage... ! Le rapport des cotes est de $\exp(0.61) \approx 1.84$.
+
+## Régression binomiale agrégée 
+
+Calculons la différence de probabilité d'admission entre hommes et femmes.
+
+```{r eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 6, out.width = "50%", dev = "png", dpi = 200}
+post <- as_draws_df(x = mod4)
+p.admit.male <- plogis(post$b_Intercept + post$b_male)
+p.admit.female <- plogis(post$b_Intercept)
+diff.admit <- p.admit.male - p.admit.female
+posterior_plot(samples = diff.admit, compval = 0)
+```
+
+## Visualiser les prédictions du modèle
+
+On examine les prédictions du modèle par département.
+
+```{r eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+# pp_check(mod4, type = "intervals", nsamples = 1e2, prob = 0.5, prob_outer = 0.95) +
+#   scale_x_continuous(breaks = 1:12, limits = c(1, 12) ) +
+#   theme_bw(base_size = 20) +
+#   labs(x = "Sexe / Département", y = "Nombre d'admissions")
+
+df2 <- df2 %>% mutate(case = factor(1:12) )
+
+p <- 
+  predict(mod4) %>% 
+  as_tibble() %>% 
+  bind_cols(df2)
+
+d_text <-
+  df2 %>%
+  group_by(dept) %>%
+  summarise(
+    case  = mean(as.numeric(case) ),
+    admit = mean(admit / applications) + 0.05
+    )
+
+ggplot(data = df2, aes(x = case, y = admit / applications) ) +
+  geom_pointrange(
+    data = p, 
+    aes(
+      y = Estimate / applications,
+      ymin = Q2.5 / applications ,
+      ymax = Q97.5 / applications
+      ),
+    shape = 1, alpha = 0.5
+    ) +
+  geom_point(color = "steelblue") +
+  geom_line(
+    aes(group = dept),
+    color = "steelblue"
+    ) +
+  geom_text(
+    data = d_text,
+    aes(y = admit, label = dept),
+    color = "steelblue"
+    ) +
+  coord_cartesian(ylim = 0:1) +
+  scale_x_discrete(
+    breaks = 1:12,
+    labels = rep(c("male", "female"), 6)
+    ) +
+  labs(
+    x = "",
+    y = "Probabilité d'admission",
+    title = "Posterior predictive check"
+    )
+```
+
+## Régression binomiale agrégée 
+
+Les prédictions du modèle sont très mauvaises... Il n'y a que deux départements pour lesquels les femmes ont de moins bonnes prédictions que les hommes (C et E) alors que le modèle prédit une probabilité d'admission plus basse pour tous les départements...
+
+. . .
+
+Le problème est double :
+
+- Les hommes et les femmes ne postulent pas aux mêmes départements.
+- Les départements n'ont pas tous les mêmes effectifs.
+
+. . .
+
+C'est le ["paradoxe" de Simpson](https://en.wikipedia.org/wiki/Simpson%27s_paradox)... remarques :
+
+- La distribution postérieure seule n'aurait pas permis de détecter ce problème.
+- C'est l'étude des prédictions du modèle qui nous a permis de mettre le doigt sur le problème...
+
+## Régression binomiale agrégée 
+
+On construit donc un modèle de la décision d'admission en fonction du genre, au sein de chaque département.
+
+$$
+\begin{align}
+\color{orangered}{\text{admit}_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n_{i}, p_{i})} \\
+\color{black}{\text{logit}(p_i)} \ &\color{black}{= \alpha_{\text{dept}[i]} + \beta_{m} \times m_{i}} \\
+\color{steelblue}{\alpha_{\text{dept}[i]}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\beta_{m}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\end{align}
+$$
+
+## Régression binomiale aggrégée 
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+# modèle sans prédicteur
+mod5 <- brm(
+  admit | trials(applications) ~ 0 + dept,
+  family = binomial(link = "logit"),
+  prior = prior(normal(0, 1), class = b),
+  data = df2
+  )
+
+# modèle avec prédicteur
+mod6 <- brm(
+  admit | trials(applications) ~ 0 + dept + male,
+  family = binomial(link = "logit"),
+  prior = prior(normal(0, 1), class = b),
+  data = df2
+  )
+```
+
+## Régression binomiale aggrégée 
+
+```{r eval = TRUE, echo = TRUE}
+summary(mod6)
+```
+
+## Régression binomiale agrégée 
+
+```{r eval = TRUE, echo = TRUE}
+fixef(mod6)
+```
+
+Maintenant, la prédiction pour $\beta_{m}$ va dans l'autre sens... La rapport des cotes (odds ratio) est de $\exp(-0.1) = 0.9$, la cote (odds) des hommes est estimée à 90% de la cote des femmes.
+
+## Régression binomiale agrégée 
+
+```{r eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"}
+predict(mod6) %>%
+  as_tibble() %>% 
+  bind_cols(df2) %>%
+  ggplot(aes(x = case, y = admit / applications) ) +
+  geom_pointrange(
+    aes(
+      y = Estimate / applications,
+      ymin = Q2.5 / applications,
+      ymax = Q97.5 / applications
+      ),
+    color = "steelblue",
+    shape = 1, alpha = 0.5
+    ) +
+  geom_point(color = "steelblue") +
+  geom_line(
+    aes(group = dept),
+    color = "steelblue"
+    ) +
+  geom_text(
+    data = d_text,
+    aes(y = admit, label = dept),
+    color = "steelblue"
+    ) +
+  coord_cartesian(ylim = 0:1) +
+  scale_x_discrete(
+    breaks = 1:12,
+    labels = rep(c("male", "female"), 6)
+    ) +
+  labs(
+    x = "",
+    y = "Probabilité d'admission",
+    title = "Posterior predictive check"
+    )
+```
+
+## Conclusions 
+
+Les hommes et les femmes ne postulent pas aux mêmes départements et les départements varient par leur probabilité d'admission. En l'occurrence, les femmes ont plus postulé aux départements E et F (avec une probabilité d'admission plus faible) et ont moins postulé aux départements A ou B, avec une probabilité d'admission plus haute.
+
+. . .
+
+Pour évaluer l'effet du sexe sur la probabilité d'admission, il faut donc se poser la question suivante : "Quelle est la différence de probabilité d'admission entre hommes et femmes **au sein de chaque département** ?" (plutôt que de manière générale).
+
+. . .
+
+Retenir que le modèle de régression peut être généralisé à différents modèles de génération des données (i.e., différentes distributions de probabilité, comme la distribution Normale, Binomiale, Poisson, etc) et que l'espace des paramètres peut être "connecté" à l'espace des prédicteurs (variables mesurées) grâce à des fonctions de lien (e.g., la fonction logarithme, exponentielle, logit, etc).
+
+. . .
+
+Retenir la distinction entre **effet relatif** (e.g., un changement de cote) et **effet absolu** (e.g., une différence de probabilité).
+
+## Travaux pratiques - Absentéisme expérimental
+
+Travailler avec des sujets humains implique un minimum de coopération réciproque. Mais ce n'est pas toujours le cas. Une partie non-négligeable des étudiants qui s'inscrivent pour passer des expériences de Psychologie ne se présentent pas le jour prévu... On a voulu estimer la **probabilité de présence d'un étudiant inscrit** en fonction de l'envoi (ou non) d'un mail de rappel (cet exemple est présenté en détails dans deux articles de blog, accessibles [ici](http://www.barelysignificant.com/post/absenteeism/), et [ici](http://www.barelysignificant.com/post/absenteeism2/)).
+
+```{r eval = TRUE, echo = TRUE}
+df3 <- open_data(absence)
+df3 %>% sample_frac %>% head(10)
+```
+
+## Travaux pratiques
+
+::: nonincremental
+- **Quelle est la probabilité qu'un participant, qui s'est inscrit de son propre chef, vienne effectivement passer l'expérience ?**
+- Quel est l'effet du rappel ?
+- Quel est l'effet du mode d'inscription ?
+- Quel est l'effet conjoint de ces deux prédicteurs ?
+:::
+
+## Travaux pratiques
+
+Écrire le modèle qui prédit la présence d'un participant sans prédicteur.
+
+$$
+\begin{aligned}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n_{i}, p_{i})} \\
+\color{black}{\text{logit}(p_{i})} \ &\color{black}{= \alpha} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\end{aligned}
+$$
+
+## Travaux pratiques
+
+```{r mod7, eval = TRUE, echo = TRUE, results = "hide"}
+mod7 <- brm(
+    presence | trials(total) ~ 1,
+    family = binomial(link = "logit"),
+    prior = prior(normal(0, 1), class = Intercept),
+    data = df3,
+    # utilise tous les coeurs disponibles de la machine...
+    cores = parallel::detectCores()
+    )
+```
+
+```{r, eval = TRUE, echo = TRUE}
+fixef(mod7) # effet relatif (log de la cote)
+fixef(mod7) %>% plogis # effet absolu (probabilité de présence)
+```
+
+## Travaux pratiques
+
+::: nonincremental
+- Quelle est la probabilité qu'un participant, qui s'est inscrit de son propre chef, vienne effectivement passer l'expérience ?
+- **Quel est l'effet du rappel ?**
+- Quel est l'effet du mode d'inscription ?
+- Quel est l'effet conjoint de ces deux prédicteurs ?
+:::
+
+## Travaux pratiques
+
+On commence par recoder en dummy variables `reminder` et `inscription`.
+
+```{r eval = TRUE, echo = TRUE}
+df3 <-
+  df3 %>%
+  mutate(
+    reminder = ifelse(reminder == "no", 0, 1),
+    inscription = ifelse(inscription == "panel", 0, 1)
+    )
+
+head(df3, n = 10)
+```
+
+## Travaux pratiques
+
+Écrire le modèle qui prédit la présence en fonction du rappel.
+
+$$
+\begin{aligned}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n_{i}, p_{i})} \\
+\color{black}{\text{logit}(p_{i})} \ &\color{black}{= \alpha + \beta \times \text{reminder}_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\beta} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\end{aligned}
+$$
+
+## Travaux pratiques
+
+Écrire le modèle qui prédit la présence en fonction du rappel.
+
+```{r mod8, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 1), class = Intercept),
+  prior(normal(0, 1), class = b)
+  )
+
+mod8 <- brm(
+    presence | trials(total) ~ 1 + reminder,
+    family = binomial(link = "logit"),
+    prior = priors,
+    data = df3,
+    cores = parallel::detectCores()
+    )
+```
+
+## Travaux pratiques
+
+Quel est l'effet **relatif** du mail de rappel ?
+
+```{r eval = TRUE, echo = TRUE}
+exp(fixef(mod8)[2]) # rapport des cotes sans vs. avec mail de rappel
+```
+
+Envoyer un mail de rappel augmente la cote (le rapport des chances) par environ $3$.
+
+## Travaux pratiques 
+
+Quel est l'effet **absolu** du mail de rappel ?
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5, dev = "png", dpi = 200}
+post <- as_draws_df(x = mod8) # récupères les échantillons du posterior
+p.no <- plogis(post$b_Intercept) # probabilité de présence sans mail de rappel
+p.yes <- plogis(post$b_Intercept + post$b_reminder) # probabilité de présence avec mail de rappel
+posterior_plot(samples = p.yes - p.no, compval = 0, usemode = TRUE)
+```
+
+## Travaux pratiques 
+
+```{r eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 4}
+library(tidybayes)
+library(modelr)
+
+df3 %>%
+  group_by(total) %>%
+  data_grid(reminder = seq_range(reminder, n = 1e2) ) %>%
+  add_fitted_draws(mod8, newdata = ., n = 100, scale = "linear") %>%
+  mutate(estimate = plogis(.value) ) %>%
+  group_by(reminder, .draw) %>%
+  summarise(estimate = mean(estimate) ) %>%
+  ggplot(aes(x = reminder, y = estimate, group = .draw) ) +
+  geom_hline(yintercept = 0.5, lty = 2) +
+  geom_line(aes(y = estimate, group = .draw), size = 0.5, alpha = 0.1) +
+  ylim(0, 1) +
+  labs(x = "Mail de rappel", y = "Probabilité de présence")
+```
+
+## Travaux pratiques
+
+::: nonincremental
+- Quelle est la probabilité qu'un participant, qui s'est inscrit de son propre chef, vienne effectivement passer l'expérience ?
+- Quel est l'effet du rappel ?
+- **Quel est l'effet du mode d'inscription ?**
+- Quel est l'effet conjoint de ces deux prédicteurs ?
+:::
+
+## Travaux pratiques
+
+Écrire le modèle qui prédit la présence en fonction du mode d'inscription.
+
+$$
+\begin{aligned}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n_{i}, p_{i})} \\
+\color{black}{\text{logit}(p_{i})} \ &\color{black}{= \alpha + \beta \times \text{inscription}_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\beta} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\end{aligned}
+$$
+
+## Travaux pratiques
+
+```{r mod9, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 1), class = Intercept),
+  prior(normal(0, 1), class = b)
+  )
+
+mod9 <- brm(
+    presence | trials(total) ~ 1 + inscription,
+    family = binomial(link = "logit"),
+    prior = priors,
+    data = df3,
+    cores = parallel::detectCores()
+    )
+```
+
+## Travaux pratiques
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5, dev = "png", dpi = 200}
+post <- as_draws_df(x = mod9)
+p.panel <- plogis(post$b_Intercept) # probabilité moyenne de présence - panel
+p.doodle <- plogis(post$b_Intercept + post$b_inscription) # probabilité moyenne de présence - doodle
+posterior_plot(samples = p.panel - p.doodle, compval = 0, usemode = TRUE)
+```
+
+La probabilité de présence est augmentée d'environ $0.16$ lorsque l'on s'inscrit sur un panel comparativement à une inscription sur un Doodle (effet légèrement plus faible que pour le rappel).
+
+## Travaux pratiques
+
+::: nonincremental
+- Quelle est la probabilité qu'un participant, qui s'est inscrit de son propre chef, vienne effectivement passer l'expérience ?
+- Quel est l'effet du rappel ?
+- Quel est l'effet du mode d'inscription ?
+- **Quel est l'effet conjoint de ces deux prédicteurs ?**
+:::
+
+## Travaux pratiques
+
+Écrire le modèle complet.
+
+$$
+\begin{aligned}
+\color{orangered}{y_{i}} \ &\color{orangered}{\sim \mathrm{Binomial}(n_{i}, p_{i})} \\
+\color{black}{\text{logit}(p_{i})} \ &\color{black}{= \alpha + \beta_{1} \times \text{reminder}_{i} + \beta_{2} \times \text{inscription}_{i}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\color{steelblue}{\beta_{1}, \beta_{2}} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 1)} \\
+\end{aligned}
+$$
+
+## Travaux pratiques
+
+```{r mod10, eval = TRUE, echo = TRUE, results = "hide"}
+priors <- c(
+  prior(normal(0, 1), class = Intercept),
+  prior(normal(0, 1), class = b)
+  )
+
+mod10 <- brm(
+    presence | trials(total) ~ 1 + reminder + inscription,
+    family = binomial(link = "logit"),
+    prior = priors,
+    data = df3,
+    cores = parallel::detectCores()
+    )
+```
+
+## Travaux pratiques
+
+```{r eval = TRUE, echo = TRUE}
+summary(mod10)
+```
+
+## Travaux pratiques
+
+Le mail de rappel semble avoir moins d'effet dans le modèle complet que dans le modèle simple... pourquoi ?
+
+```{r eval = TRUE, echo = TRUE}
+fixef(mod8) %>% exp() # calcul du "odds ratio"
+fixef(mod9) %>% exp() # calcul du "odds ratio"
+fixef(mod10) %>% exp() # calcul du "odds ratio"
+```
+
+## Travaux pratiques
+
+On a déjà rencontré ce cas de figure (cf. Cours n°04). Lorsque deux prédicteurs contiennent une part d'information commune, l'estimation des pentes est corrélée...
+
+```{r eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+as_draws_df(x = mod10) %>%
+    ggplot(aes(b_reminder, b_inscription) ) +
+    geom_point(size = 3, pch = 21, alpha = 0.8, color = "white", fill = "black") +
+    labs(x = "Effet (pente) du mail de rappel", y = "Effet (pente) du mode d'inscription")
+```
+
+## Travaux pratiques
+
+En effet, les données ont été collectées par deux expérimentateurs. L'un d'entre eux a recruté tous ses participants via Doodle, et n'envoyait pas souvent de mail de rappel. Le deuxième expérimentateur a recruté tous ses participants via un panneau physique présent dans le laboratoire et envoyait systématiquement un mail de rappel. Autrement dit, ces deux variables sont presque parfaitement confondues.
+
+```{r eval = TRUE, echo = TRUE}
+open_data(absence) %>%
+  group_by(inscription, reminder) %>%
+  summarise(n = sum(total) ) %>%
+  spread(key = reminder, value = n) %>%
+  data.frame()
+```

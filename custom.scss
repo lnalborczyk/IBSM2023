@@ -1,0 +1,80 @@
+// importing fonts
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+/*-- scss:defaults --*/
+$font-family-sans-serif: Montserrat, sans-serif !default;
+$font-family-serif: Montserrat, serif !default;
+$monokai-bg: #2e3440;
+
+// Home page stuff
+.title-block {
+  margin: 1em 0;
+  border-bottom: 3px solid #e9ecef;
+  padding-bottom: 1em;
+}
+
+// Footer stuff
+.nav-footer-left {
+  text-align: left;
+}
+
+.nav-footer-right {
+  text-align: right;
+}
+
+////////////////////////////////////////
+// Code stuff
+///////////////////////////////////
+
+// Shrink blocks of code
+pre.text, pre.sourceCode, .cell-output pre {
+  font-size: 0.775em;
+}
+
+// Slight bottom margin to output
+.cell-output {
+  margin: 0 0 1em;
+}
+
+// Remove margin on pre in output
+.cell-output pre {
+  margin-bottom: 0;
+  color: #ffffff;
+}
+
+// Format output and plain text blocks like code
+.cell-output, pre.text {
+  border: none;
+  padding: 0.4em;
+  background-color: $monokai-bg;
+  border: 1px solid $monokai-bg;
+  border-radius: .25rem;
+}
+
+pre.text {
+  color: #ffffff;
+}
+
+main {
+  // No space after lists-within-lists
+  ol ol,
+  ul ul,
+  ol ul,
+  ul ol {
+    margin-bottom: 0em;
+  }
+
+  // But yes space after lists-within-lists when paragraphs are involved
+  ol p + ol,
+  ul p + ul,
+  ol p + ul,
+  ul p + ol {
+    margin-bottom: 1em;
+  }
+}
+
+.course-details ul {
+  list-style: none;
+  text-indent: -0.7rem;
+  padding-left: 1.4rem;
+}

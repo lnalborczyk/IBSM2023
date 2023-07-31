@@ -1,0 +1,2060 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  a4paper,11pt,twoside,onecolumn,openright,final,oldfontcommands]{memoir}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\usepackage[normalem]{ulem}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Loading packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\usepackage[tikz]{mdframed}
+\usepackage{tikz}
+\usepackage{mdframed}
+\mdfsetup{skipabove=1em,skipbelow=1em}
+\newmdenv[backgroundcolor=kcblue]{note}
+
+% \usepackage{babel} % throws an error...
+% \usepackage{amsmath,amssymb,amsthm,enumitem} % for equations
+
+\usepackage{polyglossia}
+\setmainlanguage{french}
+
+\usepackage{fontspec}
+\setmainfont{Heuristica}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% title page color
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \usepackage[pagecolor=none]{pagecolor}
+% \usepackage{afterpage}
+% \usepackage{xcolor}
+
+% \setmainfont{FreeSerif} % for unicode emojis
+% fonts that support a symbol:
+% http://www.fileformat.info/info/unicode/char/1f64c/fontsupport.htm
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% links and citations colors
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{blogblue}{RGB}{0, 51, 102}
+
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks = true,
+    linkcolor = blogblue,
+    filecolor = blogblue,
+    urlcolor = blogblue,
+    citecolor = blogblue
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Remove default title %
+% https://stackoverflow.com/questions/45963505/coverpage-and-copyright-notice-before-title-in-r-bookdown
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\usepackage[a4paper]{./latex/cover_page} % specifies the path to the cover page template
+%\let\oldmaketitle\maketitle
+%\AtBeginDocument{\let\maketitle\relax}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Format of the page (block, header, margins, etc.)         %
+% https://texdoc.net/texmf-dist/doc/latex/memoir/memman.pdf %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Sets the "real" paper size (already set by a4paper class option)
+% \setstocksize{11in}{8.5in}
+
+% Trimmed paper size (trimmed on the left and right)
+% \settrimmedsize{11in}{8.5in}{*}
+
+% Sets the \headheight and \footskip parameters (respectively)
+% \setheadfoot{\onelineskip}{2\onelineskip}
+
+% Sets space between header and block
+% \setheaderspaces{*}{2\onelineskip}{*}
+
+% Spine and trim page margins from main typeblock (left and right margins if oneside)
+\setlrmarginsandblock{25mm}{25mm}{*}
+
+% Top and bottom page margins from main typeblock
+\setulmarginsandblock{25mm}{*}{1}
+
+% Applies and enforces the layout
+\checkandfixthelayout
+
+% Ensures single spacing between sentences
+\frenchspacing
+
+% eliminating paragraph indentation and using extra inter- paragraph space
+\setlength{\parindent}{0pt}
+\nonzeroparskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Formatting
+%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{calc} % simple arithmetics in latex commands
+\usepackage{soul} % hyphenation for letterspacing, underlining, etc.
+
+\makeatletter
+\newlength\dlf@normtxtw
+\setlength\dlf@normtxtw{\textwidth}
+\newsavebox{\feline@chapter}
+\newcommand\feline@chapter@marker[1][4cm]{%
+	\sbox\feline@chapter{%
+		\resizebox{!}{#1}{\fboxsep=1pt%
+			\colorbox{gray}{\color{white}\thechapter}%
+		}}%
+		\rotatebox{90}{%
+			\resizebox{%
+				\heightof{\usebox{\feline@chapter}}+\depthof{\usebox{\feline@chapter}}}%
+			{!}{\scshape\so\@chapapp}}\quad%
+		\raisebox{\depthof{\usebox{\feline@chapter}}}{\usebox{\feline@chapter}}%
+}
+
+\newcommand\feline@chm[1][4cm]{%
+	\sbox\feline@chapter{\feline@chapter@marker[#1]}%
+	\makebox[0pt][c]{% aka \rlap
+		\makebox[1cm][r]{\usebox\feline@chapter}%
+	}}
+
+\makechapterstyle{daleifmodif}{
+\renewcommand\chapnamefont{\normalfont\Large\scshape\raggedleft\so}
+\renewcommand\chaptitlefont{\normalfont\Large\bfseries\scshape}
+\renewcommand\chapternamenum{} \renewcommand\printchaptername{}
+\renewcommand\printchapternum{\null\hfill\feline@chm[2.5cm]\par}
+\renewcommand\afterchapternum{\par\vskip\midchapskip}
+\renewcommand\printchaptertitle[1]{\color{gray}\chaptitlefont\raggedleft
+  \renewcommand\chaptername{Chapter}
+  ##1\par}
+}
+
+\makeatother
+\chapterstyle{daleifmodif}
+
+% The pages should be numbered consecutively at the bottom centre of the page
+\makepagestyle{myvf}
+\makeoddfoot{myvf}{}{\thepage}{}
+\makeevenfoot{myvf}{}{\thepage}{}
+\makeheadrule{myvf}{\textwidth}{\normalrulethickness}
+\makeevenhead{myvf}{\small\textsc{\leftmark}}{}{}
+\makeoddhead{myvf}{}{}{\small\textsc{\rightmark}}
+\pagestyle{myvf}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Insert an empty page %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{afterpage} % executes command after the next page break
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    % \addtocounter{page}{-1}% % uncomment to increase page counter
+    \newpage
+    }
+
+\newcommand{\clearemptydoublepage}{\newpage{\thispagestyle{empty}\cleardoublepage}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% boxes and cie
+% from https://github.com/mca91/EconometricsWithR/blob/master/preamble.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{tcolorbox}
+
+\definecolor{kcblue}{HTML}{D7DDEF}
+\definecolor{kcdarkblue}{HTML}{2B4E70}
+
+\newenvironment{rmdknit}
+    {\begin{center}
+    \begin{tabular}{|p{0.9\textwidth}|}
+    \hline\\
+    }
+    {
+    \\\\\hline
+    \end{tabular}
+    \end{center}
+    }
+
+\newenvironment{rmdnote}
+    {\begin{center}
+    \begin{tabular}{|p{0.9\textwidth}|}
+    \hline\\
+    }
+    {
+    \\\\\hline
+    \end{tabular}
+    \end{center}
+    }
+
+\newtcolorbox[auto counter, number within=section]{keyconcepts}[2][]{%
+colback=kcblue,colframe=kcdarkblue,fonttitle=\bfseries, title=Concept essentiel~#2, after title={\newline #1}, beforeafter skip=15pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% create classes for theorem and definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\usepackage{amsthm}
+%\newtheorem{theorem}{Théorème}
+%\newtheorem{definition}{Définition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Command used in the manual list of abbreviations %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\nomenclature[2]{#1 & #2 \\}
+
+%%%%%%%%%%%%%%%%%%
+% Epigraph style %
+%%%%%%%%%%%%%%%%%%
+
+\usepackage{epigraph} % provides commands to assist in the typesetting of a single epigraph
+
+\setlength\epigraphwidth{1\textwidth}
+\setlength\epigraphrule{0pt} % no line between
+\setlength\beforeepigraphskip{1\baselineskip} % space before and after epigraph
+\setlength\afterepigraphskip{2\baselineskip}
+\renewcommand*{\textflush}{flushright}
+\renewcommand*{\epigraphsize}{\normalsize\itshape}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \usepackage{booktabs}
+% \usepackage{longtable}
+% \usepackage{array}
+% \usepackage{multirow}
+% \usepackage{wrapfig}
+% \usepackage{float}
+% \usepackage{colortbl}
+% \usepackage{pdflscape}
+% \usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+% \usepackage[normalem]{ulem}
+% \usepackage{makecell}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% changing figures and tables names
+% https://tex.stackexchange.com/questions/17489/change-caption-name-of-figures
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[figurename = Figure]{caption}
+\usepackage[tablename = Tableau]{caption}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Notes de cours - Introduction à la modélisation statistique bayésienne},
+  pdfauthor={Ladislas Nalborczyk},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Notes de cours - Introduction à la modélisation statistique bayésienne}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Un cours avec R, Stan, et brms}
+\author{Ladislas Nalborczyk}
+\date{Dernière mise à jour : 07-11-2022}
+
+\usepackage{amsthm}
+\newtheorem{theorem}{Théorème}[chapter]
+\newtheorem{lemma}{Lemme}[chapter]
+\newtheorem{corollary}{Corollaire}[chapter]
+\newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{conjecture}{Conjecture}[chapter]
+\theoremstyle{definition}
+\newtheorem{definition}{Définition}[chapter]
+\theoremstyle{definition}
+\newtheorem{example}{Exemple}[chapter]
+\theoremstyle{definition}
+\newtheorem{exercise}{Exercice}[chapter]
+\theoremstyle{definition}
+\newtheorem{hypothesis}{Hypothesis}[chapter]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remarque }
+\newtheorem*{solution}{Solution}
+\begin{document}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% title page layout
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+
+% background color
+% \newpagecolor{blogblue}\afterpage{\restorepagecolor}
+
+\begin{center} % horizontal centering
+
+  \includegraphics[width=0.8\textwidth]{figures/cover_distributions.png}
+
+\end{center}
+
+\newpage
+\blankpage % leaves a blank page between title and TOC
+
+\OnehalfSpacing % increasing line spacing to 1.5 (but leaving footnote to 1)
+
+\pagenumbering{roman} % start page numbering (roman style)
+
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{pruxe9face}{%
+\chapter*{Préface}\label{pruxe9face}}
+\addcontentsline{toc}{chapter}{Préface}
+
+\pagenumbering{arabic}
+
+Ce document regroupe les notes de l'édition 2022 de la formation doctorale ``Introduction à la modélisation statistique bayésienne'', co-organisée par le collège des écoles doctorales de l'Université Grenoble Alpes et la Maison de la Modélisation et de la Simulation, Nanoscience, et Environnement (MaiMoSiNE).
+
+Ces notes de cours sont organisées en suivant la structure du cours, avec un chapitre par cours, résumant les notions essentielles et donnant quelques éléments de contexte et/ou techniques supplémentaires, pour les plus curieux.
+
+Vous pouvez télécharger la version PDF de ce document en cliquant sur l'icône PDF dans la barre d'outils figurant tout en haut de la version en ligne de ce document. Les slides, données, et codes utilisés sont également disponibles sur le répertoire Github du cours : \url{https://github.com/lnalborczyk/IMSB2022}.
+
+Le contenu de ce livret est largement inspiré du livre \emph{Statistical rethinking} (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b}, \protect\hyperlink{ref-mcelreath_statistical_2020}{2020}) et des cours partagés librement en ligne par l'auteur. Par ailleurs, le format (HTML) du livret est en partie repris du livre \emph{Introduction to Econometrics with R} (\protect\hyperlink{ref-hanck_introduction_2018}{Hanck et al., 2018}), disponible \href{https://bookdown.org/machar1991/ITER/}{en ligne}.
+
+Enfin, ce document est diffusé sous une licence \emph{Creative Commons Attribution - Pas d'utilisation commerciale - Partage dans les mêmes conditions} (\url{https://creativecommons.org/licenses/by-nc-sa/3.0/fr/}). Cela signifie donc que vous êtes libre de recopier / modifier / redistribuer le contenu, à condition que vous citiez la source et que vos modifications soient elle-mêmes distribuées sous la même licence (autorisant ainsi d'autres à pouvoir réutiliser à leur tour vos ajouts).
+
+\hypertarget{introduction}{%
+\chapter{Introduction à l'inférence bayésienne}\label{introduction}}
+
+\definecolor{steelblue}{RGB}{70, 130, 180}
+\definecolor{green}{RGB}{0, 153, 0}
+\definecolor{purple}{RGB}{153, 0, 153}
+\definecolor{orangered}{cmyk}{0, 73, 100, 0}
+\newcommand\given[1][]{\:#1\vert\:}
+
+\epigraph{"The numbers have no way of speaking for themselves. We speak for them. We imbue them with meaning"}{Nate Silver}
+
+Notre environnement est rempli d'incertitude. Quel temps fera-t-il demain ? Qui sera le prochain président de la République ? Vais-je apprendre quelque chose en lisant ce livre ? Tout individu est capable de se faire une idée intuitive de la réponse à ces questions (avec plus ou moins de réussite) sans avoir jamais lu aucun livre traitant formellement de théorie des probabilités. Cependant, un examen plus détaillé des processus menant à ces réponses révèle une complexité et une diversité insoupçonnées. Qu'est-ce qu'une probabilité ? À quoi le concept de probabilité réfère-t-il, concrètement, dans le monde ? Et surtout, à quoi est-ce que tout cela pourrait bien nous servir pour l'analyse de données ?
+
+Dans ce premier chapitre, nous allons approfondir cette réflexion sur le concept de probabilité en se basant sur plusieurs définitions ayant été proposées au fil du temps. Puis, nous discuterons plus particulièrement de l'inférence bayésienne, une approche de l'inférence statistique qui utilise les probabilités comme langage pour décrire l'incertitude (et où le concept de \textbf{probabilité} est à comprendre dans son acception \textbf{épistémique}). Nous proposerons également un bref rappel de théorie des probabilités avant de dériver le théorème de Bayes à partir des règles élémentaires du calcul probabiliste. Le théorème de Bayes est le ``moteur'' de l'inférence statistique bayésienne, permettant de mettre à jour un état de connaissance a priori (i.e., avant d'observer certaines données) en un état de connaissance a posteriori (i.e., après avoir observé ces données). Nous illustrerons ce mécanisme par plusieurs exemples concrets.
+
+\hypertarget{quest-ce-quune-probabilituxe9}{%
+\section{Qu'est-ce qu'une probabilité ?}\label{quest-ce-quune-probabilituxe9}}
+
+\hypertarget{axiomes-des-probabilituxe9s}{%
+\subsection{Axiomes des probabilités}\label{axiomes-des-probabilituxe9s}}
+
+Pour quantifier notre incertitude vis à vis de la survenue de certains \textbf{événements} (e.g., obtenir un chiffre pair lors d'un lancer de dé), on assigne des probabilités à ces événements. On définit une probabilité comme une valeur numérique assignée à un événement \(A\), compris comme une possibilité appartenant à l'univers \(\Omega\) (l'ensemble de tous les événements possibles). Les probabilités telles que définies et utilisées dans ce livre se conforment aux axiomes suivants (\protect\hyperlink{ref-kolmogorov_foundations_1933}{Kolmogorov, 1933})\footnote{On notera au passage que les axiomes de Kolmogorov représentent un exemple parmi d'autres d'ensemble de règles permettant de définir ce qu'est une probabilité, mais que ce n'est pas le seul (bien que ce soit le plus communément utilisé). Par exemple, les \href{https://en.wikipedia.org/wiki/Cox\%27s_theorem}{axiomes de Cox} offrent un cadre alternatif.} :
+
+\begin{itemize}
+\item
+  \textbf{Axiome n°1} : \(\Pr(A) \geq 0\). La probabilité d'un événement \(A\) ne peut pas être négative.
+\item
+  \textbf{Axiome n°2} : \(\Pr(\Omega) = 1\). La somme des probabilités de tous les événements possibles est égale à \(1\) (et par conséquent, chaque probabilité individuelle ne peut dépasser \(1\)).
+\item
+  \textbf{Axiome n°3} : \(\Pr(A_{1} \cup A_{2}) = \Pr(A_{1}) + \Pr(A_{2})\). La probabilité d'obtenir soit l'événement \(A_{1}\), soit l'événement \(A_{2}\) (sachant que ces événements sont \textbf{incompatibles}) est égale à la somme des probabilités de chacun de ces deux événements.
+\end{itemize}
+
+Le dernier axiome est également connu comme la \textbf{règle de la somme} et n'est valide dans cette forme que pour des événements deux à deux \textbf{incompatibles} ou \textbf{mutuellement exclusifs}.\footnote{Deux événements \(A_{1}\) et \(A_{2}\) sont dits \emph{incompatibles} si l'on ne peut avoir les deux en même temps, c'est à dire si la probabilité de leur intersection est nulle : \(\Pr(A_{1} \cap A_{2}) = 0\).} Il se généralise à des événements non mutuellement exclusifs de la manière suivante : \(\Pr(A_{1} \cup A_{2}) = \Pr(A_{1}) + \Pr(A_{2}) - \Pr(A_{1} \cap A_{2})\). Autrement dit, et pour résumer, une probabilité est une valeur numérique positive, bornée entre 0 et 1, et qui respecte la règle de la somme.
+
+\hypertarget{interpruxe9tations-probabilistes}{%
+\subsection{Interprétations probabilistes}\label{interpruxe9tations-probabilistes}}
+
+Bien que nous ayons donné ci-dessus une définition des probabilités, cela ne nous donne aucune indication sur la manière d'interpréter ce genre de valeur. Qu'est-ce qu'une probabilité ? À quoi dans le monde fait référence une probabilité ? Cette question fait encore aujourd'hui couler beaucoup d'encre en philosophie de la connaissance. Nous discutons ci-dessous brièvement de quelques interprétations possibles du concept de probabilité.
+
+\hypertarget{interpruxe9tation-classique-ou-thuxe9orique}{%
+\subsubsection{Interprétation classique (ou théorique)}\label{interpruxe9tation-classique-ou-thuxe9orique}}
+
+La première interprétation proposée est généralement la première définition que nous rencontrons dans notre cursus scolaire. Il s'agit également d'une interprétation précédent l'observation de données. En effet, dans ce cadre, une probabilité peut être calculée avant même d'avoir observé quelque donnée que ce soit, par simple connaissance du système étudié. Plus précisément, on définit la probabilité comme le rapport entre le nombre de cas favorables sur le nombre de cas possibles. Par exemple, si on s'intéresse à la probabilité de l'événement ``Obtenir un chiffre pair'' lors du lancer d'un dé (non pipé), alors cette probabilité peut se calculer de la manière suivante :
+
+\[
+\Pr(\text{pair}) = \frac{\text{nombre de cas favorables}}{\text{nombre de cas possibles}} = \frac{3}{6} = \frac{1}{2} \cdot
+\]
+
+Cette définition fonctionne bien pour les situations dans lesquelles il n'y a qu'un nombre \textbf{fini} de résultats possibles \textbf{équiprobables} (i.e., de même probabilité). Cependant, si on applique cette définition à des situations plus complexes, on se rend compte que sa portée est limitée. Par exemple, si on applique cette définition à la question suivante : ``Quelle est la probabilité qu'il pleuve demain ?'', on se retrouve avec le calcul suivant :
+
+\[
+\Pr(\text{pluie}) = \frac{\text{pluie}}{ \{\text{pluie, non-pluie} \} } = \frac{1}{2}
+\]
+
+Et on se rend compte assez facilement que cette définition ne s'applique pas à des situations de prédiction météorologique, où il peut exister un grand nombre d'évènements possibles n'ayant pas nécessairement la même probabilité.
+
+\hypertarget{interpruxe9tation-fruxe9quentiste-ou-empirique}{%
+\subsubsection{Interprétation fréquentiste (ou empirique)}\label{interpruxe9tation-fruxe9quentiste-ou-empirique}}
+
+L'interprétation fréquentiste du concept de probabilité propose que la probabilité est ce vers quoi tend le rapport présenté dans la section précédente lorsque le nombre d'essais s'approche de l'infini (i.e., lorsque le nombre d'essais devient très important). Autrement dit, la probabilité est définie de la manière suivante :
+
+\[\Pr(x) = \lim_{n_{t} \to \infty}\frac{n_{x}}{n_{t}}\]
+
+où \(n_{x}\) est le nombre d'occurrences de l'événement \(x\) et \(n_{t}\) le nombre total d'essais. L'interprétation \textbf{fréquentiste} postule que, à long-terme (i.e., quand le nombre d'essais s'approche de l'infini), la fréquence relative va converger \emph{exactement} vers ce qu'on appelle ``probabilité''.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+
+\FunctionTok{sample}\NormalTok{(}\AttributeTok{x =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{size =} \DecValTok{500}\NormalTok{, }\AttributeTok{replace =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{data.frame}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}\AttributeTok{x =} \FunctionTok{seq\_along}\NormalTok{(.), }\AttributeTok{y =} \FunctionTok{cummean}\NormalTok{(.) ) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y) ) }\SpecialCharTok{+}
+        \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{lwd =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+        \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \FloatTok{0.5}\NormalTok{, }\AttributeTok{lty =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+        \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Nombre de lancers"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Proportion de faces"}\NormalTok{) }\SpecialCharTok{+}
+        \FunctionTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+        \FunctionTok{theme\_bw}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{12}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/frequency-1} 
+
+}
+
+\caption{Illustration de l'interprétation fréquentiste du concept de probabilité. Lorsque le nombre d'essais augmente (en abscisse), la fréquence relative (en ordonnée) converge vers la probabilité d'obtenir Face.}\label{fig:frequency}
+\end{figure}
+
+La Figure \ref{fig:frequency} illustre l'\textbf{interprétation fréquentiste} du concept de probabilité en montrant que la fréquence relative converge vers une fréquence donnée (la ``probabilité'') quand le nombre d'essais augmente. Une conséquence importante de cette définition est que le concept de probabilité s'applique uniquement aux \textbf{collectifs} (i.e., aux séquences), et non aux événements singuliers. La probabilité est définie comme la limite d'une fréquence relative, et ne permet pas de parler de la probabilité d'un événement unique.
+
+L'interprétation fréquentiste rencontre d'autres problèmes, comme celui de la classe de référence. Considérons par exemple la question suivante : ``Quelle est la probabilité que je vive jusqu'à 80 ans ?'' Pour répondre à cette question, nous avons besoin de définir la classe de référence à partir de laquelle l'individu examiné (``je'') provient. Autrement dit, je peux estimer la probabilité qu'un individu ayant mes caractéristiques vive jusqu'à 80 ans, mais il faut d'abord déterminer quelles sont les caractéristiques importantes au regard de la question posée. Selon mon sexe biologique, ma nationalité, ou mon statut socio-économique, la réponse à cette question peut varier drastiquement. L'interprétation fréquentiste ne propose pas de procédure stricte permettant de définir la classe de référence pertinente.
+
+Par ailleurs, cette définition ne s'applique pas directement aux évènements qui ne peuvent pas se répéter. Par exemple, quelle est la probabilité que j'apprenne quelque chose pendant cette formation ? La réponse à cette question ne peut s'établir qu'en considérant des facteurs extérieurs à la question (e.g., le niveau de connaissance a priori), et ne peut pas reposer sur une évaluation sur le long-terme de la fréquence d'occurrence de l'événement ``apprendre quelque chose'' (cela n'aurait pas de sens de refaire la formation 1000 fois pour calculer le nombre de fois où on aura appris quelque chose).
+
+\hypertarget{interpruxe9tation-propensionniste}{%
+\subsubsection{Interprétation propensionniste}\label{interpruxe9tation-propensionniste}}
+
+Selon l'interprétation propensionniste du concept de probabilité, les propriétés fréquentistes (i.e., à long terme) des objets (e.g., une pièce) seraient provoquées par des \emph{propriétés physiques intrinsèques} aux objets. Par exemple, une pièce biaisée va engendrer une fréquence relative (et donc une probabilité, selon l'interprétation fréquentiste) biaisée en raison de ses propriétés physiques. Pour les propensionnistes, les probabilités représentent ces caractéristiques intrinsèques, ces \textbf{propensions} à générer certaines fréquences relatives, et non les fréquences relatives en elles-mêmes.
+
+Une conséquence intéressante de cette définition (et un progrès par rapport à l'interprétation fréquentiste) est que ces propriétés sont les propriétés d'événements individuels\ldots{} et non de séquences ! L'interprétation propensionniste nous permet donc de parler de la probabilité d'événements uniques.
+
+\hypertarget{interpruxe9tation-logique}{%
+\subsubsection{Interprétation logique}\label{interpruxe9tation-logique}}
+
+L'interprétation logique du concept de probabilité, comme l'interprétation classique, postule que les probabilités peuvent être déterminées a priori en examinant les caractéristiques du système étudié (e.g., les caractéristiques de l'objet, l'ensemble des événements possibles, etc). Cependant, contrairement à l'interprétation classique, l'interprétation logique permet de rendre compte des événements non équiprobables. Cette interprétation se propose de réaliser cet objectif en généralisant la logique binaire (vrai / faux) au monde probabiliste, en étudiant le degré de support logique fourni par un ensemble de preuves pour une hypothèse donnée. Considérons par exemple l'argument logique ci-dessous.
+
+\textbf{Prémisse n°1} : Considérons une salle dans laquelle sont présents 10 étudiants
+
+\textbf{Prémisse n°2} : Neuf étudiants portent un t-shirt vert
+
+\textbf{Prémisse n°3} : Un étudiant porte un t-shirt rouge
+
+\textbf{Prémisse n°4} : Une personne est tirée au sort\ldots{}
+
+\par
+
+\noindent
+
+\rule{\textwidth}{1pt}
+
+\textbf{Conclusion n°1} : L'étudiant tiré au sort porte un t-shirt
+
+Cette conclusion est \emph{vraie} et l'argument qui y est attaché est \emph{valide}. Pour rappel, on dit qu'un argument est \emph{valide} lorsqu'il n'existe aucune situation logiquement possible dans laquelle tous les prémisses de l'argument soient vrais et sa conclusion fausse (\protect\hyperlink{ref-talbot_critical_2015}{Talbot, 2015}). Autrement dit, si on considère les prémisses 1 à 4 comme vrais, alors il est (logiquement) impossible pour cette conclusion d'être fausse.
+
+\par
+
+\noindent
+
+\rule{\textwidth}{1pt}
+
+\textbf{Conclusion n°2} : L'étudiant tiré au sort porte un t-shirt rouge
+
+Cette conclusion est \emph{fausse} et l'argument qui y est attaché est \emph{invalide.}
+
+\par
+
+\noindent
+
+\rule{\textwidth}{1pt}
+
+\textbf{Conclusion n°3} : L'étudiant tiré au sort porte un t-shirt vert
+
+Cette conclusion est également \emph{fausse} et l'argument qui y est attaché est \emph{invalide}. Cependant, on pourrait dire intuitivement que cette conclusion est ``un peu moins fausse'' que la conclusion précédente (je m'excuse en avance pour les logiciens qui me lisent), dans le sens où elle est ``plus fortement'' impliquée par les prémisses 1 à 4 que la conclusion n°2.
+
+Bien que les règles de la logique formelle n'autorisent pas des conclusions à être ``plus ou moins vraies'', l'interprétation logique du concept de probabilité cherche justement à étendre les règles de la logique aux événements continus, et se propose d'utiliser le langage des probabilités dans ce but. Autrement dit, la probabilité représente donc le \textbf{degré de support logique} qu'une conclusion peut avoir, relativement à un ensemble de prémices (\protect\hyperlink{ref-carnap_logical_1950}{Carnap, 1950}; \protect\hyperlink{ref-keynes_treatise_1921}{Keynes, 1921}).
+
+Une conséquence intéressante de cette interprétation est que toute probabilité est \textbf{conditionnelle}, que ce soit à de l'information a priori ou, par exemple, à un ensemble de prémisses.
+
+\hypertarget{interpruxe9tation-bayuxe9sienne}{%
+\subsubsection{Interprétation bayésienne}\label{interpruxe9tation-bayuxe9sienne}}
+
+Selon l'interprétation bayésienne (subjective), la probabilité est \textbf{une mesure du degré de croyance} (ou ``crédence'') ou d'\emph{incertitude}. Un événement \emph{certain} aura donc une probabilité de 1 et un évènement \textbf{impossible} aura une probabilité de 0.
+
+\begin{quote}
+So to assign equal probabilities to two events is not in any way an assertion that they must occur equally often in any ``random experiment''; as Jeffrey emphasized, it is only a formal way of saying ``I don't know'' (\protect\hyperlink{ref-jaynes_bayesian_1986}{Jaynes, 1986}).
+\end{quote}
+
+Pour parler de probabilités, dans ce cadre, nous n'avons donc plus besoin de nous référer à la limite d'occurrence d'un évènement (à sa fréquence). La probabilité est un concept abstrait faisant référence à un état de connaissance et / ou permettant de quantifier l'incertitude liée à cet état de connaissance.
+
+\hypertarget{interpruxe9tations-probabilistes---ruxe9sumuxe9}{%
+\subsubsection{Interprétations probabilistes - résumé}\label{interpruxe9tations-probabilistes---ruxe9sumuxe9}}
+
+Pour résumer, les différentes interprétations discutées ci-dessus peuvent être classées dans deux grandes catégories :
+
+\begin{quote}
+\textbf{Interprétation épistémique} : toute probabilité est conditionnelle à de l'information disponible (e.g., prémisses ou données). La probabilité est utilisée comme moyen de quantifier l'incertitude.
+
+Interprétation logique (e.g., Keynes, Carnap), interprétation bayésienne (e.g., Jeffreys, de Finetti, Savage).
+\end{quote}
+
+\begin{quote}
+\textbf{Interprétation physique} : les probabilités dépendent d'un état du monde, de caractéristiques physiques, elles sont indépendantes de l'information disponible (ou de l'incertitude).
+
+Interprétation classique (e.g., Laplace, Bernouilli, Leibniz), interprétation fréquentiste (e.g., Venn, Reichenbach, von Mises).
+\end{quote}
+
+Les plus curieux d'entre vous seront ravis de trouver plus d'informations dans cet excellent article de la \emph{Stanford Encyclopedia of Philosophy} (\protect\hyperlink{ref-sep-probability-interpret}{Hájek, 2019}) sur les différentes interprétations du concept de probabilité.
+
+\hypertarget{rappels-de-thuxe9orie-des-probabilituxe9s}{%
+\section{Rappels de théorie des probabilités}\label{rappels-de-thuxe9orie-des-probabilituxe9s}}
+
+Pour rappel, une probabilité est donc une valeur numérique comprise entre 0 et 1 et qui respecte la règle de la somme. Ces valeurs sont assignées à des \emph{évènements} \(\omega\), étant définis comme des sous-ensembles d'un grand \emph{ensemble} \(\Omega\). Chaque évènement de cet ensemble peut se voir assigner une probabilité qui représente notre in(certitude) vis à vis de sa survenue. Ces probabilités sont assignées par des \emph{fonctions de probabilité} qui, à chaque élément \(\omega \in \Omega\), associe ou attribue une probabilité (\protect\hyperlink{ref-blitzstein_introduction_2019}{Blitzstein \& Hwang, 2019}; \protect\hyperlink{ref-dekking_modern_2005}{Dekking, 2005}; \protect\hyperlink{ref-noel_psychologie_2015}{Noël, 2015}).
+
+Comme illustration, considérons l'exemple suivant. En postulant qu'il est impossible qu'une pièce lancée retombe sur sa tranche, un lancer de pièce peut seulement résulter en deux issues : Pile ou Face. Autrement dit, l'ensemble des issues possibles est défini comme \(\Omega = \{\text{Pile}, \ \text{Face}\}\). Étant donné qu'un \emph{évènement} est défini comme un sous-ensemble de \(\Omega\), Pile et Face sont donc deux évènements possibles.
+
+\begin{definition}[Fonction de probabilité]
+\protect\hypertarget{def:prob-function}{}\label{def:prob-function}Une fonction de probabilité \(p\) définie sur un ensemble fini \(\Omega\) assigne à chaque événement \(A\) dans \(\Omega\) une valeur \(\Pr(A) \in [0, 1]\) de manière à ce que :
+
+\begin{itemize}
+\tightlist
+\item
+  \(\Pr(\Omega) = 1\) et
+\item
+  \(\Pr(A \cup B) = \Pr(A) + \Pr(B)\) si \(A\) et \(B\) sont disjoints.
+\end{itemize}
+
+La valeur \(\Pr(A)\) représente la \emph{probabilité} que \(A\) se réalise.
+\end{definition}
+
+Dans l'exemple d'un lancer de pièce, si la pièce n'est pas truquée, alors \(\Pr(\text{Pile}) = \Pr(\text{Face}) = \frac{1}{2}\)\ldots{}
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=1\linewidth]{figures/venn} 
+
+}
+
+\caption{Diagrammes représentant les notions d'intersection, d'union, et de complément.}\label{fig:venn}
+\end{figure}
+
+\ldots{}
+
+\hypertarget{probabilituxe9-conjointe}{%
+\subsection{Probabilité conjointe}\label{probabilituxe9-conjointe}}
+
+La probabilité conjointe \(\Pr(A, B)\) nous indique la probabilité qu'à la fois \(A\) et \(B\) se réalisent, c'est à dire la probabilité de l'union de \(A\) et \(B\), qu'on note également \(\Pr(A \cap B)\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+
+\FunctionTok{data}\NormalTok{(HairEyeColor) }\CommentTok{\# données adaptés de Snee (1974)}
+
+\NormalTok{cont }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(HairEyeColor, }\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{), sum) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ t }
+\NormalTok{cont }\OtherTok{\textless{}{-}} \FunctionTok{round}\NormalTok{(cont }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(cont), }\DecValTok{2}\NormalTok{)}
+\NormalTok{cont}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        Hair
+## Eye     Black Brown  Red Blond
+##   Brown  0.11  0.20 0.04  0.01
+##   Blue   0.03  0.14 0.03  0.16
+##   Hazel  0.03  0.09 0.02  0.02
+##   Green  0.01  0.05 0.02  0.03
+\end{verbatim}
+
+Dans chaque cellule du tableau de données ci-dessus, on trouve la \textbf{probabilité conjointe} d'avoir telle couleur de cheveux \textbf{ET} telle couleur d'yeux, qui s'écrit \(\Pr(c, y) = \Pr(y, c)\).
+
+\hypertarget{probabilituxe9-marginale}{%
+\subsection{Probabilité marginale}\label{probabilituxe9-marginale}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cont2 }\OtherTok{\textless{}{-}}\NormalTok{ cont }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ as.data.frame }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{marginal\_eye =} \FunctionTok{rowSums}\NormalTok{(cont) )}
+\FunctionTok{rownames}\NormalTok{(cont2) }\OtherTok{\textless{}{-}} \FunctionTok{row.names}\NormalTok{(cont)}
+\NormalTok{cont2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       Black Brown  Red Blond marginal_eye
+## Brown  0.11  0.20 0.04  0.01         0.36
+## Blue   0.03  0.14 0.03  0.16         0.36
+## Hazel  0.03  0.09 0.02  0.02         0.16
+## Green  0.01  0.05 0.02  0.03         0.11
+\end{verbatim}
+
+On peut aussi s'intéresser à la probabilité d'avoir des yeux bleus, de manière générale. Il s'agit de la probabilité \textbf{marginale} de l'évènement \emph{yeux bleus}, qui s'obtient par la somme de toutes les probabilités jointes impliquant l'évènement \emph{yeux bleus}. Elle s'écrit \(\Pr(y)\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cont3 }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(cont2, }\FunctionTok{colSums}\NormalTok{(cont2) )}
+\FunctionTok{rownames}\NormalTok{(cont3) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{row.names}\NormalTok{(cont2), }\StringTok{"marginal\_hair"}\NormalTok{)}
+\NormalTok{cont3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##               Black Brown  Red Blond marginal_eye
+## Brown          0.11  0.20 0.04  0.01         0.36
+## Blue           0.03  0.14 0.03  0.16         0.36
+## Hazel          0.03  0.09 0.02  0.02         0.16
+## Green          0.01  0.05 0.02  0.03         0.11
+## marginal_hair  0.18  0.48 0.11  0.22         0.99
+\end{verbatim}
+
+On peut bien entendu aussi s'intéresser aux probabilités des couleurs de cheveux, de manière générale. Elle s'écrit \(\Pr(c)\).
+
+\hypertarget{probabilituxe9-conditionnelle}{%
+\subsection{Probabilité conditionnelle}\label{probabilituxe9-conditionnelle}}
+
+On pourrait aussi s'intéresser à la probabilité qu'une personne ait les cheveux blonds, \textbf{sachant} qu'elle a les yeux bleus. Il s'agit d'une probabilité \textbf{conditionnelle}, et s'écrit \(p(c|y)\). Cette probabilité conditionnelle peut se ré-écrire: \(p(c|y)= \frac{p(c,y)}{p(y)}\).
+
+\begin{verbatim}
+##      Black Brown  Red Blond marginal_eye
+## Blue  0.03  0.14 0.03  0.16         0.36
+\end{verbatim}
+
+Par exemple, quelle est la probabilité d'avoir des yeux bleus lorsqu'on a les cheveux blonds ?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cont3[}\StringTok{"Blue"}\NormalTok{, }\StringTok{"Blond"}\NormalTok{] }\SpecialCharTok{/}\NormalTok{ cont3[}\StringTok{"Blue"}\NormalTok{, }\StringTok{"marginal\_eye"}\NormalTok{]  }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      Blue 
+## 0.4444444
+\end{verbatim}
+
+On remarque dans le cas précédent que \(p(blonds|bleus)\) \textbf{n'est pas nécessairement égal} à \(p(bleus|blonds)\).
+
+Autre exemple: la probabilité de mourir sachant qu'on a été attaqué par un requin n'est pas la même que la probabilité d'avoir été attaqué par un requin, sachant qu'on est mort (\href{https://en.wikipedia.org/wiki/Confusion_of_the_inverse}{\emph{confusion of the inverse}}). De la même manière, \(p(data|H_{0}) \neq p(H_{0}|data)\).
+
+À partir des axiomes de Kolmogorov (cf.~début du cours), et des définitions précédentes des probabilités conjointes, marginales, et conditionnelles, découle la \textbf{règle du produit} (en multipliant chaque côté par \(p(y)\)) :
+
+\[p(a, b) = p(b) \cdot p(a|b) = p(a) \cdot p(b|a)\]
+
+\ldots{}
+
+\hypertarget{duxe9rivation-du-thuxe9oruxe8me-de-bayes}{%
+\subsection{Dérivation du théorème de Bayes}\label{duxe9rivation-du-thuxe9oruxe8me-de-bayes}}
+
+\[p(x, y) = p(x|y) p(y) = p(y|x)p(x)\]
+
+\[p(y|x)p(x) = p(x|y)p(y)\]
+
+\[p(y|x) = \dfrac{p(x|y)p(y)}{p(x)}\]
+
+\[p(x|y) = \dfrac{p(y|x)p(x)}{p(y)}\]
+
+On retrouve le résultat présenté dans la section précédente, en remplaçant \(x\) par \emph{données} et \(y\) par \emph{hypothèse} :
+
+\[
+\Pr(\text{hypothèse} \ | \ \text{données}) = \frac{\Pr(\text{données} \ | \ \text{hypothèse}) \times \Pr(\text{hypothèse})}{\text{Somme des produits}}
+\]
+
+\ldots{}
+
+\hypertarget{loi-de-probabilituxe9-cas-discret}{%
+\subsection{Loi de probabilité, cas discret}\label{loi-de-probabilituxe9-cas-discret}}
+
+\ldots{}
+
+\begin{definition}[Fonction de masse de probabilité]
+\protect\hypertarget{def:PMF}{}\label{def:PMF}La fonction de masse de probabilité \(p\) d'une variable aléatoire \(X\) is la fonction \(p : \mathbb{R} \rightarrow [0, 1]\), définie par :
+
+\[p(a) = \Pr(X = a) \quad \text{for} - \infty < a < \infty\]
+\end{definition}
+
+Une fonction de masse (\emph{probability mass function}, ou \emph{PMF}) est une fonction qui attribue une probabilité à chaque valeur d'une variable aléatoire. Exemple de la distribution binomiale pour une pièce non biaisée (\(\theta = 0.5\)), indiquant la probabilité d'obtenir \(N\) faces sur 10 lancers.
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.5\linewidth]{IMSB_files/figure-latex/binomial-barplot-1} 
+
+}
+
+\caption{Distribution de la probabilité d'obtenir N 'Face' sur 10 lancers de pièce.}\label{fig:binomial-barplot}
+\end{figure}
+
+Somme à 1\ldots{}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# PMFs sum to 1}
+\FunctionTok{dbinom}\NormalTok{(}\AttributeTok{x =} \DecValTok{0}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\AttributeTok{size =} \DecValTok{10}\NormalTok{, }\AttributeTok{prob =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ sum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+
+\hypertarget{loi-de-probabilituxe9-cas-continu}{%
+\subsection{Loi de probabilité, cas continu}\label{loi-de-probabilituxe9-cas-continu}}
+
+\begin{definition}[Fonction de densité de probabilité]
+\protect\hypertarget{def:PDF}{}\label{def:PDF}Une variable aléatoire \(X\) est dite \emph{continue} si pour une fonction donnée \(p : \mathbb{R} \rightarrow \mathbb{R}\) et pour tout nombres \(a\) et \(b\) avec \(a \leq b\),
+
+\[\Pr(a \leq X \leq b) = \int_{a}^{b} p(x) \mathrm{d} x\]
+
+La fonction \(p\) doit satisfaire la condition \(p(x) \geq 0\) pour tout \(x\) et \(\int_{-\infty}^{\infty} p(x) \mathrm{d} x = 1\). On appelle \(p\) la fonction de densité de probabilité (ou densité de probabilité) de \(X\).
+\end{definition}
+
+Une fonction de densité de probabilité (\emph{probability density function}, ou \emph{PDF}), est une fonction qui permet de représenter une loi de probabilité sous forme d'intégrales (l'équivalent de la PMF pour des variables aléatoires strictement continues).
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.5\linewidth]{IMSB_files/figure-latex/pdf-plot-1} 
+
+}
+
+\caption{Blah blah...}\label{fig:pdf-plot}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# PDFs integrate to 1}
+\FunctionTok{integrate}\NormalTok{(dnorm, }\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{, }\ConstantTok{Inf}\NormalTok{, }\AttributeTok{mean =} \DecValTok{100}\NormalTok{, }\AttributeTok{sd =} \DecValTok{15}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 1 with absolute error < 1.3e-06
+\end{verbatim}
+
+\ldots{}
+
+\begin{keyconcepts}[Variable aléatoire continue]{1.1}
+Une variable aléatoire continue peut prendre (littéralement) une infinité de valeurs. On se retrouve donc face un problème. Si on attribue une probabilité non-nulle à chacune de ces valeurs (à une infinité de valeurs donc), la 'somme' (l'intégrale) des probabilités de ces valeurs sera elle aussi infinie, et cette fonction ne pourra donc pas être considérée comme une fonction de probabilité. Pour pallier à ce problème, chaque valeur ponctuelle d'une variable aléatoire est assignée une probabilité nulle (i.e., $\Pr(X = x) = 0$) et uniquement des intervalles (e.g., $\Pr(a < x < b)$) peuvent se voir attribuer une probabilité.
+\end{keyconcepts}
+
+\ldots{}
+
+\hypertarget{apartuxe9-quest-ce-quune-intuxe9grale}{%
+\subsection{Aparté, qu'est-ce qu'une intégrale ?}\label{apartuxe9-quest-ce-quune-intuxe9grale}}
+
+Une intégrale correspond à la \textbf{surface} (aire géométrique) délimitée par la représentation graphique d'une fonction, \emph{l'aire sous la courbe}. Une distribution est dite \textbf{impropre} si son intégrale n'est pas égale à un nombre fini (e.g., \(+ \infty\)) et \textbf{normalisée} si son intégrale est égale à 1.
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/integral-1} 
+
+}
+
+\caption{Blah blah...}\label{fig:integral}
+\end{figure}
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/integral-qi-1} 
+
+}
+
+\caption{Blah blah...}\label{fig:integral-qi}
+\end{figure}
+
+L'intégrale de \(f(x)\) sur l'intervalle {[}90 ; 96{]} vaut: \(p(90 < x < 96) = \int_{90}^{96} f(x) \ \mathrm{d}x = 0.142\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{integrate}\NormalTok{(dnorm, }\DecValTok{90}\NormalTok{, }\DecValTok{96}\NormalTok{, }\AttributeTok{mean =} \DecValTok{100}\NormalTok{, }\AttributeTok{sd =} \DecValTok{15}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 0.1423704 with absolute error < 1.6e-15
+\end{verbatim}
+
+\hypertarget{notations-terminologie}{%
+\subsection{Notations, terminologie}\label{notations-terminologie}}
+
+Ayant introduit de manière intuitive les concepts centraux de l'inférence bayésienne (en particulier, la mise à jour d'un connaissance a posteriori en une connaissance a posteriori) nous allons maintenant établit la terminologie qui nous accompagner au fil de ce livre.
+
+\begin{itemize}
+\item
+  \(\theta\) désigne habituellement un paramètre ou un vecteur de paramètres (e.g., la proportion de billes bleues)
+\item
+  \(\color{orangered}{p(x\vert \theta)}\) { désigne la probabilité conditionnelle des données \(x\) sachant le paramètre \(\theta\) } \(\color{orangered}{[p(x | \theta = \theta)]}\)
+\item
+  \(\color{orangered}{p(x\vert \theta)}\) { une fois que la valeur de \(x\) est connue, est vue comme la fonction de vraisemblance (\emph{likelihood}) du paramètre \(\theta\). Attention, il ne s'agit pas d'une distribution de probabilité (n'intègre pas à 1). } \(\color{orangered}{[p(x = x | \theta)]}\)
+\item
+  \(\color{steelblue}{p(\theta)}\) { la probabilité a priori de \(\theta\)}
+\item
+  \(\color{purple}{p(\theta \vert x)}\) { la probabilité a posteriori de \(\theta\) (sachant \(x\))}
+\item
+  \(\color{green}{p(x)}\) { la probabilité marginale de \(x\) (sur \(\theta\))}
+\end{itemize}
+
+\[
+\color{purple}{p(\theta \vert x)} = \dfrac{\color{orangered}{p(x\vert \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}} = \dfrac{\color{orangered}{p(x\vert \theta)} \color{steelblue}{p(\theta)}}{\color{green}{\sum\limits_{\theta}p(x|\theta)p(\theta)}} = \dfrac{\color{orangered}{p(x\vert \theta)} \color{steelblue}{p(\theta)}}{\color{green}{\int\limits_{\theta}p(x|\theta)p(\theta)\mathrm{d}x}} \propto \color{orangered}{p(x\vert \theta)} \color{steelblue}{p(\theta)}
+\]
+
+\ldots{}
+
+\begin{keyconcepts}[La théorie des probabilités comme extension de la logique]{1.1}
+La théorie des probabilités est parfois présentée comme une extension de la logique. En effet, elle généralise les règles de la logique qui s\' appliquent à des événements discrets (vrais ou faux) à des événements continus. Ce faisant, les probabilités nous permettent de décrire et quantifier l\' incertitude. Il est important de souligner que les règles du calcul probabiliste ont le même statut que les règles logiques : ces règles de base peuvent être utilisées pour déduire des conclusions qui seront garanties d\' être correctes, si les prémises sont corrects.
+
+Dans ce cadre, l\' analyse statistique bayésienne peut être conceptualisée comme une application de la théorie des probabilités à l\'analyse statistique. Bien que la dépendance des conclusions de ce genre d' analyse aux a priori qu'elles rendent explicitent est souvent présenté comme une faiblesse, c\'est précisémment ce qui les rend 'optimales' ou 'cohérentes' (au sens où elles respectent les règles du calcul probabiliste). Comme résumé par Vandekerckhove (2018), conclure que les analyses bayésiennes seraient invalidées par l\' utilisation d\' informations a priori serait similaire à conclure que des déductions logiques seraient invalidées par la considération de prémisses.
+\end{keyconcepts}
+
+\hypertarget{logique-et-raisonnement-scientifique}{%
+\section{Logique et raisonnement scientifique}\label{logique-et-raisonnement-scientifique}}
+
+\hypertarget{introduction-uxe0-la-logique}{%
+\subsection{Introduction à la logique}\label{introduction-uxe0-la-logique}}
+
+Le but de cette section est de proposer une courte (et très incomplète) introduction à la logique, afin de pouvoir analyser dans une section ultérieure l'argument central de l'inférence fréquentiste et d'illustrer les similarités entre la logique et le fonctionnement de l'inférence bayésienne. Commençons tout d'abord par définir les termes utilisés (cf. \protect\hyperlink{ref-talbot_critical_2015}{Talbot, 2015}).
+
+\begin{definition}
+\protect\hypertarget{def:argument}{}\label{def:argument}Un \emph{argument} est un ensemble de propositions dans lequel une proposition est affirmée sur la base d'autres propositions.
+\end{definition}
+
+Un argument (du moins tel que défini ici) est donc composé de différentes propositions. Parmi ces propositions, certaines vont être utilisées pour affirmer une autre proposition.
+
+\begin{definition}
+\protect\hypertarget{def:concusion}{}\label{def:concusion}La \emph{conclusion} est l'affirmation faite sur la base d'autres propositions.
+\end{definition}
+
+\begin{definition}
+\protect\hypertarget{def:prémisse}{}\label{def:prémisse}Les \emph{prémisses} d'un argument sont les raisons offertes qui permettent d'affirmer la conclusion.
+\end{definition}
+
+Pour résumer, un \emph{argument} est un ensemble de propositions, parmi lesquelles des \emph{prémisses} sont utilisées pour affirmer une \emph{conclusion}. Les propositions qui composent un \emph{argument} (i.e., les prémisses et la conclusion) peuvent être \emph{vraies} ou \emph{fausses} mais l'argument ne peut pas être \emph{vrai} ou \emph{faux}. Un argument est seulement \emph{valide} ou \emph{invalide}.
+
+\begin{definition}
+\protect\hypertarget{def:valide}{}\label{def:valide}Un argument est dit \emph{valide} si et seulement si il n'existe aucune situation logiquement possible dans laquelle tous les prémisses de l'argument soient vrais et sa conclusion fausse.
+\end{definition}
+
+\begin{definition}
+\protect\hypertarget{def:invalide}{}\label{def:invalide}Un argument est dit \emph{invalide} si et seulement si il existe aucune situation logiquement possible dans laquelle tous les prémisses de l'argument soient vrais et sa conclusion fausse.
+\end{definition}
+
+Pour résumer, un argument est un ensemble de \emph{propositions}, dont certaines d'entre elles (les prémisses) sont utilisées pour affirmer (ou justifier) une autre (la conclusion). Ces propositions peuvent être vraies ou fausses mais un argument peut seulement être \emph{valide} ou \emph{invalide}. Un argument est dit \emph{valide} lorsqu'il est logiquement \emph{impossible} pour la conclusion d'être fausse (sachant que les prémisses sont \emph{vraies}).
+
+\hypertarget{quelques-syllogismes-connus}{%
+\subsection{Quelques syllogismes connus}\label{quelques-syllogismes-connus}}
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.5\linewidth]{figures/penguin} 
+
+}
+
+\caption{Un pingouin s'essayant à la logique. Source : https://www.pinterest.com/pin/465418942711158498/.}\label{fig:penguin}
+\end{figure}
+
+Un syllogisme est un raisonnement logique qui met en relation \emph{au moins} trois propositions : au moins deux prémisses et une conclusion. Afin d'illustrer les définitions proposées ci-dessus, nous allons maintenant examiner quelques exemples. Savez-vous reconnaître les arguments valides et invalides ?
+
+\textbf{Argument n°1}
+
+\begin{itemize}
+\tightlist
+\item
+  Prémisse n°1 : Si un suspect ment, il transpire.
+\item
+  Prémisse n°2 : (On observe que) Ce suspect transpire.
+\item
+  Conclusion : Par conséquent, ce suspect ment.
+\end{itemize}
+
+Cet argument est \emph{invalide} car (on applique la définition \ref{def:valide}) il existe des situations dans lesquelles à la fois les prémisses 1 et 2 sont vraies, et pourtant la conclusion est fausse. Par exemple, il se peut que le suspect transpire pour d'autres raisons que le mensonge (e.g., la température de la salle d'interrogatoire).
+
+\textbf{Argument n°2}
+
+\begin{itemize}
+\tightlist
+\item
+  Prémisse n°1 : Si un suspect transpire, il ment.
+\item
+  Prémisse n°2 : (On observe que) Ce suspect ne transpire pas.
+\item
+  Conclusion : Par conséquent, ce suspect ne ment pas.
+\end{itemize}
+
+Cet argument est également \emph{invalide} car il existe des situations dans lesquelles à la fois les prémisses 1 et 2 sont vraies, et pourtant la conclusion est fausse. Par exemple, il se peut que le suspect fasse partie des gens qui ne transpirent pas lorsqu'ils mentent.
+
+\textbf{Argument n°3}
+
+\begin{itemize}
+\tightlist
+\item
+  Prémisse n°1 : Tous les menteurs transpirent.
+\item
+  Prémisse n°2 : (On observe que) Ce suspect ne transpire pas.
+\item
+  Conclusion : Par conséquent, ce suspect n'est pas un menteur.
+\end{itemize}
+
+Cet argument est \emph{valide} car il n'existe aucune situation dans laquelle à la fois les prémisses 1 et 2 sont vraies et la conclusion serait fausse. Autrement dit, si les prémisses 1 et 2 sont vraies, il est \emph{logiquement impossible} pour la conclusion d'être fausse. Nous allons maintenant examiner quelques raisonnements valides et invalides connus afin de nous aider à les repérer plus facilement.
+
+\hypertarget{arguments-invalides}{%
+\subsubsection{Arguments invalides}\label{arguments-invalides}}
+
+Le premier raisonnement fallacieux que nous allons étudier est connu comme le sophisme de l'\textbf{affirmation du conséquent}. Ce raisonnement vise à inférer la réalisation d'un \emph{antécédent} sur la base de la réalisation du \emph{conséquent.} Considérons l'exemple suivant :
+
+\begin{itemize}
+\tightlist
+\item
+  Prémisse n°1 : S'il a plu, alors le sol est mouillé (A implique B).
+\item
+  Prémisse n°2 : Le sol est mouillé (B).
+\item
+  Conclusion : Donc il a plu (A).
+\end{itemize}
+
+Dans cet argument, le prémisse n°1 nous dit que l'antécédent (A) implique le conséquent (B). Le prémisse n°2 \emph{affirme} le conséquent B. La conclusion consiste à affirmer l'antécédent A sur la base de ces deux prémisse. Or cet argument est invalide, car (en l'occurrence) le sol pourrait être mouillé pour d'autres raisons que la pluie. Il s'agit du même genre de raisonnement que l'argument n°1 discuté dans la section précédente et il peut s'écrire dans une forme générale de la manière suivante :
+
+\[\dfrac{A \Rightarrow B, \ B}{A}\]
+
+où \(A \Rightarrow B\) se lit ``A implique B'' et se comprend comme dans la phrase ``Si A, alors B''.
+
+Un deuxième argument fallacieux relativement répandu est connu comme le sophisme de la \textbf{négation de l'antécédent} et consiste à affirmer une négation du conséquent (i.e., non B) sur la base d'une négation de l'antécédent (i.e., non A). Considérons l'exemple suivant :
+
+\begin{itemize}
+\tightlist
+\item
+  Prémisse n°1 : S'il a plu, alors le sol est mouillé (A implique B).
+\item
+  Prémisse n°2 : Il n'a pas plu (non A).
+\item
+  Conclusion : Donc le sol n'est pas mouillé (non B).
+\end{itemize}
+
+Dans cet exemple comme dans le précédent, le prémisse n°1 nous dit que l'antécédent (A) implique le conséquent (B). Le prémisse n°2 affirme une négation de l'antécédent (i.e., non A ou \(\neg A\)). La conclusion consiste à affirmer une négation du conséquence (i.e., \(\neg B\)) sur la base de ces deux prémisses. Cet argument est également invalide car (en l'occurrence) le sol pourrait être mouillé pour d'autres raisons que le pluie. Autrement dit :
+
+\[\dfrac{A \Rightarrow B, \ \neg A}{\neg B}\]
+
+où \(\neg A\) représente la négation de A (i.e., non A).
+
+\hypertarget{arguments-valides}{%
+\subsubsection{Arguments valides}\label{arguments-valides}}
+
+Attardons nous maintenons sur deux des raisonnements valides les plus connus. Le premier est connu comme le \textbf{modus ponens} et consiste à déduire un conséquent sur la base d'une implication (e.g., A implique B) et de l'affirmation d'un antécédent. Considérons l'exemple suivant :
+
+\begin{itemize}
+\tightlist
+\item
+  Prémisse n°1 : Si on est lundi, alors John ira au travail (A implique B).
+\item
+  Prémisse n°2 : On est lundi (A).
+\item
+  Conclusion : Donc John ira au travail (B).
+\end{itemize}
+
+Comme dans les deux exemples précédents, le prémisse n°1 nous dit que l'antécédent (A) implique le conséquent (B). Le prémisse n°2 \emph{affirme} l'antécédent A. La conclusion consiste à affirmer le conséquent B sur la base de ces deux prémisse. Cet argument est \emph{valide} (cf.~définition \ref{def:valide}) car il n'existe aucune situation \emph{logiquement possible} dans laquelle les deux prémisses serait vrais et la conclusion fausse. Autrement dit, cet argument est valide car il est \emph{impossible} pour la conclusion d'être fausse, sachant que les prémisses sont vrais. Le modus ponens peut s'écrire de la manière suivante :
+
+\[\dfrac{A \Rightarrow B, \ A}{B} \cdot\]
+
+Le deuxième argument valide que nous allons discuter est connu comme le \textbf{modus tollens}, dont l'importance s'avère capitale dans le raisonnement scientifique, ou du moins dans sa version idéalisée (cf.~section suivante). Cet argument consiste à déduire la négation de l'antécédent sur la base d'une implication et de la négation du conséquent. Considérons l'exemple suivant :
+
+\begin{itemize}
+\tightlist
+\item
+  Prémisse n°1 : Si mon chien détecte un intrus, alors il aboie (A implique B).
+\item
+  Prémisse n°2 : Mon chien n'a pas aboyé (non B).
+\item
+  Conclusion : Donc il n'a pas détecté d'intrus (non A).
+\end{itemize}
+
+Comme dans les exemples précédents, le prémisse n°1 nous dit que l'antécédent (A) implique le conséquent (B). Le prémisse n°2 affirme la ngation du conséquent (i.e., non B). La conclusion consiste à affirmer la négation de l'antécédent (i.e., non A) sur la base de ces deux prémisses. Cet argument est \emph{valide} (cf.~définition \ref{def:valide}) car il n'existe aucune situation \emph{logiquement possible} dans laquelle les deux prémisses serait vrais et la conclusion fausse. Autrement dit, cet argument est valide car il est \emph{impossible} pour la conclusion d'être fausse, sachant que les prémisses sont vrais. Dans notre exemple, si le chien n'a pas aboyé, c'est \emph{nécessairement} qu'il n'a pas détecté d'intrus. Cependant, cela ne veut pas dire qu'aucun intrus a visité notre maison, seulement que le chien n'a pas détecté d'intrus. Le modus tollens peut s'écrire de la manière suivante :
+
+\[\dfrac{A \Rightarrow B, \ \neg B}{\neg A}\]
+
+Ayant défini ce qu'est un argument, ce qui le compose et ce qui fait sa validité, nous disposons maintenant des outils nécessaires afin d'étudier la ``logique'' du raisonnement scientifique, et d'essayer de voir la place occupée par l'analyse de données dans ce raisonnement.
+
+\hypertarget{quest-ce-quune-thuxe9orie-scientifique}{%
+\subsection{Qu'est-ce qu'une théorie scientifique ?}\label{quest-ce-quune-thuxe9orie-scientifique}}
+
+Qu'est-ce qu'une théorie scientifique ? D'un point de vue très général, une théorie scientifique peut être définie comme un ensemble de propositions logiques qui postulent des relations causales entre des phénomènes observables. Dans un premier temps, ces propositions sont formulées en termes abstraits et généraux (e.g., ``tout objet répond à la force de gravité de manière similaire''), mais mènent ensuite à des propositions concrètes et testable empiriquement (e.g., ``la vitesse de chute de deux objets devrait être la même, toute chose étant égale par ailleurs''). Il existe cependant de nombreux ``types'' de théories scientifiques. Par exemple, P. E. Meehl (\protect\hyperlink{ref-meehl_what_1986}{1986}) liste trois types de théories :
+
+\begin{itemize}
+\item
+  \emph{Functional-dynamic theories} : les théories qui relient ``les états aux états'' ou ``les événements aux événements''. Par exemple, ce type de théorie décrit comment un changement sur une variable affecte une ou plusieurs autres variable(s).
+\item
+  \emph{Structural-compositional theories} : les théories qui expliquent ``de quoi est composé quelque chose'', de quels genres d'objets un plus gros objet est fait (i.e., sa structure), ou comment ces différentes parties sont assemblées.
+\item
+  \emph{Evolutionary theories} : les théories qui s'intéressent à l'histoire et au développement des choses (e.g., la théorie de l'évolution, la chute de Rome, etc).
+\end{itemize}
+
+Malgré cette diversité, et sans consensus clair sur ce qui fait une bonne ou une mauvaise théorie, la philosophie des sciences nous offre cependant des outils \emph{conceptuels} utiles pour \emph{évaluer} les théories, identifier ce qui les rend plus ou moins ``fortes'', et évaluer ce qui fait un \emph{test sévère} d'une théorie. Mais comment-on pouant nous évaluer les théories et comment créer des test sévères et pertinents ?
+
+\hypertarget{on-ne-peut-pas-les-confirmer}{%
+\subsubsection{On ne peut pas les confirmer}\label{on-ne-peut-pas-les-confirmer}}
+
+Un premier ``problème'' avec les théories scientifiques est que nous ne pouvons pas les ``confirmer''. En effet, selon Campbell (\protect\hyperlink{ref-campbell_meehlian_1990}{1990}), le raisonnement scientifique (naif) aurait la forme logique suivante :
+
+\begin{itemize}
+\item
+  Prémisse n°1 : Si la théorie de Newton (A) est ``vraie'', alors on devrait observer observer que les marées ont la période B, la trajectoire de Mars la forme C, la trajectoire d'une boule de canon la forme D, etc.
+\item
+  Prémisse n °2 : Nos observations confirment B, C, et D.
+\item
+  Conclusion : Donc la théorie de Newton est ``vraie''.
+\end{itemize}
+
+Or cet argument est invalide. Comme nous l'avons vu dans la section précédente, il s'agit du raisonnement fallacieux d'affirmation du conséquent. Une manière de s'en rendre compte est de réprésenter visuellement la forme de cet argument (cf.~Figure \ref{fig:campbell}).
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.5\linewidth]{figures/campbell} 
+
+}
+
+\caption{Relation entre observations et théorie de la gravitation de Newton, selon Campbell (1990).}\label{fig:campbell}
+\end{figure}
+
+L'invalidité de cet argument provient de l'existence de la zone hachurée de la Figure \ref{fig:campbell}, qui contient les autres explications possibles pour les observations que nous avons réalisées. En d'autres termes, observer B, C, et D ne nous permet pas de conclure que la théorie de Newton (A) est vraie, car ces observations pourraient avoir été générées par d'autres phénomènes que ceux postulés par la théorie de Newton. Cependant, observer B, C, D peut tout de même être informatif, selon certaines conditions, au regard de la théorie de Newton. Par exemple, si nous n'avions pas observé B, C, et D, alors nous aurions pu conclure que A était fausse. Donc observer B, C, et D fait que A reste ``plausiblement vraie''. Une autre manière de le dire est que A a ``survécu'' au test des observations B, C, et D. Nous verrons un peu plus loin comment la capacité des théories à survivre à un test empirique peut être utilisé comme métrique d'évaluation des théories.
+
+\hypertarget{on-ne-peut-pas-les-ruxe9futer-au-sens-strict}{%
+\subsubsection{On ne peut pas les réfuter (au sens strict)}\label{on-ne-peut-pas-les-ruxe9futer-au-sens-strict}}
+
+Armés de nos connaissances en logique, nous avons donc établi qu'une théorie scientifique ne peut pas être \emph{confirmée}. Peut-être pourrions nous alors les \emph{réfuter} ? A-t-on des moyens de montrer qu'une théorie est fausse ? Qu'est-ce que cela veut dire pour une théorie d'être ``fausse'' ? Selon la pensée influente de Popper, une théorie est falsifiable (ou réfutable) si et seulement si il existe au moins un falsificateur potentiel (i.e., au moins une proposition possible qui soit en contradiction logique avec elle). En d'autres termes, une théorie peut être considérée comme réfutable s'il peut être démontré qu'elle est fausse.
+
+Notons au passage que la falsifiabilité de Popper concerne le problème de la \emph{démarcation} (c'est-à-dire ce qu'est la science et ce qui est la pseudoscience) et définit les pseudosciences comme étant composées de théories non falsifiables (c'est-à-dire des théories qui ne permettent pas d'être réfutées). Mais lorsqu'il s'agit de décrire \emph{comment} la science fonctionne (visée descriptive) ou comment la science \emph{devrait} fonctionner (visée prescriptive), le standard falsificationniste ne fonctionne pas vraiment. En fait, il est quasiment unanimement impossible d'appliquer le falsificationnisme déductif dans des contextes scientifiques concrets (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b}). Dans les sections suivantes, nous discutons de quatre problèmes qui nous empêchent de réfuter des théories, à savoir : i) la distinction entre modèle théorique et modèle statistique, ii) le problème de la mesure, iii) la nature probabiliste des hypothèses scientifiques, et enfin iv) le problème de Duhem-Quine.
+
+\hypertarget{moduxe8les-thuxe9oriques-et-moduxe8les-statistiques}{%
+\subsubsection{Modèles théoriques et modèles statistiques}\label{moduxe8les-thuxe9oriques-et-moduxe8les-statistiques}}
+
+Un modèle statistique est un appareil utilisé pour relier, pour faire le lien entre un modèle théorique et certaines données. Il peut être défini comme une instanciation d'une théorie en un ensemble d'énoncés ou de propositions probabilistes (\protect\hyperlink{ref-rouder_interplay_2016}{Rouder et al., 2016}). En général, il n'existe pas de relation univoque entre modèles théoriques et modèles statistiques. Autrement dit, un modèle théorique donné peut être représenté (i.e., implémenté) par différents modèles statistiques et réciproquement, différents modèles statistiques peuvent être construits à partir du même modèle théorique. Par conséquent, la confirmation ou réfutation d'un modèle statistique ne permet pas l'induction strict au modèle théorique.
+
+Par exemple, une pratique statistique courante en sciences expérimentales est le test d'hypothèse nulle fréquentiste (\emph{Null Hypothesis Significance Testing} ou NHST), qui consiste à tester une hypothèse nulle (souvent l'hypothèse d'absence d'effet) afin de confirmer (ou plutôt, corroborer) une hypothèse théorique alternative d'intérêt. Or, le fait de rejeter l'hypothèse d'absence d'effet ne fournit qu'une très faible \emph{corroboration} de l'hypothèse d'intérêt, comme de nombreuses théories peuvent potentiellement prédire un effet non nul. L'hypothèse d'absence d'effet (i.e., l'hypothèse que l'effet est précisémment égal à \(0\)) est beaucoup plus contraignante (restrictive) que l'hypothèse alternative selon laquelle l'effet n'est pas égal à \(0\).
+
+\hypertarget{le-probluxe8me-de-la-mesure}{%
+\subsubsection{Le problème de la mesure}\label{le-probluxe8me-de-la-mesure}}
+
+La logique de la réfutation est assez simple et repose sur la puissance du \emph{modus tollens}. Appliqué au raisonnement scientifique, cet argument être présenté de la manière suivante :
+
+\begin{itemize}
+\item
+  Prémisse n °1 : Si ma théorie \(T\) est correcte, alors je devrais observer certaines données \(D\).
+\item
+  Prémisse n°2 : J'observe d'autres données que celles prédites par ma théorie \(\lnot D\).
+\item
+  Conclusion : Donc, ma théorie est fausse \(\lnot T\).
+\end{itemize}
+
+Cet argument est parfaitement valide pour les propositions logiques, qui peuvent être soit vraies, soit fausses. Cependant, le premier problème qui apparait lorsqu'on on applique ce raisonnement à des cas concrets de raisonnement scientifique est le problème de l'erreur d'observation (ou erreur de mesure). Toute observation est sujette à de l'erreur, surtout lorsqu'on étudie des phénomènes nouveaux (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b}).
+
+Considérons un instant un exemple qui nous vient de la Physique, lorsqu'a été rapportée l'observation de \href{https://en.wikipedia.org/wiki/Neutrino}{neutrinos} plus rapides que la vitesse de la lumière (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b}, \protect\hyperlink{ref-mcelreath_statistical_2020}{2020}). Selon Einstein, aucun objet ne peut voyager plus vite que la lumière. Par conséquent, l'observation de certaines particules (en l'occurrence des neutrinos) qui voyageraient à une vitesse supérieure à celel de la lumière pourraient être considérée comme une réfutation flagrante de la théorie de la relativité restreinte.
+
+En 2011, une large équipe de physiciens de renommée internationale ont pourtant annoncé la détection de neutrinos voyageant plus rapidement quela vitesse de la lumière. De manière intéressante, la première réaction de la communauté scientifique ne fut pas d'annoncer que la théorie d'Einstein était réfutée. Bien au contraire, la plus grande partie de la communauté s'est demandée ``D'où est-ce que vient l'erreur dans les mesures réalisées par cette équipe ?'' (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b}, \protect\hyperlink{ref-mcelreath_statistical_2020}{2020}). L'équipe ayant réalisée ces mesures a de ses voeux appelé à des réplications indépendantes de leurs résultats. Deux ans plus tard et après plusieurs ré-analyses et réplications contradictoires, la communauté était unanime que les résultats qui semblaient contredire la théorie d'Einstein étaient en fait dû à une erreur de mesure (l'équipe ayant réalisé les premières mesures a réalisé plus tard que l'erreur provenait \href{https://profmattstrassler.com/articles-and-posts/particle-physics-basics/neutrinos/neutrinos-faster-than-light/opera-what-went-wrong/}{d'un câble mal branché}).
+
+Cette anecdote de l'histoire des sciences nous apprend au moins deux choses. Premièrement, il est intéressant d'analyser la réaction de la communauté de l'annonce de ces résultats. La théorie de la relativité restreinte ayant accumulé de nombreux succès prédictifs au cours du dernier siècle, la survenue d'une observation si dramatiquement incompatible avec la théorie était perçue comme hautement improbable aux yeux des experts. Cela nous renseigne sur la manière dont les théories scientifiques gagnent en ``crédence'' aux yeux d'une communauté d'expert, et également comme cette crédence ou l'historique d'une théorie affecte ou influence la manière d'interpréter les observations empiriques. Deuxièmement, cela souligne le fait qu'une observation ou un ensemble d'observation peut difficilement compter comme une réfutation stricte d'une théorique, car il existe (presque) toujours une probabilité de se tromper ou une erreur irréductible dans la précision de la mesure. De manière générale, le problème avec l'erreur de mesure est de savoir si la réfutation d'une théorie \(T\) par un ensemble d'observations \(D\) est véritable ou simplement superficielle. Sachant que toute mesure est sujette à de l'erreur, toute conclusion scientifique qui repose sur une ou des mesure(s) ne peut qu'apporter une réfutation partielle (exprimée en termes probabilistes) d'une théorie, et non une réfutation stricte (comme en logique formelle).
+
+\hypertarget{hypothuxe8ses-probabilistes}{%
+\subsubsection{Hypothèses probabilistes}\label{hypothuxe8ses-probabilistes}}
+
+Un autre problème émerge lorsqu'on essaye d'appliquer le modus tollens aux hypothèses scientifiques. Ce problème (désigné comme ``illusion permanente'' par \protect\hyperlink{ref-gigerenzer_superego_1993}{Gigerenzer, 1993}) est que la plupart des hypothèses scientifiques ne sont pas vraiment de la forme ``tous les cygnes sont blancs'' mais sont plutôt de la forme suivante :
+
+\begin{itemize}
+\item
+  Mon hypothèse est que 90\% des cygnes sont blancs.
+\item
+  Si mon hypothèse est correcte, alors on ne devrait \emph{probablement pas} observer des cygnes noirs.
+\end{itemize}
+
+Sachant cette hypothèse, que peut-on conclure si on observe un cygne noir ? Et bien pas grand chose. Un autre exemple classique en sciences expérimentales est celui de la logique du test d'hypothèse nulle (\protect\hyperlink{ref-cohen_earth_1994}{Cohen, 1994}) :
+
+\begin{itemize}
+\item
+  Prémisse n°1 : Si l'hypothèse nulle est vraie, alors ces données sont peu probables.
+\item
+  Prémisse n °2 : On observe ces données.
+\item
+  Conclusion : Donc l'hypothèse nulle est improbable.
+\end{itemize}
+
+Cependant, à cause du prémisse probabiliste (prémisse n°1), cet argument est invalide et sa conclusion est fausse. Pour s'en rendre compte, considérons un autre exemple (\protect\hyperlink{ref-cohen_earth_1994}{Cohen, 1994}; \protect\hyperlink{ref-pollard_probability_1987}{Pollard \& Richardson, 1987}) :
+
+\begin{itemize}
+\item
+  Prémisse n°1 : Si un individu est Américain, il est peu probable qu'il soit membre du Congrès.
+\item
+  Prémisse n°2 : Cet individu n'est pas membre du Congrès.
+\item
+  Conclusion : Cet individu n'est probablement pas Américain.
+\end{itemize}
+
+Cette conclusion est saugrenue est l'argument est invalide, car il oublie de considérer l'alternative, qui est que si cet individu n'était pas Américain, la probabilité qu'il soit membre du Congrès serait de 0. Cet argument est identique au précédent :
+
+\begin{itemize}
+\item
+  Prémisse n°1 : Si l'hypothèse nulle est vraie, alors ces données sont peu probables.
+\item
+  Prémisse n °2 : On observe ces données.
+\item
+  Conclusion : Donc l'hypothèse nulle est improbable.
+\end{itemize}
+
+Et cet argument est invalide pour les mêmes raisons que le précédent, à savoir i) que le prémisse n°1 est probabiliste (et non discret) et ii) qu'il ne considère pas l'hypothèse alternative. Ainsi, même sans erreur de mesure, on se rend compte que le problème d'hypothèse probabiliste nous empêche de réfuter ce genre d'hypothèse via le modus tollens.
+
+\hypertarget{forme-logique-du-test-expuxe9rimental-dune-thuxe9orie}{%
+\subsubsection{Forme logique du test expérimental d'une théorie}\label{forme-logique-du-test-expuxe9rimental-dune-thuxe9orie}}
+
+Un dernier (mais non des moindres) problème est connu comme la ``thèse de Duhem-Quine'' ou le ``problème de l'indétermination''. En pratique, lorsqu'une théorie \(T\) est testée, il est nécessaire de faire appel à des hypothèses sous-jacentes (i.e., non explicites) ou à d'autres théories. Ces théories ``auxiliaires'' nous aident à ``connecter'' la théorie d'intérêt \(T\) avec le ``monde réel'', afin de faire des préditions concrètes (e.g., ``les cygnes blancs et noirs passent la même proportion de leur temps à se ballader, donc la probabilité de les observer dans la nature devrait être égale''). Ces théories auxiliaires sont souvent des théories à propos des outils que nous utilisons (e.g., ``le BDI est ou un outil valide pour mesurer le niveau de symptômes dépressifs chez des patients souffrant de dépression chronique'').
+
+Lorsque nous testons une théorie qui prédit que ``Si \(O_{1}\)'' (une manipulation expérimentale), ``Alors \(O_{2}\)'' (une observation prédite), ce que nous voulons dire en fait est que l'on devrait observer cette relation \emph{si et seulement si} tous les éléments auxiliaires sont corrects. Ainsi, la structure logique du test empirique d'une théorie \(T\) peut être décrit de la manière suivante (\protect\hyperlink{ref-meehl_appraising_1990}{Paul E. Meehl, 1990a}, \protect\hyperlink{ref-meehl_theoretical_1978}{1978}, \protect\hyperlink{ref-harlow_problem_1997}{1997}) :
+
+\[(T \land A_{t} \land C_{p} \land A_{i} \land C_{n}) \to (O_{1} \supset O_{2})\]
+
+où ``\(\land\)'' représente une conjonction (``et''), ``\(\to\)'' représente une déduction logique, et ``\(\supset\)'' représente l'implication logique (e.g., ``Si \(O_{1}\), Alors \(O_{2}\)''). \(A_{t}\) est une conjonction de théories auxiliares, \(C_{p}\) est connu comme le \emph{ceteribus paribus} (i.e., on postule qu'il n'existe pas de facteurs extérieurs non pris en compte et qui pourraient ``masquer'' l'effet d'intérêt) \(A_{i}\) est une théorie auxiliaire concernant les outils utilisés pour mesurer l'effet d'intérêt, et \(C_{n}\) est un énoncé à propos des conditions particulières de l'expérience réalisée (i.e., on postule qu'il n'existe pas de bruit ou erreur systématique dans le protocole expérimental).
+
+En d'autres termes, une \emph{conjonction} de tous les éléments du côté gauche de la formule ci-dessus (ce qui inclut notre théorie \(T\)) implique la partie droite de la formule, c'est à dire ``Si \(O_{1}\), Alors \(O_{2}\)''. Si l'expérience réalisée nous révèle que cette relation ne tient pas, alors on aimerait pouvoir conclure que notre hypothèse \(T\) est réfutée (en appliquant le modus tollens).
+
+Or, une négation de la partie droite de cette formule nous permet seulement d'affirmer une négation de l'\textbf{intégralité} de la partie gauche. Autrement dit, ne pas observer une prédiction empirique d'une théorie nous permet de réfuter l'ensemble \(T \land A_{t} \land C_{p} \land A_{i} \land C_{n}\), ce qui est très différent d'une réfutation de \(T\) (\protect\hyperlink{ref-meehl_appraising_1990}{Paul E. Meehl, 1990a}). En termes plus formels, une négation de la conjonction (de gauche) est logiquement équivalent à déclarer une disjonction des conjoints (i.e., soit l'un ou l'autre des composants de la partie gauche est faux).
+
+Pour résumer, ne pas observer quelque chose qui était prédit par une théorie ne permet pas de montrer que cette théorie est fausse, mais cela permet de montrer que la conjonctions de la théorie et des hypothèses auxiliaires est fausse. Une conséquence des quatre problèmes soulevés dans cette section et que la réfutation d'une théorie scientifique n'est jamais logique, mais elle est plutôt \textbf{consensuelle} (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b}, \protect\hyperlink{ref-mcelreath_statistical_2020}{2020}). Une proposition théorique est considérée comme réfutée lorsqu'une communauté d'experts a accumulé un grand nombre de preuves variées, issus de protocoles et de groupes de recherches variés, au fil des décennies. Ce travail d'accumulation des preuves s'accompagne de discussions critiques indissociables du travail de développement théorique. En somme, la réfutation d'une théorie est un résultat social, issue d'une communauté d'experts, et n'est (presque) jamais le résultat d'une déduction logique formelle.
+
+\hypertarget{test-dhypothuxe8se-nulle-et-raisonnement-scientifique}{%
+\subsection{Test d'hypothèse nulle et raisonnement scientifique}\label{test-dhypothuxe8se-nulle-et-raisonnement-scientifique}}
+
+Une croyance répandue en sciences expérimentales est que l'utilisation de la procédure NHST est bien alignée avec la philosophie scientifique de Popper (et implicitement, qu'il s'agit là de quelque chose de souhaitable). Cependant, le parallèle entre la procédure NHST et la philosophie Poppérienne est très approximatif. La logique de la procédure NHST peut être résumée de la manière suivante :
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  On suppose l'hypothèse d'absence d'effet \(\mathcal{H}_{0}\).
+\item
+  On génère un nombre infini d'échantillons sous cette hypothèse.
+\item
+  On compare les données que nous avons observées dans notre expérience à la distribution contrefactuelle des données sous l'hypothèse nulle \(\mathcal{H}_{0}\).
+\end{enumerate}
+
+Si les données observées semblent suffisamment invraisemblables conditionnellement à \(\mathcal{H}_{0}\) (où ``suffisamment'' correspond au niveau \(\alpha\) du test), nous pouvons rejeter l'hypothèse nulle en toute sécurité et considérer ce rejet comme une corroboration de l'hypothèse alternative \(\mathcal{H}_{1}\) (quelle que soit l'hypothèse alternative).
+
+En d'autres termes, la seule hypothèse réellement testée (dans la procédure NHST classique) est l'hypothèse nulle, qui est rarement d'intérêt pour le chercheur en train de la tester. Ainsi, afin de réellement aligner cette procédure avec la méthode falsificationniste, il faudrait tester les prédictions de l'hypothése théorique \(\mathcal{T}\) réellement d'intérêt, et non les prédictions d'une hypothèse épouvantail \(\mathcal{H}_{0}\).\footnote{À ce propos, et comme nous le verrons un peu plus tard, il est possible et relativement facile de généraliser la procédure de calcul des p-valeurs à n'importe quel modèle statistique dans le cadre bayésien, voir par exemple cet article de blog : \url{http://www.barelysignificant.com/post/ppc/}.} Comme résumé par P. E. Meehl (\protect\hyperlink{ref-meehl_what_1986}{1986}) :
+
+\begin{quote}
+``{[}\ldots{]} we have been brainwashed by Fisherian statistics into thinking that refutation of H0 is a powerful way of testing substantive theories''.
+\end{quote}
+
+Fidler et al. (\protect\hyperlink{ref-fidler_epistemic_2018}{2018}) décrivent quatre raisons de questionner le parallèle entre la procédure NHST et la méthode falficationniste.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  L'hypothèse nulle \(\mathcal{H}_{0}\) (ou plutôt la \emph{nil hypothesis}, c'est à dire l'hypothèse que la valeur du paramètre testé est précisément \(0\)) est très probablement fausse car en sciences sociales en particulier ``tout tend à être associé avec tout'', un phénomène également connu sous le nom de \emph{crud factor} (\protect\hyperlink{ref-meehl_why_1990}{Paul E. Meehl, 1990b}).
+\item
+  La procédure NHST ne teste pas réellement l'hypothèse d'intérêt \(\mathcal{T}\), mais seulement l'hypothèse épouvantail \(\mathcal{H}_{0}\).
+\item
+  De nombreuses hypothèses théories sous-jacentes ne sont pas assez bien développées ou formalisées et ne permettent pas de formuler des hypothèses statistiques.
+\item
+  Même si tous les points précédents ont été résolus, nous aurions encore besoin de soumettre ces hypothèses à des tests sévères, ce qui nécessiterait des études bien alimentées et bien conçues, ce qui n'est pas la norme actuelle.\footnote{La puissance statistique moyenne des tests d'hypothèse réalisés en Psychologie est estimée à moins de 50\% (e.g., \protect\hyperlink{ref-szucs_empirical_2017-1}{Szucs \& Ioannidis, 2017}).}
+\end{enumerate}
+
+Le point n°2 soulevé ci-dessus nous dit que la procédure NHST ne suit pas le falsificationnisme Poppérien car il ne soumet pas la théorie testée à un risque de falification \emph{sévère}, mais seulement à un danger très faible. En d'autres termes, le test d'hypothèse nulle (tel que pratiqué dans la procédure NHST classique) ne soumet pas la théorie sous-jacente (i.e., celle qu'on vise à évaluer via le test de l'hypothèse statistique dérivée de cette première) à un test fort (\protect\hyperlink{ref-meehl_appraising_1990}{Paul E. Meehl, 1990a}, \protect\hyperlink{ref-meehl_theory-testing_1967}{1967}, \protect\hyperlink{ref-harlow_problem_1997}{1997}). Autrement dit, étant donné que l'hypothèse nulle est facilement réfutée, l'hypothèse alternative est facilement corroborée statistiquement, et donc peu corroborée au niveau théorique.
+
+Ceci étant dit, cette critique porte sur une manière d'utiliser la procédure NHST (qui est aujourd'hui la plus répandue en Psychologie), mais ce n'est pas la seule manière d'utiliser cette procédure. On pourrait très bien utiliser cette procédure afin d'essayer de réfuter notre hypothèse d'intérêt \(\mathcal{T}\). Paul E. Meehl (\protect\hyperlink{ref-meehl_theory-testing_1967}{1967}) distingue entre l'usage \emph{fort} et \emph{faible} du test d'hypothèse nulle en comparant l'usage de la procédure NHST en physique et en psychologie. L'usage \emph{faible} du test d'hypothèse nulle, décrit ci-dessus, correspond à tenter de réfuter une hypothèse nulle qui ne nous intéresse pas afin de corroborer une hypothèse alternative d'intérêt.
+
+L'usage fort du test d'hypothèse nulle nécessite cependant d'avoir une théorie suffisamment développée, à même de prédire une valeur numérique précise pour une observation, ou tout du moins un intervalle réduit de valeurs possibles, ou alors certaines formes de fonctions (e.g., quadratique ou cubique) entre les variables d'intérêt (\protect\hyperlink{ref-harlow_problem_1997}{Paul E. Meehl, 1997}). Dans ce genre de situation, le test d'hypothèse nulle pourrait agir comme un test Poppérien \emph{risqué}, au sens où l'hypothèse testée est soumises à un risque élevé de réfutation (\protect\hyperlink{ref-harlow_problem_1997}{Paul E. Meehl, 1997}). Notons également que la procédure NHST peut être adaptée afin de réfuter des intervalles de valeurs, via les tests d'équivalence (\protect\hyperlink{ref-lakens_equivalence_2018}{Lakens et al., 2018}; \protect\hyperlink{ref-rogers_using_1993}{Rogers et al., 1993}) ou la procédure HDI+ROPE (\protect\hyperlink{ref-kruschke_doing_2015}{Kruschke, 2015}).
+
+Bien entendu, dans certaines (rares) situations, l'hypothèse d'absence d'effet est théoriquement d'intérêt, et donc viser à réfuter cette hypothèse via un test d'hypothèse nulle représenterait une tentative sérieuse de réfutation. Par exemple il existe certaines théories en Psychologie qui prédisent que certains comportement seraient invariants selon certaines situations (\protect\hyperlink{ref-morey_beyond_2018}{Morey et al., 2018}). Ces hypothèses peuvent être testées \emph{sévèrement} par un test d'hypothèse nul, car ce dernier les exposerait à un haut risque de réfutation.
+
+Pour résumer, la vision naïve du falsificationnisme consiste à penser que la science progresse par falsification logique (et que donc la statistique devrait viser la falsification). Cependant, comme discuté dans cette section, cette perspective se retrouve face à plusieurs problèmes difficilement surmontables, que nous résumons ci-dessous.
+
+\begin{itemize}
+\item
+  Premier problème : Les hypothèses théoriques ne sont pas les modèles (hypothèses statistiques). Un modèle statistique est un appareil utilisé pour relier, pour faire le lien entre un modèle théorique et certaines données. Il peut être défini comme une instanciation d'une théorie en un ensemble d'énoncés ou de propositions probabilistes (\protect\hyperlink{ref-rouder_interplay_2016}{Rouder et al., 2016}).
+\item
+  Deuxième problème : En général, il n'existe pas de relation univoque entre modèles théoriques et modèles statistiques. Autrement dit, un modèle théorique donné peut être représenté (i.e., implémenté) par différents modèles statistiques et réciproquement, différents modèles statistiques peuvent être construits à partir du même modèle théorique. Par conséquent, la confirmation ou réfutation d'un modèle statistique ne permet pas l'induction strict au modèle théorique.
+\item
+  Troisième problème : Les hypothèses scientifique sont souvent probabilistes, ce qui invalide l'emploi du modus tollens.
+\item
+  Quatrième problème : Les mesures permettant de tester une théories sont sujette à des erreurs, ce qui empêche également la réfutation strictes d'hypothèses (cf.~l'anecdote des neutrinos).
+\end{itemize}
+
+Enfin, la falsification concerne le problème de la démarcation, pas celui de la méthode. La science est une technologie sociale, la falsification est \textbf{consensuelle}, et non pas logique.
+
+\hypertarget{lapproche-par-comparaison-de-moduxe8les}{%
+\subsection{L'approche par comparaison de modèles}\label{lapproche-par-comparaison-de-moduxe8les}}
+
+En connaissance des limitations de l'approche par test d'hypothèse nulle telle que présentée dans la section précédente, nous adoptons dans ce livre une approche dite par *comparaison de modèles**.
+
+En bref, en place d'une approche mécanique du test d'hypothèse nulle, nous proposons une méthode qui met l'accent sur l'estimation de paramètres, la comparaison de modèles statistiques et théoriques (sensés et d'intérêt), et l'extension (amélioration) continuelle du modèle (\protect\hyperlink{ref-burnham_multimodel_2004}{Burnham \& Anderson, 2004}; e.g., \protect\hyperlink{ref-burnham_model_2002}{Burnham \& Anderson, 2002}; \protect\hyperlink{ref-cumming_new_2014}{Cumming, 2014}, \protect\hyperlink{ref-Cumming2012}{2012}; \protect\hyperlink{ref-gelman_bayesian_2013}{Gelman et al., 2013}; \protect\hyperlink{ref-gelman_data_2006}{Gelman \& Hill, 2006}; \protect\hyperlink{ref-judd_data_2009}{Judd et al., 2009}; \protect\hyperlink{ref-kruschke_doing_2015}{Kruschke, 2015}; \protect\hyperlink{ref-kruschke_bayesian_2018}{Kruschke \& Liddell, 2018a}, \protect\hyperlink{ref-kruschke_bayesian_2018-1}{2018b}; \protect\hyperlink{ref-R-rethinking}{McElreath, 2016a}). En d'autres notre approche est une approche de \textbf{modélisation statistique} plutôt qu'une approche de \textbf{test statistique} (e.g., \protect\hyperlink{ref-noel_psychologie_2015}{Noël, 2015}). Cette approche vise à modéliser le processus sous-jacent ayant généré les données observées (i.e., le \textbf{processus de génération des données} ou PGD) plutôt qu'à tester si la valeur de certains paramètres d'un modèle inapproprié est égal à une valeur arbitraire (e.g., \(\theta = 0\)). Cette approche n'est cependant pas incompatible avec l'approche falsificationniste tel que décrite en philosophie des sciences. En effet, certains statisticiens bayésiens comme Gelman \& Shalizi (\protect\hyperlink{ref-gelman_philosophy_2013}{2013}) suggèrent que la réfutation des modèles statistiques joue un rôle important dans le processus de modélisation et d'amélioration des modèles (nous y reviendrons à plusieurs reprises, en particulier lorsque nous discuterons l'utilisation des \emph{prior} et \emph{posterior predictive checks}).
+
+Afin d'illustrer l'approche par comparaison de modèles, considérons l'exemple suivant. On s'intéresse au lien entre deux variables aléatoires continues \(x\) et \(y\). On réalise une expérience et on collecte 10 observations nous permettant d'étudier cette relation. L'hypothèse de modélisation la plus classique est de postuler une relation linéaire entre \(x\) et \(y\). La droite minimisant la somme des erreurs au carré est représentée par la Figure \ref{fig:modelcomp2}.
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/modelcomp2-1} 
+
+}
+
+\caption{Scatterplot des 10 observations obtenues dans notre expérience et droite des moindres carrés décrivant la relation entre x et y estimée sur la base de ces 10 observations.}\label{fig:modelcomp2}
+\end{figure}
+
+Cette description peut-être \emph{améliorée} (où ``améliorer'' consiste à réduire l'erreur) pour mieux prendre en compte les données qui s'écartent de la prédiction linéaire. La figure \ref{fig:modelcomp3} représente la prédiction d'un modèle polynomial (quadratique).
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/modelcomp3-1} 
+
+}
+
+\caption{Prédiction quadratique décrivant la relation entre x et y estimée sur la base des 10 observations collectées pour notre expérience.}\label{fig:modelcomp3}
+\end{figure}
+
+Cette ``amélioration'' du modèle statistique via une augmentation de la complexité de ce dernier peut être poursuivi. On sait qu'un ensemble de \(N\) points peut être \emph{exhaustivement} (i.e., sans erreur) décrit par une fonction polynomiale d'ordre \(N - 1\) (cf.~Figure \ref{fig:modelcomp4}). Augmenter la complexité du modèle améliore donc la précision de notre description des données mais réduit également la généralisabilité de ses prédictions (il s'agit du dilemme classique entre biais et variance).
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/modelcomp4-1} 
+
+}
+
+\caption{Différentes prédictions de complexité croissante estimées sur la base des 10 observations collectées pour notre expérience.}\label{fig:modelcomp4}
+\end{figure}
+
+Nous avons donc besoin d'outils qui prennent en compte le rapport entre la qualité de la description des données et la complexité du modèle, c'est à dire qui évaluent la parcimonie du modèle. Dans cette perspective, nous ferons au Chapitre 6 un détour par la théorie de l'information, qui nous permettra introduire des outils comme l'AIC (et ses différentes extensions).
+
+Pour résumer, notre approche consistera donc à construire des modèles statistiques comme des implémentations mathématiques (probabilistes) de modèles théoriques que nous souhaitons comparer. L'inférence statistique bayésienne consistera à mettre à jour notre état de connaissance concernant les valeur des paramètres de ces modèles (mais également notre état de connaissance vis à vis de la validité relative de ces modèles) en fonction des données observées. Ces modèles seront comparés en fonction de i) leur puissance prédictive et ii) leur complexité. Au lieu d'essayer de réfuter un modèle épouvantail (i.e., l'hypothèse nulle), on comparera des modèles intrinsèquement intéressants, qu'on essayera de réfuter afin de les améliorer. La section suivante présente un premier exemple permettant de saisir l'idée centrale de l'inférence bayésienne.
+
+\hypertarget{probluxe8me-du-sac-de-billes-mcelreath_statistical_2016}{%
+\section{\texorpdfstring{Problème du sac de billes (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b})}{Problème du sac de billes (McElreath, 2016b)}}\label{probluxe8me-du-sac-de-billes-mcelreath_statistical_2016}}
+
+Imaginons que nous disposions d'un sac contenant 4 billes. Ces billes peuvent être soit blanches, soit bleues. Nous savons qu'il y a précisément 4 billes, mais nous ne connaissons pas le nombre de billes de chaque couleur. Nous savons cependant qu'il existe cinq possibilités (que nous considérons comme nos \emph{hypothèses}) :
+
+\[
+\begin{aligned}
+&\text{Hypothèse n°1 : } \LARGE \circ \circ \circ \circ \\
+&\text{Hypothèse n°2 : } \LARGE \color{steelblue}{\bullet} \color{black}{\circ} \circ \circ \\
+&\text{Hypothèse n°3 : } \LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{black}{\circ} \circ \\
+&\text{Hypothèse n°4 : } \LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{black}{\circ} \\
+&\text{Hypothèse n°5 : } \LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \\
+\end{aligned}
+\]
+
+Le but est de déterminer quelle combinaison est la plus probable, \textbf{sachant certaines observations}. Imaginons que l'on tire trois billes à la suite, avec remise, et que l'on obtienne la séquence suivante : \(\LARGE \color{steelblue}{\bullet} \color{black}{\circ} \color{steelblue}{\bullet}\).
+
+Cette séquence représente nos données. À partir de ces données, quelle \textbf{inférence} peut-on faire sur le contenu du sac ? En d'autres termes, que peut-on dire de la probabilité de chaque hypothèse ?
+
+\hypertarget{uxe9numuxe9rer-les-possibilituxe9s}{%
+\subsection{Énumérer les possibilités}\label{uxe9numuxe9rer-les-possibilituxe9s}}
+
+Une stratégie consiste à compter le nombre de possibilités menant aux données obtenues à chaque tirage. Par exemple, si nous considérons l'hypothèse n°2 (i.e., on se place dans un cadre dans lequel cette hypothèse est ``vraie''), on peut représenter l'arbre des issues possibles. La Figure \ref{fig:garden1} représente ces différentes possibilités. Au premier tirage, selon l'hypothèse n°2, nous avions une chance sur 4 d'obtenir une bille bleue.
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/garden1-1} 
+
+}
+
+\caption{Représentation de l'ensemble des issues possibles au premier tirage selon l'hypothèse n°2.}\label{fig:garden1}
+\end{figure}
+
+La Figure \ref{fig:garden2} représente l'ensemble des résultats possibles aux tirages 1 et 2 selon l'hypothèse n°2. On réalise qu'au deuxième comme au premier tirage, on avait une chance sur quatre d'obtenir une bille bleue. Par conséquent on avait \(1 \times (4 \times 1) = 4\) chances sur \(4^2 = 16\) d'obtenir deux billes bleues. De la même manière, on peut calculer qu'on avait \(1 \times 3\) chances sur \(4^2 = 16\) d'obtenir une bille bleue et une bille blanche. Autrement dit, 3 chemins mènent à la suite ``bille bleue puis bille blanche''.
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/garden2-1} 
+
+}
+
+\caption{Représentation de l'ensemble des issues possibles aux premier et deuxième tirages selon l'hypothèse n°2.}\label{fig:garden2}
+\end{figure}
+
+La Figure \ref{fig:garden3} représente l'ensemble des résultats possibles aux tirages 1, 2, et 3 selon l'hypothèse n°2. On réalise qu'à chaque tirage on avait une chance sur quatre d'obtenir une bille bleue. Par conséquent on avait \(1 \times (4 \times 1) \times (4 \times 1) = 16\) chances sur \(4^3 = 64\) d'obtenir trois billes bleues. De la même manière, on peut calculer qu'on avait \(1 \times 3 \times 1\) chances sur \(4^3 = 64\) d'obtenir une bille bleue et une bille blanche. Autrement dit, 3 chemins mènent à la suite ``bille bleue puis bille blanche puis bille bleue''.
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/garden3-1} 
+
+}
+
+\caption{Représentation de l'ensemble des issues possibles selon l'hypothèse n°2 sur l'ensemble des tirages.}\label{fig:garden3}
+\end{figure}
+
+La Figure \ref{fig:garden4} représente le nombre de ``chemins'' qui mènent au résultat obtenu et confirme que sous l'hypothèse n°2, \(3\) chemins sur \(4^{3} = 64\) conduisent au résultat obtenu. Qu'en est-il des autres hypothèses?
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/garden4-1} 
+
+}
+
+\caption{Représentation de l'ensemble des issues possibles selon l'hypothèse n°2 sur l'ensemble des tirages. Les chemins menant aux données observées sont mis en avant.}\label{fig:garden4}
+\end{figure}
+
+La Figure \ref{fig:garden5} représente le nombre de chemins menant aux données observées pour les hypothèse n°2, n°3, et n°4.
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.75\linewidth]{IMSB_files/figure-latex/garden5-1} 
+
+}
+
+\caption{Représentation de l'ensemble des issues possibles selon les hypothèses n°2, n°3, et n°4 sur l'ensemble des tirages. Les chemins menant aux données observées sont mis en avant.}\label{fig:garden5}
+\end{figure}
+
+On peut ensuite comparer les hypothèses par leur \emph{propension} à mener aux données observées. Plus précisément, on peut comparer les hypothèses entre elles en comparant le nombre de chemins menant aux données pour chaque hypothèse (cf.~Tableau \ref{tab:hypothesis-comparison}).
+
+\begin{table}[!htb]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:hypothesis-comparison}Comparer des hypothèses en comparant le nombre de manières qu'elles ont de produire les données observées.}
+
+\begin{tabular}{cc}
+\toprule
+Hypothèse & Façons d'obtenir les données\\
+\midrule
+$\LARGE \circ \circ \circ \circ$ & $0 \times 4 \times 0 = 0$\\
+$\LARGE \color{steelblue}{\bullet} \circ \circ \circ$ & $1 \times 3 \times 1 = 3$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ \circ$ & $2 \times 2 \times 2 = 8$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ$ & $3 \times 1 \times 3 = 9$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet}$ & $4 \times 0 \times 4 = 0$\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table}
+
+On pourra conclure, au vu des données, que l'hypothèse n°4 est la plus \emph{plausible} car c'est l'hypothèse qui \textbf{maximise le nombre de manières possibles d'obtenir les données obtenues}.
+
+\hypertarget{accumulation-duxe9vidence}{%
+\subsection{Accumulation d'évidence}\label{accumulation-duxe9vidence}}
+
+Jusque là, nous avons considéré que toutes les hypothèses étaient équiprobables a priori (suivant le \href{https://en.wikipedia.org/wiki/Principle_of_indifference}{principe d'indifférence}). Cependant, on pourrait avoir de l'information a priori, provenant de nos connaissances (e.g., concernant les particularités des sacs de billes) ou de données antérieures. Imaginons que nous tirions une nouvelle bille du sac. Comment pouvons-nous incorporer cette nouvelle donnée ?
+
+Il suffit d'appliquer la même stratégie que précédemment, et de mettre à jour le dernier compte en le multipliant par ces nouvelles données (cf.~Tableau \ref{tab:accumulation}). Cette procédure illustre un mécanisme central de l'inférence bayésienne qui concerne l'accumulation d'information. Dans le cadre bayésien, cette accumulation se déroule naturellement, où le résultat de nouvelles analyses peut être naturellement incorporé au résultat d'analyses précédentes, pour mener à un état de connaissance mis à jour.
+
+\begin{table}[!htb]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:accumulation}Illustration de l'accumulation d'information dans le cadre bayésien.}
+
+\begin{tabular}{cccc}
+\toprule
+Hypothèse & Façons de produire $\color{steelblue}{\bullet}$ & Compte précédent & Nouveau compte\\
+\midrule
+$\LARGE \circ \circ \circ \circ$ & $0$ & $0$ & $0 \times 0 = 0$\\
+$\LARGE \color{steelblue}{\bullet} \circ \circ \circ$ & $1$ & $3$ & $3 \times 1 = 3$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ \circ$ & $2$ & $8$ & $8 \times 2 = 16$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ$ & $3$ & $9$ & $9 \times 3 = 27$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet}$ & $4$ & $0$ & $0 \times 4 = 0$\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table}
+
+\hypertarget{incorporer-un-prior}{%
+\subsection{Incorporer un prior}\label{incorporer-un-prior}}
+
+Supposons maintenant qu'un employé de l'usine de fabrication des billes nous dise que les billes bleues sont rares. Plus précisément, cet employé nous dit que pour chaque sac contenant 3 billes bleues, ils fabriquent deux sacs en contenant seulement deux, et trois sacs en contenant seulement une. Il nous apprend également que tous les sacs contiennent au moins une bille bleue et une bille blanche. On peut traduire ces informations en langage mathématique, en attribuant un poids de \(0\) pour les hypothèses n°1 et n°5, et en rendant l'hypothèse n°2 trois fois plus probable que l'hypothèses n°4, et l'hypothèse n°3 deux fois plus probable que l'hypothèse n°4 (cf.~Tableau \ref{tab:prior-table}).
+
+\begin{table}[!htb]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:prior-table}Illustration de l'intégration d'information a priori dans le cadre bayésien.}
+
+\begin{tabular}{cccc}
+\toprule
+Hypothèse & Compte précédent & Prior usine & Nouveau compte\\
+\midrule
+$\LARGE \circ \circ \circ \circ$ & $0$ & $0$ & $0 \times 0 = 0$\\
+$\LARGE \color{steelblue}{\bullet} \circ \circ \circ$ & $3$ & $3$ & $3 \times 3 = 9$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ \circ$ & $16$ & $2$ & $16 \times 2 = 32$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ$ & $27$ & $1$ & $27 \times 1 = 27$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet}$ & $0$ & $0$ & $0 \times 4 = 0$\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table}
+
+Cette procédure illustre encore une fois l'intégration d'information antérieure (on dira également \emph{a priori}), que ce soit empirique ou théorique, dans l'analyse de nouvelles données. Ce mécanisme est résumé par le célèbre dicton bayésien : \emph{Yesterday's posterior is today's prior} (\protect\hyperlink{ref-lindley_philosophy_2001}{Lindley, 2001}).
+
+\hypertarget{des-uxe9numuxe9rations-aux-probabilituxe9s}{%
+\subsection{Des énumérations aux probabilités}\label{des-uxe9numuxe9rations-aux-probabilituxe9s}}
+
+Le théorème de Bayes (que nous présenterons formellement un peu plus tard) nous dit que la probabilité d'une hypothèse après avoir observé certaines données est proportionnelle au nombre de façons qu'a cette hypothèse de produire les données observées, multiplié par sa probabilité a priori.
+
+\[
+\Pr(\text{hypothèse} \ | \ \text{données}) \propto \Pr(\text{données} \ | \ \text{hypothèse}) \times \Pr(\text{hypothèse})
+\]
+
+Si l'on considère toutes les hypothèses comme étant équiprobables a priori (e.g., on leur accorde toutes une probabilité de 1), la \textbf{probabilité postérieure} de l'hypothèse \textbf{sachant les données observées et le prior} est obtenue en normalisant le produit \(\Pr(\text{données} \ | \ \text{hypothèse}) \times \Pr(\text{hypothèse})\) de la manière suivante :
+
+\[
+\Pr(\text{hypothèse} \ | \ \text{données}) = \frac{\Pr(\text{données} \ | \ \text{hypothèse}) \times \Pr(\text{hypothèse})}{\text{Somme des produits}}
+\]
+
+Où la somme des produits consiste à calculer le produit \(\Pr(\text{données} \ | \ \text{hypothèse}) \times \Pr(\text{hypothèse})\) pour toutes les hypothèses considérées et à calculer la somme de ces valeurs. Cette manipulation nous assure que la probabilité postérieure (i.e., \(\Pr(\text{hypothèse} \ | \ \text{données})\)) est bien une probabilité, c'est à dire une valeur numérique bornée entre \(0\) et \(1\).
+
+Par exemple, si l'on définit \(p\) comme étant la proportion de billes bleues dans chaque hypothèse, alors on peut ré-exprimer chaque hypothèse en fonction de \(p\) (cf.~Tableau \ref{tab:enumeration-table}).
+
+\begin{table}[!htb]
+
+\begin{center}
+\begin{threeparttable}
+
+\caption{\label{tab:enumeration-table}Calcul de la probabilité postérieure d'une hypothèse.}
+
+\begin{tabular}{cccc}
+\toprule
+Hypothèse & $p$ & Manières de produire les données & Probabilité postérieure\\
+\midrule
+$\LARGE \circ \circ \circ \circ$ & $0$ & $0$ & $0$\\
+$\LARGE \color{steelblue}{\bullet} \circ \circ \circ$ & $0.25$ & $3$ & $0.15$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ \circ$ & $0.5$ & $8$ & $0.40$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \circ$ & $0.75$ & $9$ & $0.45$\\
+$\LARGE \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet} \color{steelblue}{\bullet}$ & $1$ & $0$ & $0$\\
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\end{center}
+
+\end{table}
+
+Où la probabilité est calculée en divisant chaque valeur de la troisième colonne par la somme des valeurs de cette colonne. Autrement dit, en \texttt{R} :
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ways }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{ways }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(ways)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.00 0.15 0.40 0.45 0.00
+\end{verbatim}
+
+Pour résumer, la probabilité postérieure représente la probabilité d'une hypothèse, \textbf{sachant} certaines données observées et certaines connaissances a priori. Cette probabilité postérieure est proportionnelle au produit de la probabilité des données sachant l'hypothèse (i.e., le nombre de manières qu'a l'hypothèse de produire les données) et de la probabilité a priori de l'hypothèse. Autrement dit et comme résumé par McElreath (\protect\hyperlink{ref-mcelreath_statistical_2016}{2016b}), ``\emph{Bayesian inference is really just counting and comparing of possibilities}''.
+
+\hypertarget{quelques-exemples-dapplication}{%
+\section{Quelques exemples d'application}\label{quelques-exemples-dapplication}}
+
+\hypertarget{diagnostique-muxe9dical-gigerenzer-2002}{%
+\subsection{Diagnostique médical (Gigerenzer, 2002)}\label{diagnostique-muxe9dical-gigerenzer-2002}}
+
+\begin{itemize}
+\item
+  Chez les femmes âgées de 40-50 ans, sans antécédents familiaux et sans symptômes, la probabilité d'avoir un cancer du sein est de .008.
+\item
+  Propriétés de la mammographie:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Si une femme a un cancer du sein, la probabilité d'avoir un résultat positif est de .90
+  \item
+    Si une femme n'a pas de cancer du sein, la probabilité d'avoir un résultat positif est de .07
+  \end{itemize}
+\item
+  Imaginons qu'une femme passe une mammographie, et que le test est positif. Que doit-on \textbf{inférer} ? Quelle est la probabilité que cette femme ait un cancer du sein ?
+\end{itemize}
+
+\hypertarget{logique-du-maximum-likelihood}{%
+\subsubsection{Logique du Maximum Likelihood}\label{logique-du-maximum-likelihood}}
+
+\begin{itemize}
+\item
+  Une approche générale de l'estimation de paramètre
+\item
+  Les paramètres \textbf{gouvernent} les données, les données \textbf{dépendent} des paramètres
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Sachant certaines valeurs des paramètres, nous pouvons calculer la \textbf{probabilité conditionnelle} des données observées
+  \item
+    Le résultat de la mammographie (i.e., les données) dépend de la présence / absence d'un cancer du sein (i.e., le paramètre)
+  \end{itemize}
+\item
+  L'approche par \emph{maximum de vraisemblance} pose la question: ``\emph{Quelles sont les valeurs du paramètre qui rendent les données observées les plus probables ?}''
+\item
+  Spécifier la probabilité conditionnelle des données \(p(x|\theta)\)
+\item
+  Quand on le considère comme fonction de \(\theta\), on parle de \textbf{likelihood}: \(L(\theta|x) = p(X = x|\theta)\)
+\item
+  L'approche par maximum de vraisemblance consiste donc à maximiser cette fonction, en utilisant les valeurs (connues) de \(x\)
+\item
+  Si une femme a un cancer du sein, la probabilité d'obtenir un résultat positif est de .90
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(p(Mam=+|Cancer=+)=.90\)
+  \item
+    \(p(Mam=-|Cancer=+)=.10\)
+  \end{itemize}
+\item
+  Si une femme n'a pas de cancer du sein, la probabilité d'obtenir un résultat positif est de .07
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(p(Mam=+|Cancer=-)=.07\)
+  \item
+    \(p(Mam=-|Cancer=-)=.93\)
+  \end{itemize}
+\item
+  Une femme passe une mammographie, le résultat est positif\ldots{}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(p(Mam=+|Cancer=+)=.90\)
+  \item
+    \(p(Mam=+|Cancer=-)=.07\)
+  \end{itemize}
+\item
+  Maximum de vraisemblance: quelle est la valeur de \emph{Cancer} qui \textbf{maximise} \(Mam=+\) ?
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(p(Mam=+|Cancer=+)=.90\)
+  \item
+    \sout{\(p(Mam=+|Cancer=-)=.07\)}
+  \end{itemize}
+\end{itemize}
+
+Wait a minute\ldots{}
+
+\hypertarget{diagnostique-muxe9dical-fruxe9quences-naturelles}{%
+\subsubsection{Diagnostique médical, fréquences naturelles}\label{diagnostique-muxe9dical-fruxe9quences-naturelles}}
+
+\begin{itemize}
+\tightlist
+\item
+  Considérons 1000 femmes âgées de 40 à 50 ans, sans antécédents familiaux et sans symptômes de cancer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    8 femmes sur 1000 ont un cancer
+  \end{itemize}
+\item
+  On réalise une mammographie
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Sur les 8 femmes ayant un cancer, 7 auront un résultat positif
+  \item
+    Sur les 992 femmes restantes, 69 auront un résultat positif
+  \end{itemize}
+\item
+  Une femme passe une mammographie, le résultat est positif
+\item
+  Que devrait-on inférer ?
+\end{itemize}
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.5\linewidth]{figures/diagram} 
+
+}
+
+\caption{Diagram...}\label{fig:diagram}
+\end{figure}
+
+\[ p(Cancer = + | Mam = +) = \frac{7}{7 + 69} = \frac{7}{76} \approx .09\]
+
+\hypertarget{diagnostique-muxe9dical-thuxe9oruxe8me-de-bayes}{%
+\subsubsection{Diagnostique médical, théorème de Bayes}\label{diagnostique-muxe9dical-thuxe9oruxe8me-de-bayes}}
+
+\[
+\color{purple}{p(\theta \ | \ x)} = \dfrac{\color{orangered}{p(x \ | \ \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+\]
+
+\(\color{steelblue}{p(\theta)}\) { la probabilité \emph{a priori} de \(\theta\): tout ce qu'on sait de \(\theta\) avant d'observer les données. Par exemple: \(p(Cancer=+)=.008\) et \(p(Cancer=-)=.992\).}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{prior }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.008}\NormalTok{, }\FloatTok{0.992}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\[
+\color{purple}{p(\theta \vert x)} = \dfrac{\color{orangered}{p(x\vert \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+\]
+
+\(\color{orangered}{p(x\vert \theta)}\) { probabilité conditionnelle des données (\(x\)) sachant le paramètre (\(\theta\)), qu'on appelle aussi la \emph{likelihood} (\emph{ou fonction de vraisemblance}) du paramètre (\(\theta\)).}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{like }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\FloatTok{0.9}\NormalTok{, }\FloatTok{0.1}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\FloatTok{0.07}\NormalTok{, }\FloatTok{0.93}\NormalTok{) ) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ data.frame}
+\FunctionTok{colnames}\NormalTok{(like) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Mam+"}\NormalTok{, }\StringTok{"Mam{-}"}\NormalTok{)}
+\FunctionTok{rownames}\NormalTok{(like) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Cancer+"}\NormalTok{, }\StringTok{"Cancer{-}"}\NormalTok{)}
+\NormalTok{like}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         Mam+ Mam-
+## Cancer+ 0.90 0.10
+## Cancer- 0.07 0.93
+\end{verbatim}
+
+\[
+\color{purple}{p(\theta \vert x)} = \dfrac{\color{orangered}{p(x\vert \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+\]
+
+{ \(p(x)\) la probabilité marginale de \(x\) (sur \(\theta\)). Sert à normaliser la distribution.}
+
+\[\color{green}{p(x)=\sum\limits_{\theta}p(x|\theta)p(\theta)}\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(marginal }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(like}\SpecialCharTok{$}\StringTok{"Mam+"} \SpecialCharTok{*}\NormalTok{ prior) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.07664
+\end{verbatim}
+
+\[
+\color{purple}{p(\theta \vert x)} = \dfrac{\color{orangered}{p(x\vert \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+\]
+
+\(\color{purple}{p(\theta \vert x)}\) { la probabilité a posteriori de \(\theta\) sachant \(x\), c'est à dire ce qu'on sait de \(\theta\) après avoir pris connaissance de \(x\).}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(posterior }\OtherTok{\textless{}{-}}\NormalTok{ (like}\SpecialCharTok{$}\StringTok{"Mam+"} \SpecialCharTok{*}\NormalTok{ prior ) }\SpecialCharTok{/}\NormalTok{ marginal )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.09394572 0.90605428
+\end{verbatim}
+
+\hypertarget{linfuxe9rence-bayuxe9sienne-comme-mise-uxe0-jour-probabiliste-des-connaissances}{%
+\subsubsection{L'inférence bayésienne comme mise à jour probabiliste des connaissances}\label{linfuxe9rence-bayuxe9sienne-comme-mise-uxe0-jour-probabiliste-des-connaissances}}
+
+Avant de passer le mammogramme, la probabilité qu'une femme tirée au sort ait un cancer du sein était de \(p(Cancer)=.008\) (\emph{prior}). Après un résultat positif, cette probabilité est devenue \(p(Cancer|Mam+)=.09\) (\emph{posterior}). Ces probabilités sont des expressions de nos \emph{connaissances}. Après un mammogramme positif, on pense toujours que c'est ``très improbable'' d'avoir un cancer, mais cette probabilité a considérablement évolué relativement à ``avant le test''.
+
+\begin{quote}
+\emph{A Bayesianly justifiable analysis is one that treats known values as observed values of random variables, treats unknown values as unobserved random variables, and calculates the conditional distribution of unknowns given knowns and model specifications using Bayes' theorem} (\href{https://projecteuclid.org/euclid.aos/1176346785}{Rubin, 1984}).
+\end{quote}
+
+\hypertarget{probluxe8me-de-monty-hall}{%
+\subsection{Problème de Monty Hall}\label{probluxe8me-de-monty-hall}}
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.5\linewidth]{figures/monty1} 
+
+}
+
+\caption{A syllogistic penguin... Figure from...}\label{fig:monty1}
+\end{figure}
+
+Que-feriez-vous (intuitivement) ? Analysez ensuite la situation en utilisant le théorème de Bayes.
+
+\hypertarget{monty-hall---proposition-de-solution}{%
+\subsubsection{Monty Hall - proposition de solution}\label{monty-hall---proposition-de-solution}}
+
+Il s'agit d'un problème de probabilités conditionnelles\ldots{} Définissons les événements suivants:
+
+P1: l'animateur ouvre la porte 1
+P2: l'animateur ouvre la porte 2
+P3: l'animateur ouvre la porte 3
+
+V1: la voiture se trouve derrière la porte 1
+V2: la voiture se trouve derrière la porte 2
+V3: la voiture se trouve derrière la porte 3
+
+Si on a choisi la porte n°1 et que l'animateur a choisi la porte n°3 (\emph{et qu'il sait où se trouve la voiture}), il s'ensuit que:
+
+\(p(P3|V1)=\dfrac{1}{2}\), \(p(P3|V2)=1\), \(p(P3|V3)=0\)
+
+On sait que \(p(V3|P3)=0\), on veut connaître \(p(V1|P3)\) et \(p(V2|P3)\) afin de pouvoir choisir. Résolution par le théorème de Bayes.
+
+\(p(V1|P3)=\dfrac{p(P3|V1) \times p(V1)}{p(P3)}=\dfrac{\dfrac{1}{2} \times \dfrac{1}{3}}{\dfrac{1}{2}}=\dfrac{1}{3}\)
+
+\(p(V2|P3)=\dfrac{p(P3|V2) \times p(V2)}{p(P3)}=\dfrac{1 \times \dfrac{1}{3}}{\dfrac{1}{2}}=\dfrac{2}{3}\)
+
+\begin{figure}[!htb]
+
+{\centering \includegraphics[width=0.5\linewidth]{figures/monty2} 
+
+}
+
+\caption{A syllogistic penguin... Figure from...}\label{fig:monty2}
+\end{figure}
+
+Nos intuitions probabilistes sont, dans la grande majorité des cas, très mauvaises. Au lieu de compter sur elles, il est plus sage de se reposer sur des règles logiques (\emph{modus ponens} et \emph{modus tollens}) et probabilistes simples (règle du produit, règle de la somme, théorème de Bayes), nous assurant de réaliser l'inférence logique la plus juste. Autrement dit, ``\emph{Don't be clever}'' (\protect\hyperlink{ref-mcelreath_statistical_2016}{McElreath, 2016b}).
+
+\hypertarget{appendix-annexes}{%
+\appendix}
+
+
+\hypertarget{glossaire}{%
+\chapter{Glossaire}\label{glossaire}}
+
+\textbf{Affirmation du conséquent} : Raisonnement fallacieux qui consiste à inférer la réalisation d'un antécédent sur la base de la réalisation du conséquent.
+
+\textbf{Facteur de Bayes (Bayes factor)} : Support relatif fourni par un jeu de données pour deux hypothèses alternatives. Si on considère deux hypothèses \(\mathcal{H}_{1}\) et \(\mathcal{H}_{2}\) et des données \(x\), alors le facteur de Bayes est \(p(x \:\vert\:\mathcal{H}_{1}) / p(x \:\vert\:\mathcal{H}_{2})\). Ce dernier peut-être interprété comme un ``facteur de mise à jour'' du rapport des chances a priori (i.e., avant de prendre connaissance des données) vers le rapport des chances a posteriori (i.e., après avoir pris connaissance des données).
+
+\textbf{Négation de l'antécédent} : Raisonnement fallacieux qui consiste à affirmer une négation du conséquent sur la base d'une négation de l'antécédent.
+
+\textbf{Probabilité} : Une valeur numérique comprise entre 0 et 1 respectant les règles du calcul probabiliste (cf.~Chapitre 1).
+
+\textbf{Règle de la somme}: Pour deux évènements \(A\) et \(B\), la règle de la somme nous dit que : \(\Pr(A \cup B) = \Pr(A) + \Pr(B) - \Pr(A \cap B)\).
+
+\textbf{Règle du produit}: Pour deux évènements \(A\) et \(B\), la règle du produit nous dit que : \(\Pr(A, B) = \Pr(B) \times \Pr(A \:\vert\:B) = \Pr(A) \times \Pr(B \:\vert\:A)\).
+
+\textbf{Vraisemblance (likelihood)} : Une mesure du support fourni par les données pour certaines valeurs de paramètres. Après avoir observé des données \(x\) (i.e., lorsque \(x\) est fixe), peut être vu comme la fonction vraisemblance \(\mathcal{L}(\theta \:\vert\:x)\) du paramètre \(\theta\) (i.e., \(p(X = x \:\vert\:\theta)\).
+
+\hypertarget{notations}{%
+\chapter{Notations}\label{notations}}
+
+\hypertarget{uxe9vuxe9nements-et-ensembles}{%
+\section*{Événements et ensembles}\label{uxe9vuxe9nements-et-ensembles}}
+
+\begin{longtable}{@{}p{2cm}@{}p{\dimexpr\textwidth-2cm\relax}@{}}
+
+\nomenclature{$A$ ou $B$}{Les lettres majuscules représentent des \textit{événements}.}
+\nomenclature{$\Pr(A)$}{La probabilité de l'événement $A$.}
+\nomenclature{$\Pr(A \:\vert\:B)$}{La probabilité conditionnelle de l'événement $A$ sachant $B$.}
+\nomenclature{$\binom{n}{k}$}{Coefficient binomial.}
+
+\end{longtable}
+
+\hypertarget{variables-aluxe9atoires}{%
+\section*{Variables aléatoires}\label{variables-aluxe9atoires}}
+
+\begin{longtable}{@{}p{2cm}@{}p{\dimexpr\textwidth-2cm\relax}@{}}
+
+\nomenclature{$X$ ou $Y$}{Les lettres majuscules représentent des variables aléatoires.}
+\nomenclature{$E[X]$}{Espérance de $X$.}
+\nomenclature{$Var[X]$}{Variance de $X$.}
+\nomenclature{$p(x)$}{Fonction de masse / densité de la variable aléatoire $X$.}
+
+\end{longtable}
+
+\hypertarget{lambiguituxe9-de-py-verttheta}{%
+\section*{\texorpdfstring{L'ambiguité de \(p(y \:\vert\:\theta)\)}{L'ambiguité de p(y \textbackslash:\textbackslash vert\textbackslash:\textbackslash theta)}}\label{lambiguituxe9-de-py-verttheta}}
+
+La notation \(p(y \:\vert\:\theta)\) peut faire référence à deux choses selon le contexte : la fonction de vraisemblance et le modèle d'observation. De plus, on trouve de nombreuses notations ambigues en statistique. Essayons de clarifier ci-dessous.
+
+\begin{itemize}
+\tightlist
+\item
+  \(\Pr(Y = y \:\vert\:\Theta = \theta)\) désigne une \textbf{probabilité} (e.g., \texttt{dbinom(x\ =\ 2,\ size\ =\ 10,\ prob\ =\ 0.5)}).
+\item
+  \(p(Y = y \:\vert\:\Theta = \theta)\) désigne une \textbf{densité} de probabilité (e.g., \texttt{dbeta(x\ =\ 0.4,\ shape1\ =\ 2,\ shape2\ =\ 3)}).
+\item
+  \(p(Y = y \:\vert\:\Theta)\) désigne une fonction de vraisemblance (likelihood) discrète ou continue, \(y\) est connu/fixé, \(\Theta\) est une variable aléatoire, la somme (ou l'intégrale) de cette distribution \textbf{n'est pas égale à 1} (e.g., \texttt{dbinom(x\ =\ 2,\ size\ =\ 10,\ prob\ =\ seq(0,\ 1,\ 0.1)\ )}).
+\item
+  \(p(Y \:\vert\:\Theta = \theta)\) désigne une fonction de masse (ou densité) de probabilité (dont la somme ou l'intégrale est égale à 1), qu'on appelle aussi ``modèle d'observation'' (observation model) ou ``distribution d'échantillonnage'' (sampling distribution), \(Y\) est une variable aléatoire, \(\theta\) est connu/fixé (e.g., \texttt{dbinom(x\ =\ 0:10,\ size\ =\ 10,\ prob\ =\ 0.5)}).
+\end{itemize}
+
+\hypertarget{bibliographie}{%
+\chapter*{Bibliographie}\label{bibliographie}}
+\addcontentsline{toc}{chapter}{Bibliographie}
+
+\markboth{Bibliographie}{Bibliographie}
+
+\setlength{\parindent}{-0.5in}
+\setlength{\parskip}{8pt}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-R-rmarkdown}{}}%
+Allaire, J., Xie, Y., McPherson, J., Luraschi, J., Ushey, K., Atkins, A., Wickham, H., Cheng, J., Chang, W., \& Iannone, R. (2020). \emph{Rmarkdown: Dynamic documents for r}. \url{https://CRAN.R-project.org/package=rmarkdown}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-papaja}{}}%
+Aust, F., \& Barth, M. (2020). \emph{Papaja: Prepare reproducible APA journal articles with r markdown}. \url{https://github.com/crsh/papaja}
+
+\leavevmode\vadjust pre{\hypertarget{ref-blitzstein_introduction_2019}{}}%
+Blitzstein, J. K., \& Hwang, J. (2019). \emph{Introduction to probability} (Second edition). Taylor \& Francis.
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-brms}{}}%
+Bürkner, P.-C. (2020). \emph{Brms: Bayesian regression models using 'stan'}. \url{https://CRAN.R-project.org/package=brms}
+
+\leavevmode\vadjust pre{\hypertarget{ref-burnham_multimodel_2004}{}}%
+Burnham, K. P., \& Anderson, D. R. (2004). Multimodel inference: {Understanding} {AIC} and {BIC} in model selection. \emph{Sociological Methods \& Research}, \emph{33}(2), 261--304. \url{https://doi.org/10.1177/0049124104268644}
+
+\leavevmode\vadjust pre{\hypertarget{ref-burnham_model_2002}{}}%
+Burnham, K. P., \& Anderson, D. R. (2002). \emph{Model selection and multimodel inference: A practical information-theoretic approach} (2nd ed). Springer.
+
+\leavevmode\vadjust pre{\hypertarget{ref-campbell_meehlian_1990}{}}%
+Campbell, D. T. (1990). The {Meehlian} {Corroboration}-{Verisimilitude} {Theory} of {Science}. \emph{Psychological Inquiry}, \emph{1}(2), 142--147. \url{https://www.jstor.org/stable/1448769}
+
+\leavevmode\vadjust pre{\hypertarget{ref-carnap_logical_1950}{}}%
+Carnap, R. (1950). \emph{Logical {Foundations} of {Probability}}. Chicago{]}University of Chicago Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-cohen_earth_1994}{}}%
+Cohen, J. (1994). The earth is round (p {\textless{}} .05). \emph{American Psychologist}, \emph{49}(12), 997--1003. \url{https://doi.org/10.1037/0003-066X.49.12.997}
+
+\leavevmode\vadjust pre{\hypertarget{ref-cumming_new_2014}{}}%
+Cumming, G. (2014). The new statistics: {Why} and how. \emph{Psychological Science}, \emph{25}(1), 7--29. \url{https://doi.org/10.1177/0956797613504966}
+
+\leavevmode\vadjust pre{\hypertarget{ref-Cumming2012}{}}%
+Cumming, G. (2012). \emph{Understanding the new statistics: {Effect} sizes, confidence intervals, and meta-analysis.} (New York:).
+
+\leavevmode\vadjust pre{\hypertarget{ref-dekking_modern_2005}{}}%
+Dekking, M. (Ed.). (2005). \emph{A modern introduction to probability and statistics: Understanding why and how}. Springer.
+
+\leavevmode\vadjust pre{\hypertarget{ref-fidler_epistemic_2018}{}}%
+Fidler, F., Thorn, F. S., Barnett, A., Kambouris, S., \& Kruger, A. (2018). The {Epistemic} {Importance} of {Establishing} the {Absence} of an {Effect}: \emph{Advances in Methods and Practices in Psychological Science}. \url{https://doi.org/10.1177/2515245918770407}
+
+\leavevmode\vadjust pre{\hypertarget{ref-gelman_bayesian_2013}{}}%
+Gelman, A., Carlin, J. B., Stern, H., Dunson, D. B., Vehtari, A., \& Rubin, D. B. (2013). \emph{Bayesian data analysis, third edition}. CRC Press, Taylor \& Francis Group.
+
+\leavevmode\vadjust pre{\hypertarget{ref-gelman_data_2006}{}}%
+Gelman, A., \& Hill, J. (2006). \emph{Data {Analysis} {Using} {Regression} and {Multilevel}/{Hierarchical} {Models}.} Cambridge University Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-gelman_philosophy_2013}{}}%
+Gelman, A., \& Shalizi, C. R. (2013). Philosophy and the practice of {Bayesian} statistics: {Philosophy} and the practice of {Bayesian} statistics. \emph{British Journal of Mathematical and Statistical Psychology}, \emph{66}(1), 8--38. \url{https://doi.org/10.1111/j.2044-8317.2011.02037.x}
+
+\leavevmode\vadjust pre{\hypertarget{ref-gigerenzer_superego_1993}{}}%
+Gigerenzer, G. (1993). The superego, the ego, and the id in statistical reasoning. In \emph{A handbook for data analysis in the behavioral sciences: {Methodological} issues} (pp. 311--339). Lawrence Erlbaum Associates, Inc.
+
+\leavevmode\vadjust pre{\hypertarget{ref-sep-probability-interpret}{}}%
+Hájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), \emph{The stanford encyclopedia of philosophy} (Fall 2019). Metaphysics Research Lab, Stanford University. \url{https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hanck_introduction_2018}{}}%
+Hanck, C., Arnold, M., Gerber, A., \& Schmelzer, M. (2018). \emph{Introduction to {Econometrics} with {R}}. \url{https://www.econometrics-with-r.org/}
+
+\leavevmode\vadjust pre{\hypertarget{ref-jaynes_bayesian_1986}{}}%
+Jaynes, E. T. (1986, November). Bayesian {Methods}: {General} {Background}. \emph{Maximum {Entropy} and {Bayesian} {Methods} in {Applied} {Statistics}: {Proceedings} of the {Fourth} {Maximum} {Entropy} {Workshop} {University} of {Calgary}, 1984}. \url{https://doi.org/10.1017/CBO9780511569678.003}
+
+\leavevmode\vadjust pre{\hypertarget{ref-judd_data_2009}{}}%
+Judd, C. M., McClelland, G. H., \& Ryan, C. S. (2009). \emph{Data analysis: {A} model comparison approach, 2nd ed}. Routledge/Taylor \& Francis Group.
+
+\leavevmode\vadjust pre{\hypertarget{ref-keynes_treatise_1921}{}}%
+Keynes, J. M. (1921). \emph{A {Treatise} {On} {Probability}}. Macmillan And Co.,. \url{http://archive.org/details/treatiseonprobab007528mbp}
+
+\leavevmode\vadjust pre{\hypertarget{ref-kolmogorov_foundations_1933}{}}%
+Kolmogorov, A. N. (1933). \emph{Foundations of the theory of probability}. New York, USA: Chelsea Publishing Company.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kruschke_doing_2015}{}}%
+Kruschke, J. K. (2015). \emph{Doing {Bayesian} data analysis: A tutorial with {R}, {JAGS}, and {Stan}} (2nd Edition). Academic Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kruschke_bayesian_2018}{}}%
+Kruschke, J. K., \& Liddell, T. M. (2018a). Bayesian data analysis for newcomers. \emph{Psychonomic Bulletin \& Review}, \emph{25}(1), 155--177. \url{https://doi.org/10.3758/s13423-017-1272-1}
+
+\leavevmode\vadjust pre{\hypertarget{ref-kruschke_bayesian_2018-1}{}}%
+Kruschke, J. K., \& Liddell, T. M. (2018b). The {Bayesian} {New} {Statistics}: {Hypothesis} testing, estimation, meta-analysis, and power analysis from a {Bayesian} perspective. \emph{Psychonomic Bulletin \& Review}, \emph{25}(1), 178--206. \url{https://doi.org/10.3758/s13423-016-1221-4}
+
+\leavevmode\vadjust pre{\hypertarget{ref-lakens_equivalence_2018}{}}%
+Lakens, D., Scheel, A. M., \& Isager, P. M. (2018). Equivalence {Testing} for {Psychological} {Research}: {A} {Tutorial}: \emph{Advances in Methods and Practices in Psychological Science}. \url{https://doi.org/10.1177/2515245918770963}
+
+\leavevmode\vadjust pre{\hypertarget{ref-lindley_philosophy_2001}{}}%
+Lindley, D. V. (2001). The {Philosophy} of {Statistics}. \emph{Journal of the Royal Statistical Society: Series D (The Statistician)}, \emph{49}(3), 293--337. \url{https://doi.org/10.1111/1467-9884.00238}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-rethinking}{}}%
+McElreath, R. (2016a). \emph{Rethinking: Statistical rethinking book package}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-mcelreath_statistical_2016}{}}%
+McElreath, R. (2016b). \emph{Statistical rethinking: A {Bayesian} course with examples in {R} and {Stan}}. CRC Press/Taylor \& Francis Group.
+
+\leavevmode\vadjust pre{\hypertarget{ref-mcelreath_statistical_2020}{}}%
+McElreath, R. (2020). \emph{Statistical rethinking: A {Bayesian} course with examples in {R} and {Stan}} (2nd ed.). Taylor; Francis, CRC Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-meehl_appraising_1990}{}}%
+Meehl, Paul E. (1990a). Appraising and amending theories: {The} strategy of {Lakatosian} defense and two principles that warrant {It}. \emph{Psychological Inquiry}, \emph{1}(2), 108--141. \url{https://doi.org/10.1207/s15327965pli0102_1}
+
+\leavevmode\vadjust pre{\hypertarget{ref-meehl_theory-testing_1967}{}}%
+Meehl, Paul E. (1967). Theory-testing in {Psychology} and {Physics}: {A} methodological paradox. \emph{Philosophy of Science}, \emph{34}(2), 103--115. \url{https://doi.org/10.1086/288135}
+
+\leavevmode\vadjust pre{\hypertarget{ref-meehl_theoretical_1978}{}}%
+Meehl, Paul E. (1978). Theoretical risks and tabular asterisks: {Sir} {Karl}, {Sir} {Ronald}, and the slow progress of soft psychology. \emph{Journal of Consulting and Clinical Psychology}, \emph{46}(4), 806--834. \url{https://doi.org/10.1037/0022-006X.46.4.806}
+
+\leavevmode\vadjust pre{\hypertarget{ref-meehl_what_1986}{}}%
+Meehl, P. E. (1986). What {Social} {Scientists} {Don}'t {Understand}. In D. W. Fiske \& R. A. Shweder (Eds.), \emph{Metatheory in social science: {Pluralisms} and subjectivities} (p. 24). Chicago: University of Chicago Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-meehl_why_1990}{}}%
+Meehl, Paul E. (1990b). Why {Summaries} of {Research} on {Psychological} {Theories} are {Often} {Uninterpretable}. \emph{Psychological Reports}. \url{https://doi.org/10.2466/pr0.1990.66.1.195}
+
+\leavevmode\vadjust pre{\hypertarget{ref-harlow_problem_1997}{}}%
+Meehl, Paul E. (1997). The problem is epistemology, not statistics: {Replace} significance tests by confidence intervals and quantify accuracy of risky numerical predictions. \emph{What If There Were No Significance Tests?}, 393--425. \url{http://citeseerx.ist.psu.edu/viewdoc/citations;jsessionid=72FF987997EFB5F0602B02E1A2E04E40?doi=10.1.1.693.9583}
+
+\leavevmode\vadjust pre{\hypertarget{ref-morey_beyond_2018}{}}%
+Morey, R. D., Homer, S., \& Proulx, T. (2018). Beyond {Statistics}: {Accepting} the {Null} {Hypothesis} in {Mature} {Sciences}: \emph{Advances in Methods and Practices in Psychological Science}. \url{https://doi.org/10.1177/2515245918776023}
+
+\leavevmode\vadjust pre{\hypertarget{ref-noel_psychologie_2015}{}}%
+Noël, Y. (2015). \emph{Psychologie statistique avec {R}}. EDP SCIENCES.
+
+\leavevmode\vadjust pre{\hypertarget{ref-pollard_probability_1987}{}}%
+Pollard, P., \& Richardson, J. T. (1987). On the probability of making {Type} {I} errors. \emph{Psychological Bulletin}, \emph{102}(1), 159--163. \url{https://doi.org/10.1037/0033-2909.102.1.159}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-base}{}}%
+R Core Team. (2019). \emph{R: A language and environment for statistical computing}. R Foundation for Statistical Computing. \url{https://www.R-project.org/}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rogers_using_1993}{}}%
+Rogers, J. L., Howard, K. I., \& Vessey, J. T. (1993). Using significance tests to evaluate equivalence between two experimental groups. \emph{Psychological Bulletin}, \emph{113}(3), 553--565. \url{https://doi.org/10.1037/0033-2909.113.3.553}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rouder_interplay_2016}{}}%
+Rouder, J. N., Morey, R. D., \& Wagenmakers, E.-J. (2016). The {Interplay} between {Subjectivity}, {Statistical} {Practice}, and {Psychological} {Science}. \emph{Collabra}, \emph{2}(1), 6. \url{https://doi.org/10.1525/collabra.28}
+
+\leavevmode\vadjust pre{\hypertarget{ref-szucs_empirical_2017-1}{}}%
+Szucs, D., \& Ioannidis, J. P. A. (2017). Empirical assessment of published effect sizes and power in the recent cognitive neuroscience and psychology literature. \emph{PLOS Biology}, \emph{15}(3), e2000797. \url{https://doi.org/10.1371/journal.pbio.2000797}
+
+\leavevmode\vadjust pre{\hypertarget{ref-talbot_critical_2015}{}}%
+Talbot, M. (2015). \emph{Critical {Reasoning}: {A} {Romp} through the {Foothills} of {Logic} for the {Complete} {Beginner}} (C. Wood, Ed.; 1 edition). CreateSpace Independent Publishing Platform.
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-tidyverse}{}}%
+Wickham, H. (2019). \emph{Tidyverse: Easily install and load the 'tidyverse'}. \url{https://CRAN.R-project.org/package=tidyverse}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-ggplot2}{}}%
+Wickham, H., Chang, W., Henry, L., Pedersen, T. L., Takahashi, K., Wilke, C., Woo, K., \& Yutani, H. (2019). \emph{ggplot2: Create elegant data visualisations using the grammar of graphics}. \url{https://CRAN.R-project.org/package=ggplot2}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-bookdown}{}}%
+Xie, Y. (2020a). \emph{Bookdown: Authoring books and technical documents with r markdown}. \url{https://CRAN.R-project.org/package=bookdown}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R-knitr}{}}%
+Xie, Y. (2020b). \emph{Knitr: A general-purpose package for dynamic report generation in r}. \url{https://CRAN.R-project.org/package=knitr}
+
+\end{CSLReferences}
+
+\end{document}

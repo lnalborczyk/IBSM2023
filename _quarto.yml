@@ -1,0 +1,82 @@
+project:
+  type: website
+  output-dir: docs
+  resources:
+    - "files/"
+    - "notes/"
+
+execute:
+  freeze: auto
+
+bibliography: files/bib/references.bib
+csl: files/bib/apa7.csl
+
+website:
+  title: "IMSB"
+  description: "Introduction à la modélisation statistique bayésienne"
+  favicon: "files/cover.png"
+  
+  page-navigation: true
+  
+  navbar:
+    pinned: true
+    search: true
+    background: "#1c5253"
+    right:
+      - syllabus.qmd
+      - planning.qmd
+      - content/index.qmd
+      - resources.qmd
+      - install.qmd
+      - text: "Notes"
+        href: "notes/index.html"
+        
+  sidebar:
+    - title: "Planning"
+      style: "docked"
+      search: false
+      background: dark
+      contents:
+        - section: "Vue d'ensemble"
+          contents:
+            - content/index.qmd
+        - section: "Planning détaillé"
+          contents:
+            - text: "Introduction à l'inférence bayésienne"
+              file: content/cours01.qmd
+            - text: "Modèle Beta-Binomial"
+              file: content/cours02.qmd
+            - text: "Modèle de régression linéaire, intro brms"
+              file: content/cours03.qmd
+            - text: "Modèle de régression linéaire (suite)"
+              file: content/cours04.qmd
+            - text: "Markov Chain Monte Carlo"
+              file: content/cours05.qmd
+            - text: "Modèle linéaire généralisé"
+              file: content/cours06.qmd
+            - text: "Comparaison de modèles"
+              file: content/cours07.qmd
+            - text: "Modèles multi-niveaux"
+              file: content/cours08.qmd
+            - text: "Modèles multi-niveaux généralisés"
+              file: content/cours09.qmd
+            - text: "Data hackathon"
+              file: content/cours10.qmd
+              
+  page-footer:
+    left: |
+      Content {{< fa brands creative-commons >}} 2023 by [Ladislas Nalborczyk](https://www.barelysignificant.com), adapted from [this course](https://evalf22.classes.andrewheiss.com) by [Andrew Heiss](https://www.andrewheiss.com).<br>
+      All content licensed under a {{< fa brands creative-commons >}}
+      {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-nc >}}
+      [Creative Commons Attribution-NonCommercial 4.0 International license (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/).
+    right: |
+      Made with {{< fa brands r-project >}} and [Quarto](https://quarto.org/)<br>
+      [View the source at {{< fa brands github >}} GitHub](https://github.com/lnalborczyk/IMSB2022)
+
+format:
+  html:
+    theme:
+      - minty
+      - custom.scss
+    toc: true
+    highlight-style: zenburn

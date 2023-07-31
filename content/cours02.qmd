@@ -1,0 +1,30 @@
+---
+title: "Cours n°02"
+subtitle: "Modèle Beta-Binomial"
+date: 2022-10-13
+toc: false
+lang: fr
+---
+
+## En préparation du cours
+
+- Vérifier l'installation des paquets `R` avec `imsb::check_install()`.
+- Relire les cours précédents.
+- (*optionnel*) Lire les chapitres 2 et 3 de {{< fa book >}} *Statistical Rethinking*.
+
+## Slides
+
+Les slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec <kbd>←</kbd> et <kbd>→</kbd>. Si vous tapez <kbd>h</kbd> vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., <kbd>f</kbd> pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.
+
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/cours02.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir les slides en ligne </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/cours02.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Télécharger la version PDF </a> <a class="btn btn-danger" target="_blank" href="../slides/code/cours02.R"><i class="fa-solid fa-code"></i> Télécharger le code </a> </p>
+
+<div class="ratio ratio-16x9"> <iframe src="../slides/html/cours02.html"></iframe> </div>
+
+::: {.callout-tip}
+Voir toutes les commandes de `revealjs` en appuyant sur <kbd>m</kbd> puis <kbd>h</kbd>.
+:::
+
+## Pour aller plus loin
+
+- 3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. <https://www.youtube.com/watch?v=8idr1WZ1A7Q>
+- 3Blue1Brown (Director). (2020, April 12). Why "probability of 0" does not mean "impossible" | Probabilities of probabilities, part 2. <https://www.youtube.com/watch?v=ZA4JkHKZM50>
