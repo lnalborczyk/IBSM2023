@@ -2,7 +2,7 @@
 title: Resources
 sidebar: false
 toc: true
-lang: eng
+lang: en
 ---
 
 You can download the `.bib` file containing all references mentioned during the course by clicking on the button below.
@@ -26,7 +26,7 @@ Translation with `tidyverse` and `brms` (online) :
 
 ## Other books
 
-Some other books I have used to prepare this course.
+Some other books I have used to prepare this course:
 
 - {{< fa book >}} Kruschke, J. K. (2015), *Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan*.
 - {{< fa book >}} Lambert, B. (2018), *A Student's Guide to Bayesian Statistics*.

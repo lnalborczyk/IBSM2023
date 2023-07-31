@@ -11,7 +11,7 @@ bibliography: files/bib/references.bib
 csl: files/bib/apa7.csl
 
 website:
-  title: "IBSM"
+  title: "IBSM2023"
   description: "Introduction to Bayesian statistical modelling"
   favicon: "files/cover.png"
   
@@ -39,26 +39,14 @@ website:
             - content/index.qmd
         - section: "Detailed planning"
           contents:
-            - text: "Introduction à l'inférence bayésienne"
+            - text: "Introduction to Bayesian inference, Beta-Binomial model"
               file: content/cours01.qmd
-            - text: "Modèle Beta-Binomial"
+            - text: "Introduction to brms, linear regression"
               file: content/cours02.qmd
-            - text: "Modèle de régression linéaire, intro brms"
+            - text: "Markov Chain Monte Carlo, generalised linear model"
               file: content/cours03.qmd
-            - text: "Modèle de régression linéaire (suite)"
+            - text: "Multilevel models, cognitive models"
               file: content/cours04.qmd
-            - text: "Markov Chain Monte Carlo"
-              file: content/cours05.qmd
-            - text: "Modèle linéaire généralisé"
-              file: content/cours06.qmd
-            - text: "Comparaison de modèles"
-              file: content/cours07.qmd
-            - text: "Modèles multi-niveaux"
-              file: content/cours08.qmd
-            - text: "Modèles multi-niveaux généralisés"
-              file: content/cours09.qmd
-            - text: "Data hackathon"
-              file: content/cours10.qmd
               
   page-footer:
     left: |

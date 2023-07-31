@@ -7,13 +7,13 @@
 
 ## Objectives
 
-The aim of this course is to introduce you to Bayesian statistical modelling. The concepts and tools that will be introduced throughout the course will be illustrated by concrete data analysis cases. This course is built around the `R` language and the use of the `brms` package, an interface to the `Stan` probabilistic language. It is therefore **essential** to have some basic knowledge of the `R` language.
+The aim of this course is to introduce you to Bayesian statistical modelling. The concepts and tools that will be introduced throughout the course will be illustrated by concrete data analysis cases. This course is built around the `R` language and the use of the `brms` package, an interface to the `Stan` probabilistic language. It is therefore *essential* to have some basic knowledge of the `R` language.
 
 ## Planning
 
 | Course | Calendar |
 |--------|:--------:|
-| Course n°01 : Introduction to Bayesian inference & Beta-Binomial model | TBD |
+| Course n°01 : Introduction to Bayesian inference, Beta-Binomial model | TBD |
 | Course n°02 : Introduction to brms, linear regression | TBD |
 | Course n°03 : Markov Chain Monte Carlo, generalised linear model | TBD |
 | Course n°04 : Multilevel models, cognitive models | TBD |

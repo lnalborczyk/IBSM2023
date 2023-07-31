@@ -1,13 +1,14 @@
 ---
 title: Syllabus
 sidebar: false
+lang: en
 ---
 
 ::: {.grid .course-details .course-details-smaller}
 
 ::: {.g-col-6}
 
-### Enseignant
+### Teacher
 
 - {{< fa user >}} &nbsp; [{{< var instructor.name >}}]({{< var instructor.url >}})
 - {{< fa envelope >}} &nbsp; <a href="mailto:{{< var instructor.email >}}">{{< var instructor.email >}}</a>
@@ -18,7 +19,7 @@ sidebar: false
 
 ::: {.g-col-6}
 
-### Informations pratiques
+### Practical information
 
 - {{< fa calendar >}} &nbsp; {{< var course.days >}}
 - {{< fa calendar-alt >}} &nbsp; {{< var course.dates >}}
@@ -29,28 +30,26 @@ sidebar: false
 
 :::
 
-##  Qu’est-ce que la modélisation statistique bayésienne ?
+## What is Bayesian statistical modeling?
 
-L'approche bayésienne consiste à traiter chaque entité (e.g., variables observées, paramètres du modèle, données manquantes) comme des variables aléatoires caractérisées par des distributions de probabilité. Dans une analyse bayésienne, chaque entité inconnue se voit assignée une distribution a priori qui représente un état de connaissance avant d’observer les données. Une fois les données observées, le théorème de Bayes est utilisé pour mettre à jour la distribution a priori en une distribution a posteriori. La distribution a posteriori est le but d’une analyse bayésienne et peut être résumée par des valeurs ponctuelles ou des intervalles, et interprétée directement dans un cadre probabiliste cohérent.
+The Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing the data. Once the data have been observed, Bayes' theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.
 
-Cette approche se différencie –à la fois philosophiquement et en pratique– de l’approche traditionnelle fréquentiste, qui constitue la majorité des formations proposées. Un des avantages de l’approche bayésienne est qu’elle permet à l’analyste de résoudre des problèmes difficiles voire impossibles à résoudre pour l’approche fréquentiste traditionnelle.
+This approach differs - both philosophically and in practice - from the traditional frequentist approach, which makes up the majority of training courses. One of the advantages of the Bayesian approach is that it enables the analyst to solve problems that are difficult, if not impossible, for the traditional frequentist approach.
 
-Au fil des exemples proposés, nous réaliserons que même dans des situations de modélisation simples, l’approche bayésienne permet un raisonnement probabiliste plus naturel et plus flexible que la machinerie inférentielle de l’approche fréquentiste. La modélisation statistique bayésienne représente une alternative attirante aux approches fréquentistes en ce qu’elle offre un cadre cohérent à la modélisation statistique. L’approche bayésienne permet de construire et de fitter des modèles complexes tout en offrant des conclusions relativement intuitives et qui incorporent toute l’incertitude intrinsèque au processus inférentiel.
+In the course of the proposed examples, we'll realise that even in simple modeling situations, the Bayesian approach enables more natural and flexible probabilistic reasoning than the inferential machinery of the frequentist approach. Bayesian statistical modeling represents an attractive alternative to frequentist approaches in that it offers a coherent framework for statistical modeling. The Bayesian approach makes it possible to build and fit complex models while offering relatively intuitive conclusions that incorporate all the uncertainty intrinsic to the inferential process.
 
-## Objectifs de la formation
+## Training objectives
 
-L’objectif de cette formation est de vous faire découvrir l’approche bayésienne. Les concepts et outils qui seront présentés seront illustrés par des cas concrets d’analyse de données. Cette formation est construite autour du langage `R` et du paquet `brms`, une interface au langage probabiliste `Stan`. À l'issue de cette formation, vous devriez pouvoir construire et fitter des modèles de régressions adaptés à votre problème avec `brms`.
+The aim of this course is to introduce you to the Bayesian approach. The concepts and tools presented will be illustrated by concrete cases of data analysis. The course is built around the `R` language and the `brms` package, an interface to the probabilistic `Stan` language. At the end of this course, you should be able to build and fit regression models adapted to your problem with `brms`.
 
-## Pré-requis
+## Prerequisites
 
-Certains pré-requis sont indispensables pour participer à cette formation :
+Certain prerequisites are essential to take part in this course:
 
-- Être familier avec les concepts de base de la statistique inférentielle (e.g., test d’hypothèse,
-intervalles de confiance, régression linéaire).
+- Familiarity with the basic concepts of inferential statistics (e.g., hypothesis testing, confidence intervals, linear regression).
 
-- Connaissances élémentaires en manipulation de données en `R`. Objets et calculs élémentaires
-en `R`.
+- Basic knowledge of `R` data manipulation. Elementary objects and calculations in `R`.
 
-## Contenu de la formation
+## Training content
 
-Cette formation est composée de dix séances de deux heures durant lesquelles seront dispensées connaissances théoriques et travaux pratiques en `R`, dans l'environnement `RStudio`.
+This course is made up of ten two-hour sessions during which theoretical knowledge and practical work in `R` will be provided, in the `RStudio` environment.

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>IBSM - Syllabus</title>
+<title>IBSM2023 - Syllabus</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -66,7 +66,7 @@ ul.task-list{list-style: none;}
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">IBSM</span>
+    <span class="navbar-title">IBSM2023</span>
   </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
@@ -103,10 +103,10 @@ ul.task-list{list-style: none;}
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#quest-ce-que-la-modélisation-statistique-bayésienne" id="toc-quest-ce-que-la-modélisation-statistique-bayésienne" class="nav-link active" data-scroll-target="#quest-ce-que-la-modélisation-statistique-bayésienne">Qu’est-ce que la modélisation statistique bayésienne ?</a></li>
-  <li><a href="#objectifs-de-la-formation" id="toc-objectifs-de-la-formation" class="nav-link" data-scroll-target="#objectifs-de-la-formation">Objectifs de la formation</a></li>
-  <li><a href="#pré-requis" id="toc-pré-requis" class="nav-link" data-scroll-target="#pré-requis">Pré-requis</a></li>
-  <li><a href="#contenu-de-la-formation" id="toc-contenu-de-la-formation" class="nav-link" data-scroll-target="#contenu-de-la-formation">Contenu de la formation</a></li>
+  <li><a href="#what-is-bayesian-statistical-modeling" id="toc-what-is-bayesian-statistical-modeling" class="nav-link active" data-scroll-target="#what-is-bayesian-statistical-modeling">What is Bayesian statistical modeling?</a></li>
+  <li><a href="#training-objectives" id="toc-training-objectives" class="nav-link" data-scroll-target="#training-objectives">Training objectives</a></li>
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#training-content" id="toc-training-content" class="nav-link" data-scroll-target="#training-content">Training content</a></li>
   </ul>
 </nav>
     </div>
@@ -130,46 +130,46 @@ ul.task-list{list-style: none;}
 </header>
 
 <div class="grid course-details course-details-smaller">
-<section id="enseignant" class="level3 g-col-6">
-<h3 class="anchored" data-anchor-id="enseignant">Enseignant</h3>
+<section id="teacher" class="level3 g-col-6">
+<h3 class="anchored" data-anchor-id="teacher">Teacher</h3>
 <ul>
-<li><i class="fa-solid fa-user" aria-hidden="true"></i> &nbsp; <a href="https://www.barelysignificant.com">Ladislas Nalborczyk</a></li>
-<li><i class="fa-solid fa-envelope" aria-hidden="true"></i> &nbsp; <a href="mailto:ladislas.nalborczyk@univ-amu.fr">ladislas.nalborczyk@univ-amu.fr</a></li>
+<li><i class="fa-solid fa-user" aria-hidden="true"></i> &nbsp; <a href="https://lnalborczyk.github.io">Ladislas Nalborczyk</a></li>
+<li><i class="fa-solid fa-envelope" aria-hidden="true"></i> &nbsp; <a href="mailto:ladislas.nalborczyk@gmail.com">ladislas.nalborczyk@gmail.com</a></li>
 <li><i class="fa-brands fa-twitter" aria-hidden="true"></i> &nbsp; <a href="https://www.twitter.com/lnalborczyk">lnalborczyk</a></li>
 <li><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> &nbsp; <a href="https://calendly.com/ladislas-nalborczyk">Prendre un RDV</a></li>
 </ul>
 </section>
-<section id="informations-pratiques" class="level3 g-col-6">
-<h3 class="anchored" data-anchor-id="informations-pratiques">Informations pratiques</h3>
+<section id="practical-information" class="level3 g-col-6">
+<h3 class="anchored" data-anchor-id="practical-information">Practical information</h3>
 <ul>
-<li><i class="fa-solid fa-calendar" aria-hidden="true"></i> &nbsp; Mardi et Jeudi</li>
-<li><i class="fa-solid fa-calendar-alt" aria-hidden="true"></i> &nbsp; 10 octobre - 17 novembre 2022</li>
+<li><i class="fa-solid fa-calendar" aria-hidden="true"></i> &nbsp; Thursday and Friday</li>
+<li><i class="fa-solid fa-calendar-alt" aria-hidden="true"></i> &nbsp; November 30, 2023 - December 1, 2023</li>
 <li><i class="fa-solid fa-clock" aria-hidden="true"></i> &nbsp; 14h-16h</li>
-<li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> &nbsp; Zoom</li>
+<li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> &nbsp; TBD</li>
 </ul>
 </section>
 </div>
-<section id="quest-ce-que-la-modélisation-statistique-bayésienne" class="level2">
-<h2 class="anchored" data-anchor-id="quest-ce-que-la-modélisation-statistique-bayésienne">Qu’est-ce que la modélisation statistique bayésienne ?</h2>
-<p>L’approche bayésienne consiste à traiter chaque entité (e.g., variables observées, paramètres du modèle, données manquantes) comme des variables aléatoires caractérisées par des distributions de probabilité. Dans une analyse bayésienne, chaque entité inconnue se voit assignée une distribution a priori qui représente un état de connaissance avant d’observer les données. Une fois les données observées, le théorème de Bayes est utilisé pour mettre à jour la distribution a priori en une distribution a posteriori. La distribution a posteriori est le but d’une analyse bayésienne et peut être résumée par des valeurs ponctuelles ou des intervalles, et interprétée directement dans un cadre probabiliste cohérent.</p>
-<p>Cette approche se différencie –à la fois philosophiquement et en pratique– de l’approche traditionnelle fréquentiste, qui constitue la majorité des formations proposées. Un des avantages de l’approche bayésienne est qu’elle permet à l’analyste de résoudre des problèmes difficiles voire impossibles à résoudre pour l’approche fréquentiste traditionnelle.</p>
-<p>Au fil des exemples proposés, nous réaliserons que même dans des situations de modélisation simples, l’approche bayésienne permet un raisonnement probabiliste plus naturel et plus flexible que la machinerie inférentielle de l’approche fréquentiste. La modélisation statistique bayésienne représente une alternative attirante aux approches fréquentistes en ce qu’elle offre un cadre cohérent à la modélisation statistique. L’approche bayésienne permet de construire et de fitter des modèles complexes tout en offrant des conclusions relativement intuitives et qui incorporent toute l’incertitude intrinsèque au processus inférentiel.</p>
+<section id="what-is-bayesian-statistical-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-bayesian-statistical-modeling">What is Bayesian statistical modeling?</h2>
+<p>The Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing the data. Once the data have been observed, Bayes’ theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.</p>
+<p>This approach differs - both philosophically and in practice - from the traditional frequentist approach, which makes up the majority of training courses. One of the advantages of the Bayesian approach is that it enables the analyst to solve problems that are difficult, if not impossible, for the traditional frequentist approach.</p>
+<p>In the course of the proposed examples, we’ll realise that even in simple modeling situations, the Bayesian approach enables more natural and flexible probabilistic reasoning than the inferential machinery of the frequentist approach. Bayesian statistical modeling represents an attractive alternative to frequentist approaches in that it offers a coherent framework for statistical modeling. The Bayesian approach makes it possible to build and fit complex models while offering relatively intuitive conclusions that incorporate all the uncertainty intrinsic to the inferential process.</p>
 </section>
-<section id="objectifs-de-la-formation" class="level2">
-<h2 class="anchored" data-anchor-id="objectifs-de-la-formation">Objectifs de la formation</h2>
-<p>L’objectif de cette formation est de vous faire découvrir l’approche bayésienne. Les concepts et outils qui seront présentés seront illustrés par des cas concrets d’analyse de données. Cette formation est construite autour du langage <code>R</code> et du paquet <code>brms</code>, une interface au langage probabiliste <code>Stan</code>. À l’issue de cette formation, vous devriez pouvoir construire et fitter des modèles de régressions adaptés à votre problème avec <code>brms</code>.</p>
+<section id="training-objectives" class="level2">
+<h2 class="anchored" data-anchor-id="training-objectives">Training objectives</h2>
+<p>The aim of this course is to introduce you to the Bayesian approach. The concepts and tools presented will be illustrated by concrete cases of data analysis. The course is built around the <code>R</code> language and the <code>brms</code> package, an interface to the probabilistic <code>Stan</code> language. At the end of this course, you should be able to build and fit regression models adapted to your problem with <code>brms</code>.</p>
 </section>
-<section id="pré-requis" class="level2">
-<h2 class="anchored" data-anchor-id="pré-requis">Pré-requis</h2>
-<p>Certains pré-requis sont indispensables pour participer à cette formation :</p>
+<section id="prerequisites" class="level2">
+<h2 class="anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<p>Certain prerequisites are essential to take part in this course:</p>
 <ul>
-<li><p>Être familier avec les concepts de base de la statistique inférentielle (e.g., test d’hypothèse, intervalles de confiance, régression linéaire).</p></li>
-<li><p>Connaissances élémentaires en manipulation de données en <code>R</code>. Objets et calculs élémentaires en <code>R</code>.</p></li>
+<li><p>Familiarity with the basic concepts of inferential statistics (e.g., hypothesis testing, confidence intervals, linear regression).</p></li>
+<li><p>Basic knowledge of <code>R</code> data manipulation. Elementary objects and calculations in <code>R</code>.</p></li>
 </ul>
 </section>
-<section id="contenu-de-la-formation" class="level2">
-<h2 class="anchored" data-anchor-id="contenu-de-la-formation">Contenu de la formation</h2>
-<p>Cette formation est composée de dix séances de deux heures durant lesquelles seront dispensées connaissances théoriques et travaux pratiques en <code>R</code>, dans l’environnement <code>RStudio</code>.</p>
+<section id="training-content" class="level2">
+<h2 class="anchored" data-anchor-id="training-content">Training content</h2>
+<p>This course is made up of ten two-hour sessions during which theoretical knowledge and practical work in <code>R</code> will be provided, in the <code>RStudio</code> environment.</p>
 
 
 </section>

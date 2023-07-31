@@ -2,7 +2,7 @@
   {
     "objectID": "LICENSE.html",
     "href": "LICENSE.html",
-    "title": "IBSM",
+    "title": "IBSM2023",
     "section": "",
     "text": "Copyright (c) 2022 Andrew Heiss and Meng Ye\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
   },
@@ -226,9 +226,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "IBSM",
+    "title": "IBSM2023",
     "section": "",
-    "text": "Enseignant\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@univ-amu.fr\n   lnalborczyk\n   Prendre un RDV\n\n\n\nInformations pratiques\n\n   Mardi et Jeudi\n   14h-16h\n   10 octobre - 17 novembre 2022\n   Zoom\n\n\n\nContact\nLe plus efficace est de me contacter par e-mail, je répond assez rapidement (sous 24-48h)."
+    "text": "Teacher\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Prendre un RDV\n\n\n\nPractical information\n\n   Thursday and Friday\n   14h-16h\n   November 30, 2023 - December 1, 2023\n   TBD\n\n\n\nContact\nThe most efficient way to contact is through e-mail (I’ll answer rapidly)."
   },
   {
     "objectID": "install.html",
@@ -263,42 +263,42 @@
     "href": "planning.html",
     "title": "Planning",
     "section": "",
-    "text": "Cours\nDate\nSujet\nDétails\nSlides\nRethinking\n\n\n\n\n\n01\n11.10.2022\nIntroduction à l’inférence bayésienne\n\n\n1\n\n\n\n02\n13.10.2022\nModèle Beta-Binomial\n\n\n2-3\n\n\n\n03\n18.10.2022\nIntroduction à brms, modèle de régression linéaire\n\n\n4\n\n\n\n04\n20.10.2022\nModèle de régression linéaire (suite)\n\n\n5-6\n\n\n\n05\n25.10.2022\nMarkov Chain Monte Carlo\n\n\n9\n\n\n\n06\n27.10.2022\nModèle linéaire généralisé\n\n\n10-11\n\n\n\n07\n08.11.2022\nComparaison de modèles\n\n\n7\n\n\n\n08\n10.11.2022\nModèles multi-niveaux\n\n\n13\n\n\n\n09\n15.11.2022\nModèles multi-niveaux généralisés\n\n\n14-16\n\n\n\n10\n17.11.2022\nData Hackathon\n\n\n17"
+    "text": "Course\nDate\nTopic\nDetails\nSlides\n\n\n\n\n\n01\n11.10.2022\nIntroduction to Bayesian inference, Beta-Binomial model\n\n\n\n\n\n02\n13.10.2022\nIntroduction to brms, linear regression\n\n\n\n\n\n03\n18.10.2022\nMarkov Chain Monte Carlo, generalised linear model\n\n\n\n\n\n04\n20.10.2022\nMultilevel models, cognitive models"
   },
   {
     "objectID": "syllabus.html",
     "href": "syllabus.html",
     "title": "Syllabus",
     "section": "",
-    "text": "Ladislas Nalborczyk\n   ladislas.nalborczyk@univ-amu.fr\n   lnalborczyk\n   Prendre un RDV\n\n\n\n\n\n   Mardi et Jeudi\n   10 octobre - 17 novembre 2022\n   14h-16h\n   Zoom"
+    "text": "Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Prendre un RDV\n\n\n\n\n\n   Thursday and Friday\n   November 30, 2023 - December 1, 2023\n   14h-16h\n   TBD"
   },
   {
-    "objectID": "syllabus.html#quest-ce-que-la-modélisation-statistique-bayésienne",
-    "href": "syllabus.html#quest-ce-que-la-modélisation-statistique-bayésienne",
+    "objectID": "syllabus.html#what-is-bayesian-statistical-modeling",
+    "href": "syllabus.html#what-is-bayesian-statistical-modeling",
     "title": "Syllabus",
-    "section": "Qu’est-ce que la modélisation statistique bayésienne ?",
-    "text": "Qu’est-ce que la modélisation statistique bayésienne ?\nL’approche bayésienne consiste à traiter chaque entité (e.g., variables observées, paramètres du modèle, données manquantes) comme des variables aléatoires caractérisées par des distributions de probabilité. Dans une analyse bayésienne, chaque entité inconnue se voit assignée une distribution a priori qui représente un état de connaissance avant d’observer les données. Une fois les données observées, le théorème de Bayes est utilisé pour mettre à jour la distribution a priori en une distribution a posteriori. La distribution a posteriori est le but d’une analyse bayésienne et peut être résumée par des valeurs ponctuelles ou des intervalles, et interprétée directement dans un cadre probabiliste cohérent.\nCette approche se différencie –à la fois philosophiquement et en pratique– de l’approche traditionnelle fréquentiste, qui constitue la majorité des formations proposées. Un des avantages de l’approche bayésienne est qu’elle permet à l’analyste de résoudre des problèmes difficiles voire impossibles à résoudre pour l’approche fréquentiste traditionnelle.\nAu fil des exemples proposés, nous réaliserons que même dans des situations de modélisation simples, l’approche bayésienne permet un raisonnement probabiliste plus naturel et plus flexible que la machinerie inférentielle de l’approche fréquentiste. La modélisation statistique bayésienne représente une alternative attirante aux approches fréquentistes en ce qu’elle offre un cadre cohérent à la modélisation statistique. L’approche bayésienne permet de construire et de fitter des modèles complexes tout en offrant des conclusions relativement intuitives et qui incorporent toute l’incertitude intrinsèque au processus inférentiel."
+    "section": "What is Bayesian statistical modeling?",
+    "text": "What is Bayesian statistical modeling?\nThe Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing the data. Once the data have been observed, Bayes’ theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.\nThis approach differs - both philosophically and in practice - from the traditional frequentist approach, which makes up the majority of training courses. One of the advantages of the Bayesian approach is that it enables the analyst to solve problems that are difficult, if not impossible, for the traditional frequentist approach.\nIn the course of the proposed examples, we’ll realise that even in simple modeling situations, the Bayesian approach enables more natural and flexible probabilistic reasoning than the inferential machinery of the frequentist approach. Bayesian statistical modeling represents an attractive alternative to frequentist approaches in that it offers a coherent framework for statistical modeling. The Bayesian approach makes it possible to build and fit complex models while offering relatively intuitive conclusions that incorporate all the uncertainty intrinsic to the inferential process."
   },
   {
-    "objectID": "syllabus.html#objectifs-de-la-formation",
-    "href": "syllabus.html#objectifs-de-la-formation",
+    "objectID": "syllabus.html#training-objectives",
+    "href": "syllabus.html#training-objectives",
     "title": "Syllabus",
-    "section": "Objectifs de la formation",
-    "text": "Objectifs de la formation\nL’objectif de cette formation est de vous faire découvrir l’approche bayésienne. Les concepts et outils qui seront présentés seront illustrés par des cas concrets d’analyse de données. Cette formation est construite autour du langage R et du paquet brms, une interface au langage probabiliste Stan. À l’issue de cette formation, vous devriez pouvoir construire et fitter des modèles de régressions adaptés à votre problème avec brms."
+    "section": "Training objectives",
+    "text": "Training objectives\nThe aim of this course is to introduce you to the Bayesian approach. The concepts and tools presented will be illustrated by concrete cases of data analysis. The course is built around the R language and the brms package, an interface to the probabilistic Stan language. At the end of this course, you should be able to build and fit regression models adapted to your problem with brms."
   },
   {
-    "objectID": "syllabus.html#pré-requis",
-    "href": "syllabus.html#pré-requis",
+    "objectID": "syllabus.html#prerequisites",
+    "href": "syllabus.html#prerequisites",
     "title": "Syllabus",
-    "section": "Pré-requis",
-    "text": "Pré-requis\nCertains pré-requis sont indispensables pour participer à cette formation :\n\nÊtre familier avec les concepts de base de la statistique inférentielle (e.g., test d’hypothèse, intervalles de confiance, régression linéaire).\nConnaissances élémentaires en manipulation de données en R. Objets et calculs élémentaires en R."
+    "section": "Prerequisites",
+    "text": "Prerequisites\nCertain prerequisites are essential to take part in this course:\n\nFamiliarity with the basic concepts of inferential statistics (e.g., hypothesis testing, confidence intervals, linear regression).\nBasic knowledge of R data manipulation. Elementary objects and calculations in R."
   },
   {
-    "objectID": "syllabus.html#contenu-de-la-formation",
-    "href": "syllabus.html#contenu-de-la-formation",
+    "objectID": "syllabus.html#training-content",
+    "href": "syllabus.html#training-content",
     "title": "Syllabus",
-    "section": "Contenu de la formation",
-    "text": "Contenu de la formation\nCette formation est composée de dix séances de deux heures durant lesquelles seront dispensées connaissances théoriques et travaux pratiques en R, dans l’environnement RStudio."
+    "section": "Training content",
+    "text": "Training content\nThis course is made up of ten two-hour sessions during which theoretical knowledge and practical work in R will be provided, in the RStudio environment."
   },
   {
     "objectID": "resources.html",
@@ -319,6 +319,6 @@
     "href": "resources.html#other-books",
     "title": "Resources",
     "section": "Other books",
-    "text": "Other books\nSome other books I have used to prepare this course.\n\n Kruschke, J. K. (2015), Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan.\n Lambert, B. (2018), A Student’s Guide to Bayesian Statistics.\n Gelman, A., Carlin, J., Stern, H., Dunson, D., Vehtari, A., & Rubin, D. (2013), Bayesian Data Analysis.\n Noël, Y. (2015). Psychologie statistique avec R.\n Nicenboim, B., Schad, D., & Vasishth, S. (2021). An Introduction to Bayesian Data Analysis for Cognitive Science. Available online."
+    "text": "Other books\nSome other books I have used to prepare this course:\n\n Kruschke, J. K. (2015), Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan.\n Lambert, B. (2018), A Student’s Guide to Bayesian Statistics.\n Gelman, A., Carlin, J., Stern, H., Dunson, D., Vehtari, A., & Rubin, D. (2013), Bayesian Data Analysis.\n Noël, Y. (2015). Psychologie statistique avec R.\n Nicenboim, B., Schad, D., & Vasishth, S. (2021). An Introduction to Bayesian Data Analysis for Cognitive Science. Available online."
   }
 ]

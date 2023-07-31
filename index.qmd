@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 ::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
 
-### Enseignant
+### Teacher
 
 - {{< fa user >}} &nbsp; [{{< var instructor.name >}}]({{< var instructor.url >}})
 - {{< fa envelope >}} &nbsp; <a href="mailto:{{< var instructor.email >}}">{{< var instructor.email >}}</a>
@@ -41,7 +41,7 @@ knitr::opts_chunk$set(
 
 ::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
 
-### Informations pratiques
+### Practical information
 
 - {{< fa calendar >}} &nbsp; {{< var course.days >}}
 - {{< fa clock >}} &nbsp; {{< var course.time >}}

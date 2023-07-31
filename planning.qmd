@@ -3,38 +3,32 @@ title: Planning
 sidebar: false
 toc: false
 page-layout: full
-lang: fr
+lang: en
 ---
 
 ::: {.callout-tip}
 
-Vous pouvez télécharger directement le planning dans votre calendrier Outlook, Google Calendar, ou Apple en cliquant sur le lien suivant :
+You can download the schedule directly into your Outlook, Google Calendar or Apple calendar by clicking on the following link:
 
 ::: {.grid}
 
 ::: {.g-col-12 .g-col-md-2}
-<p class="download-btn"><a class="btn btn-danger btn-sm" href="./files/planning.ics" role="button">{{< fa calendar-alt >}} Télécharger </a></p>
+<p class="download-btn"><a class="btn btn-danger btn-sm" href="./files/planning.ics" role="button">{{< fa calendar-alt >}} Download </a></p>
 :::
 
 ::: {.g-col-12 .g-col-md-10}
-<p><input class="form-control" type="text" value="https://www.barelysignificant.com/IMSB2022/files/planning.ics" onclick="this.select()" readonly></p>
+<p><input class="form-control" type="text" value="https://lnalborczyk.github.io/IBSM2023/files/planning.ics" onclick="this.select()" readonly></p>
 :::
 
 :::
 
 :::
 
-| Cours | Date | Sujet | Détails | Slides | Rethinking |
-|:-----:|:----:|-------|:----------:|:-------:|:------:|:----:|
-| 01 | 11.10.2022 | **Introduction à l'inférence bayésienne** | [{{< fa book >}}](./content/cours01.qmd) | [{{< fa display >}}](./slides/html/cours01.html) | 1 |
-| 02 | 13.10.2022 | **Modèle Beta-Binomial** | [{{< fa book >}}](./content/cours02.qmd) | [{{< fa display >}}](./slides/html/cours02.html) | 2-3 |
-| 03 | 18.10.2022 | **Introduction à brms, modèle de régression linéaire** | [{{< fa book >}}](./content/cours03.qmd) | [{{< fa display >}}](./slides/html/cours03.html) | 4 |
-| 04 | 20.10.2022 | **Modèle de régression linéaire (suite)** | [{{< fa book >}}](./content/cours04.qmd) | [{{< fa display >}}](./slides/html/cours04.html) | 5-6 |
-| 05 | 25.10.2022 | **Markov Chain Monte Carlo** | [{{< fa book >}}](./content/cours05.qmd) | [{{< fa display >}}](./slides/html/cours05.html) | 9 |
-| 06 | 27.10.2022 | **Modèle linéaire généralisé** | [{{< fa book >}}](./content/cours06.qmd) | [{{< fa display >}}](./slides/html/cours06.html) | 10-11 |
-| 07 | 08.11.2022 | **Comparaison de modèles** | [{{< fa book >}}](./content/cours07.qmd) | [{{< fa display >}}](./slides/html/cours07.html) | 7 |
-| 08 | 10.11.2022 | **Modèles multi-niveaux** | [{{< fa book >}}](./content/cours08.qmd) | [{{< fa display >}}](./slides/html/cours08.html) | 13 |
-| 09 | 15.11.2022 | **Modèles multi-niveaux généralisés** | [{{< fa book >}}](./content/cours09.qmd) | [{{< fa display >}}](./slides/html/cours09.html) | 14-16 |
-| 10 | 17.11.2022 | **Data Hackathon** | [{{< fa book >}}](./content/cours10.qmd) | [{{< fa display >}}](./slides/html/cours10.html) | 17 |
+| Course | Date | Topic | Details | Slides |
+|:-----:|:----:|-------|:----------:|:-------:|:------:|
+| 01 | 11.10.2022 | **Introduction to Bayesian inference, Beta-Binomial model** | [{{< fa book >}}](./content/cours01.qmd) | [{{< fa display >}}](./slides/html/cours01.html) |
+| 02 | 13.10.2022 | **Introduction to brms, linear regression** | [{{< fa book >}}](./content/cours02.qmd) | [{{< fa display >}}](./slides/html/cours02.html) |
+| 03 | 18.10.2022 | **Markov Chain Monte Carlo, generalised linear model** | [{{< fa book >}}](./content/cours03.qmd) | [{{< fa display >}}](./slides/html/cours03.html) |
+| 04 | 20.10.2022 | **Multilevel models, cognitive models** | [{{< fa book >}}](./content/cours04.qmd) | [{{< fa display >}}](./slides/html/cours04.html) |
 
-: {tbl-colwidths="\[10,10,50,10,10,10\]"}
+: {tbl-colwidths="\[10,10,50,10,10\]"}

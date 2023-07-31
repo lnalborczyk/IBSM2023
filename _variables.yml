@@ -3,28 +3,28 @@ author: Ladislas Nalborczyk
 instructor:
   name: Ladislas Nalborczyk
   name_no_title: Ladislas Nalborczyk
-  email: ladislas.nalborczyk@univ-amu.fr
-  url: "https://www.barelysignificant.com"
+  email: ladislas.nalborczyk@gmail.com
+  url: "https://lnalborczyk.github.io"
   twitter: lnalborczyk
   github: lnalborczyk
   contact_policy: >-
-    Le plus efficace est de me contacter par e-mail, je répond assez rapidement (sous 24-48h).
+    The most efficient way to contact is through e-mail (I'll answer rapidly).
   appointment_url: https://calendly.com/ladislas-nalborczyk
 
 course:
-  number: "IMSB2022"
-  semester: "Fin 2022"
-  days: "Mardi et Jeudi"
+  number: "IBSM2023"
+  semester: "Fall 2023"
+  days: "Thursday and Friday"
   time: "14h-16h"
-  location: "Zoom"
-  dates: "10 octobre - 17 novembre 2022"
-  github: "https://www.github.com/lnalborczyk/IMSB2022"
-  url: "https://evalf22.classes.andrewheiss.com"
-  copyright_year: "2022"
+  location: "TBD"
+  dates: "November 30, 2023 - December 1, 2023"
+  github: "https://www.github.com/lnalborczyk/IBSM2023"
+  url: "https://lnalborczyk.github.io/IBSM2023/"
+  copyright_year: "2023"
 
-university:
-  name: Aix-Marseille Univ
-  url: "https://www.univ-amu.fr"
+# university:
+#   name: CEA
+#   url: "https://www.univ-amu.fr"
 
 # school:
 #   name: Andrew Young School of Policy Studies
