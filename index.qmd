@@ -1,11 +1,11 @@
 ---
-title: "Introduction à la modélisation statistique bayésienne"
-subtitle: "Un cours en R et Stan avec brms"
+title: "Introduction to Bayesian statistical modelling"
+subtitle: "A course with R, Stan, and brms"
 fontsize: 1em
 linkcolor: "#1c5253"
-lang: fr
-details: |
-  Formation doctorale proposée sous une double étiquette Collège doctoral / MaiMoSiNE (Maison de la Modélisation et de la Simulation) avec une priorité d’accès aux étudiant.e.s du collège doctoral de l'université Grenoble-Alpes.
+lang: en
+#details: |
+#  Formation doctorale proposée sous une double étiquette Collège doctoral / MaiMoSiNE (Maison de la Modélisation et de #la Simulation) avec une priorité d’accès aux étudiant.e.s du collège doctoral de l'université Grenoble-Alpes.
 sidebar: false
 toc: false
 page-layout: full

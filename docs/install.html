@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.0.38">
@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>IMSB - Installation</title>
+<title>IBSM - Installation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -107,15 +107,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   "type": "overlay",
   "limit": 20,
   "language": {
-    "search-no-results-text": "Pas de résultats",
-    "search-matching-documents-text": "documents trouvés",
-    "search-copy-link-title": "Copier le lien vers la recherche",
-    "search-hide-matches-text": "Cacher les correspondances additionnelles",
-    "search-more-match-text": "correspondance de plus dans ce document",
-    "search-more-matches-text": "correspondances de plus dans ce document",
-    "search-clear-button-title": "Effacer",
-    "search-detached-cancel-button-title": "Annuler",
-    "search-submit-button-title": "Envoyer"
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
   }
 }</script>
 
@@ -129,7 +129,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">IMSB</span>
+    <span class="navbar-title">IBSM</span>
   </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
@@ -146,13 +146,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <a class="nav-link" href="./content/index.html">Contenu</a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./resources.html">Ressources</a>
+    <a class="nav-link" href="./resources.html">Resources</a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./install.html" aria-current="page">Installation</a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./notes/index.html">Notes</a>
   </li>  
 </ul>
               <div id="quarto-search" class="" title="Search"></div>
@@ -166,13 +163,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc">
-    <h2 id="toc-title">Sur cette page</h2>
+    <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#installer-r-et-rstudio" id="toc-installer-r-et-rstudio" class="nav-link active" data-scroll-target="#installer-r-et-rstudio">Installer <code>R</code> et <code>RStudio</code></a></li>
-  <li><a href="#installer-brms-et-rstan" id="toc-installer-brms-et-rstan" class="nav-link" data-scroll-target="#installer-brms-et-rstan">Installer <code>brms</code> et <code>rstan</code></a></li>
-  <li><a href="#installer-imsb" id="toc-installer-imsb" class="nav-link" data-scroll-target="#installer-imsb">Installer <code>imsb</code></a></li>
-  <li><a href="#rappel-concernant-les-pré-requis" id="toc-rappel-concernant-les-pré-requis" class="nav-link" data-scroll-target="#rappel-concernant-les-pré-requis">Rappel concernant les pré-requis</a></li>
+  <li><a href="#installing-r-and-rstudio" id="toc-installing-r-and-rstudio" class="nav-link active" data-scroll-target="#installing-r-and-rstudio">Installing <code>R</code> and <code>RStudio</code></a></li>
+  <li><a href="#installing-brms-and-rstan" id="toc-installing-brms-and-rstan" class="nav-link" data-scroll-target="#installing-brms-and-rstan">Installing <code>brms</code> and <code>rstan</code></a></li>
+  <li><a href="#installing-imsb" id="toc-installing-imsb" class="nav-link" data-scroll-target="#installing-imsb">Installing <code>imsb</code></a></li>
+  <li><a href="#important-reminder-regarding-the-pre-requisites" id="toc-important-reminder-regarding-the-pre-requisites" class="nav-link" data-scroll-target="#important-reminder-regarding-the-pre-requisites">Important reminder regarding the pre-requisites</a></li>
   </ul>
 </nav>
     </div>
@@ -195,45 +192,46 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<section id="installer-r-et-rstudio" class="level2">
-<h2 class="anchored" data-anchor-id="installer-r-et-rstudio">Installer <code>R</code> et <code>RStudio</code></h2>
+<section id="installing-r-and-rstudio" class="level2">
+<h2 class="anchored" data-anchor-id="installing-r-and-rstudio">Installing <code>R</code> and <code>RStudio</code></h2>
 <p>Pour cette formation, vous pourrez utiliser votre propre ordinateur sur lequel vous aurez <a href="https://pbil.univ-lyon1.fr/CRAN/">installé ou mis à jour</a> <code>R</code> (version 4.2.1 pour systèmes Unix et version 4.1.3 pour Windows) ainsi que l’interface utilisateur <code>RStudio</code> : <a href="https://www.rstudio.com/products/rstudio/" class="uri">https://www.rstudio.com/products/rstudio/</a>.</p>
 </section>
-<section id="installer-brms-et-rstan" class="level2">
-<h2 class="anchored" data-anchor-id="installer-brms-et-rstan">Installer <code>brms</code> et <code>rstan</code></h2>
+<section id="installing-brms-and-rstan" class="level2">
+<h2 class="anchored" data-anchor-id="installing-brms-and-rstan">Installing <code>brms</code> and <code>rstan</code></h2>
 <p>Nous utiliserons également <code>Stan</code> via les paquets <code>brms</code> et <code>rstan</code>. Vous trouverez toutes les infos pour installer <code>brms</code> selon votre plateforme ici : <a href="https://learnb4ss.github.io/learnB4SS/articles/install-brms.html" class="uri">https://learnb4ss.github.io/learnB4SS/articles/install-brms.html</a>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 <p>Attention, cette étape peut être assez longue complexe selon votre plateforme (surtout sur Windows), il faudra veiller à ne pas la réaliser au dernier moment et à ce que tout fonctionne au début de la formation.</p>
 </section>
-<section id="installer-imsb" class="level2">
-<h2 class="anchored" data-anchor-id="installer-imsb">Installer <code>imsb</code></h2>
-<p>Le reste des paquets ainsi que les données utilisées dans les exercices, et quelques fonctions utiles, peuvent être installées ensemble sous la forme d’un paquet “compagnon” de la formation, le paquet <code>imsb</code>. Pour l’installer, vous devez d’abord installer le paquet <code>remotes</code> (et <code>tidyverse</code> au passage), puis installer <code>imsb</code> depuis Github.</p>
+<section id="installing-imsb" class="level2">
+<h2 class="anchored" data-anchor-id="installing-imsb">Installing <code>imsb</code></h2>
+<p>Le reste des paquets ainsi que les données utilisées dans les exercices, et quelques fonctions utiles, peuvent être installées ensemble sous la forme d’un paquet “compagnon” de la formation, le paquet <code>imsb</code>. Pour l’installer, vous devez d’abord installer le paquet <code>remotes</code> (et <code>tidyverse</code> au passage), puis installer <code>imsb</code> depuis Github.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="at">pkgs =</span> <span class="fu">c</span>(<span class="st">"remotes"</span>, <span class="st">"tidyverse"</span>) )</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">240</span>) <span class="co"># on laisse un peu plus de temps à R pour installer imsb</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="at">repo =</span> <span class="st">"lnalborczyk/IMSB2022/_imsb"</span>, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">240</span>) <span class="co"># allowing more time to download the package</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="at">repo =</span> <span class="st">"lnalborczyk/IMSB2022/_imsb"</span>, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Au cours de la formation, ce paquet pourra être utilisé pour lire les slides des différents cours (du cours <code>01</code> au cours <code>10</code>) en ligne via la fonction <code>open_slides()</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(imsb)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">open_slides</span>(<span class="dv">01</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">open_slides</span>(<span class="dv">01</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Les jeux de données utilisés dans les différents exercices sont également contenus dans ce paquet. Vous pouvez les importer via la function <code>open_data()</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">open_data</span>(robot)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">open_data</span>(robot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="rappel-concernant-les-pré-requis" class="level2">
-<h2 class="anchored" data-anchor-id="rappel-concernant-les-pré-requis">Rappel concernant les pré-requis</h2>
+<section id="important-reminder-regarding-the-pre-requisites" class="level2">
+<h2 class="anchored" data-anchor-id="important-reminder-regarding-the-pre-requisites">Important reminder regarding the pre-requisites</h2>
 <p>Bien qu’une bonne connaissance de <code>R</code> soit un <strong>pré-requis à l’inscription</strong>, vous trouverez <a href="https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf">ici</a> une courte introduction aux bases du langage, qui seront nécessaires afin de bien comprendre les exemples traités lors de la formation.</p>
 
 
 </section>
 
 
-<div id="quarto-appendix" class="default"><section class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Notes de bas de page</h2>
+<div id="quarto-appendix" class="default"><section class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
 <li id="fn1" role="doc-endnote"><p>En cas de problème, voir aussi : <a href="https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started" class="uri">https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started</a>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Yeah, the <code>imsb</code> acronym comes from the French name of the course I am teaching, hence the loose correspondence with this course’s acronym.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -276,7 +274,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copié");
+    button.setAttribute("title", "Copied!");
     setTimeout(function() {
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');

@@ -3,7 +3,6 @@ project:
   output-dir: docs
   resources:
     - "files/"
-    - "notes/"
 
 execute:
   freeze: auto
@@ -12,8 +11,8 @@ bibliography: files/bib/references.bib
 csl: files/bib/apa7.csl
 
 website:
-  title: "IMSB"
-  description: "Introduction à la modélisation statistique bayésienne"
+  title: "IBSM"
+  description: "Introduction to Bayesian statistical modelling"
   favicon: "files/cover.png"
   
   page-navigation: true
@@ -28,8 +27,6 @@ website:
       - content/index.qmd
       - resources.qmd
       - install.qmd
-      - text: "Notes"
-        href: "notes/index.html"
         
   sidebar:
     - title: "Planning"
@@ -37,10 +34,10 @@ website:
       search: false
       background: dark
       contents:
-        - section: "Vue d'ensemble"
+        - section: "Overview"
           contents:
             - content/index.qmd
-        - section: "Planning détaillé"
+        - section: "Detailed planning"
           contents:
             - text: "Introduction à l'inférence bayésienne"
               file: content/cours01.qmd

@@ -2,7 +2,7 @@
   {
     "objectID": "LICENSE.html",
     "href": "LICENSE.html",
-    "title": "IMSB",
+    "title": "IBSM",
     "section": "",
     "text": "Copyright (c) 2022 Andrew Heiss and Meng Ye\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
   },
@@ -226,7 +226,7 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "IMSB",
+    "title": "IBSM",
     "section": "",
     "text": "Enseignant\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@univ-amu.fr\n   lnalborczyk\n   Prendre un RDV\n\n\n\nInformations pratiques\n\n   Mardi et Jeudi\n   14h-16h\n   10 octobre - 17 novembre 2022\n   Zoom\n\n\n\nContact\nLe plus efficace est de me contacter par e-mail, je répond assez rapidement (sous 24-48h)."
   },
@@ -238,25 +238,25 @@
     "text": "Pour cette formation, vous pourrez utiliser votre propre ordinateur sur lequel vous aurez installé ou mis à jour R (version 4.2.1 pour systèmes Unix et version 4.1.3 pour Windows) ainsi que l’interface utilisateur RStudio : https://www.rstudio.com/products/rstudio/."
   },
   {
-    "objectID": "install.html#installer-brms-et-rstan",
-    "href": "install.html#installer-brms-et-rstan",
+    "objectID": "install.html#installing-brms-and-rstan",
+    "href": "install.html#installing-brms-and-rstan",
     "title": "Installation",
-    "section": "Installer brms et rstan",
-    "text": "Installer brms et rstan\nNous utiliserons également Stan via les paquets brms et rstan. Vous trouverez toutes les infos pour installer brms selon votre plateforme ici : https://learnb4ss.github.io/learnB4SS/articles/install-brms.html.1\nAttention, cette étape peut être assez longue complexe selon votre plateforme (surtout sur Windows), il faudra veiller à ne pas la réaliser au dernier moment et à ce que tout fonctionne au début de la formation."
+    "section": "Installing brms and rstan",
+    "text": "Installing brms and rstan\nNous utiliserons également Stan via les paquets brms et rstan. Vous trouverez toutes les infos pour installer brms selon votre plateforme ici : https://learnb4ss.github.io/learnB4SS/articles/install-brms.html.1\nAttention, cette étape peut être assez longue complexe selon votre plateforme (surtout sur Windows), il faudra veiller à ne pas la réaliser au dernier moment et à ce que tout fonctionne au début de la formation."
   },
   {
-    "objectID": "install.html#installer-imsb",
-    "href": "install.html#installer-imsb",
+    "objectID": "install.html#installing-imsb",
+    "href": "install.html#installing-imsb",
     "title": "Installation",
-    "section": "Installer imsb",
-    "text": "Installer imsb\nLe reste des paquets ainsi que les données utilisées dans les exercices, et quelques fonctions utiles, peuvent être installées ensemble sous la forme d’un paquet “compagnon” de la formation, le paquet imsb. Pour l’installer, vous devez d’abord installer le paquet remotes (et tidyverse au passage), puis installer imsb depuis Github.\n\ninstall.packages(pkgs = c(\"remotes\", \"tidyverse\") )\noptions(timeout = 240) # on laisse un peu plus de temps à R pour installer imsb\nremotes::install_github(repo = \"lnalborczyk/IMSB2022/_imsb\", dependencies = TRUE)\n\nAu cours de la formation, ce paquet pourra être utilisé pour lire les slides des différents cours (du cours 01 au cours 10) en ligne via la fonction open_slides().\n\nlibrary(imsb)\nopen_slides(01)\n\nLes jeux de données utilisés dans les différents exercices sont également contenus dans ce paquet. Vous pouvez les importer via la function open_data().\n\nopen_data(robot)"
+    "section": "Installing imsb",
+    "text": "Installing imsb\nLe reste des paquets ainsi que les données utilisées dans les exercices, et quelques fonctions utiles, peuvent être installées ensemble sous la forme d’un paquet “compagnon” de la formation, le paquet imsb. Pour l’installer, vous devez d’abord installer le paquet remotes (et tidyverse au passage), puis installer imsb depuis Github.2\n\ninstall.packages(pkgs = c(\"remotes\", \"tidyverse\") )\noptions(timeout = 240) # allowing more time to download the package\nremotes::install_github(repo = \"lnalborczyk/IMSB2022/_imsb\", dependencies = TRUE)\n\nAu cours de la formation, ce paquet pourra être utilisé pour lire les slides des différents cours (du cours 01 au cours 10) en ligne via la fonction open_slides().\n\nlibrary(imsb)\nopen_slides(01)\n\nLes jeux de données utilisés dans les différents exercices sont également contenus dans ce paquet. Vous pouvez les importer via la function open_data().\n\nopen_data(robot)"
   },
   {
-    "objectID": "install.html#rappel-concernant-les-pré-requis",
-    "href": "install.html#rappel-concernant-les-pré-requis",
+    "objectID": "install.html#important-reminder-regarding-the-pre-requisites",
+    "href": "install.html#important-reminder-regarding-the-pre-requisites",
     "title": "Installation",
-    "section": "Rappel concernant les pré-requis",
-    "text": "Rappel concernant les pré-requis\nBien qu’une bonne connaissance de R soit un pré-requis à l’inscription, vous trouverez ici une courte introduction aux bases du langage, qui seront nécessaires afin de bien comprendre les exemples traités lors de la formation."
+    "section": "Important reminder regarding the pre-requisites",
+    "text": "Important reminder regarding the pre-requisites\nBien qu’une bonne connaissance de R soit un pré-requis à l’inscription, vous trouverez ici une courte introduction aux bases du langage, qui seront nécessaires afin de bien comprendre les exemples traités lors de la formation."
   },
   {
     "objectID": "planning.html",
@@ -303,22 +303,22 @@
   {
     "objectID": "resources.html",
     "href": "resources.html",
-    "title": "Ressources",
+    "title": "Resources",
     "section": "",
-    "text": "Vous pouvez télécharger le .bib contenant toutes les références citées pendant la formation en cliquant sur le bouton ci-dessous.\nfichier .bib contenant toutes les références"
+    "text": "You can download the .bib file containing all references mentioned during the course by clicking on the button below.\n.bib file containined all mentiond references"
   },
   {
-    "objectID": "resources.html#livre-conseillé-statistical-rethinking",
-    "href": "resources.html#livre-conseillé-statistical-rethinking",
-    "title": "Ressources",
-    "section": "Livre conseillé : Statistical Rethinking",
-    "text": "Livre conseillé : Statistical Rethinking\n\nMcElreath, R. (2020), Statistical Rethinking: A Bayesian Course with Examples in R and Stan. Second Edition. CRC Press.\n\nLiens officiels :\n\n Book page\n R package\n 2022 lecture videos\n 2022 lecture slides and homework and answers\n\nTraduction avec tidyverse et brms (en ligne) :\n\n Kurz, A. S. (2022), Statistical Rethinking with brms, ggplot2, and the tidyverse: Second edition."
+    "objectID": "resources.html#recommended-book-statistical-rethinking",
+    "href": "resources.html#recommended-book-statistical-rethinking",
+    "title": "Resources",
+    "section": "Recommended book: Statistical Rethinking",
+    "text": "Recommended book: Statistical Rethinking\n\nMcElreath, R. (2020), Statistical Rethinking: A Bayesian Course with Examples in R and Stan. Second Edition. CRC Press.\n\nOfficial links:\n\n Book page\n R package\n 2022 lecture videos\n 2022 lecture slides and homework and answers\n\nTranslation with tidyverse and brms (online) :\n\n Kurz, A. S. (2022), Statistical Rethinking with brms, ggplot2, and the tidyverse: Second edition."
   },
   {
-    "objectID": "resources.html#autres-livres",
-    "href": "resources.html#autres-livres",
-    "title": "Ressources",
-    "section": "Autres livres",
-    "text": "Autres livres\nQuelques autres livres sur lesquels je me suis appuyé pour préparer ce cours.\n\n Kruschke, J. K. (2015), Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan.\n Lambert, B. (2018), A Student’s Guide to Bayesian Statistics.\n Gelman, A., Carlin, J., Stern, H., Dunson, D., Vehtari, A., & Rubin, D. (2013), Bayesian Data Analysis.\n Noël, Y. (2015). Psychologie statistique avec R.\n Nicenboim, B., Schad, D., & Vasishth, S. (2021). An Introduction to Bayesian Data Analysis for Cognitive Science. Available online."
+    "objectID": "resources.html#other-books",
+    "href": "resources.html#other-books",
+    "title": "Resources",
+    "section": "Other books",
+    "text": "Other books\nSome other books I have used to prepare this course.\n\n Kruschke, J. K. (2015), Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan.\n Lambert, B. (2018), A Student’s Guide to Bayesian Statistics.\n Gelman, A., Carlin, J., Stern, H., Dunson, D., Vehtari, A., & Rubin, D. (2013), Bayesian Data Analysis.\n Noël, Y. (2015). Psychologie statistique avec R.\n Nicenboim, B., Schad, D., & Vasishth, S. (2021). An Introduction to Bayesian Data Analysis for Cognitive Science. Available online."
   }
 ]
