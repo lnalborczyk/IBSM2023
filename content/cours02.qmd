@@ -1,9 +1,9 @@
 ---
-title: "Cours n°02"
-subtitle: "Modèle Beta-Binomial"
-date: 2022-10-13
+title: "Course n°02"
+subtitle: "Introduction to brms, linear regression"
+date: 2023-11-30
 toc: false
-lang: fr
+lang: en
 ---
 
 ## En préparation du cours

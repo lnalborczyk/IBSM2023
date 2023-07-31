@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.0.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2023-11-30">
 
-<title>IBSM2023 - Cours n°01</title>
+<title>IBSM2023 - Course n°01</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -46,15 +47,15 @@ ul.task-list{list-style: none;}
   "type": "overlay",
   "limit": 20,
   "language": {
-    "search-no-results-text": "Pas de résultats",
-    "search-matching-documents-text": "documents trouvés",
-    "search-copy-link-title": "Copier le lien vers la recherche",
-    "search-hide-matches-text": "Cacher les correspondances additionnelles",
-    "search-more-match-text": "correspondance de plus dans ce document",
-    "search-more-matches-text": "correspondances de plus dans ce document",
-    "search-clear-button-title": "Effacer",
-    "search-detached-cancel-button-title": "Annuler",
-    "search-submit-button-title": "Envoyer"
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
   }
 }</script>
 
@@ -82,7 +83,7 @@ ul.task-list{list-style: none;}
     <a class="nav-link" href="../planning.html">Planning</a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../content/index.html" aria-current="page">Contenu</a>
+    <a class="nav-link active" href="../content/index.html" aria-current="page">Content</a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../resources.html">Resources</a>
@@ -97,7 +98,7 @@ ul.task-list{list-style: none;}
     </nav>
   <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
     <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title">Cours n°01</h1>
+      <h1 class="quarto-secondary-nav-title">Course n°01</h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -120,7 +121,7 @@ ul.task-list{list-style: none;}
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../content/index.html" class="sidebar-item-text sidebar-link">Contenu</a>
+  <a href="../content/index.html" class="sidebar-item-text sidebar-link">Content</a>
   </div>
 </li>
       </ul>
@@ -165,8 +166,8 @@ ul.task-list{list-style: none;}
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block">Cours n°01</h1>
-<p class="subtitle lead">Introduction à l’inférence bayésienne</p>
+<h1 class="title d-none d-lg-block">Course n°01</h1>
+<p class="subtitle lead">Introduction to Bayesian inference, Beta-Binomial model</p>
 </div>
 
 
@@ -177,7 +178,7 @@ ul.task-list{list-style: none;}
     <div>
     <div class="quarto-title-meta-heading">Matériel pour le cours du :</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">11 octobre 2022</p>
+      <p class="date">November 30, 2023</p>
     </div>
   </div>
     
@@ -208,7 +209,7 @@ ul.task-list{list-style: none;}
 <i class="callout-icon"></i>
 </div>
 <div class="callout-caption-container flex-fill">
-Astuce
+Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -267,7 +268,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copié");
+    button.setAttribute("title", "Copied!");
     setTimeout(function() {
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
@@ -327,7 +328,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../content/index.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Contenu</span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Content</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

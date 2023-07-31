@@ -26,9 +26,9 @@ You can download the schedule directly into your Outlook, Google Calendar or App
 
 | Course | Date | Topic | Details | Slides |
 |:-----:|:----:|-------|:----------:|:-------:|:------:|
-| 01 | 11.10.2022 | **Introduction to Bayesian inference, Beta-Binomial model** | [{{< fa book >}}](./content/cours01.qmd) | [{{< fa display >}}](./slides/html/cours01.html) |
-| 02 | 13.10.2022 | **Introduction to brms, linear regression** | [{{< fa book >}}](./content/cours02.qmd) | [{{< fa display >}}](./slides/html/cours02.html) |
-| 03 | 18.10.2022 | **Markov Chain Monte Carlo, generalised linear model** | [{{< fa book >}}](./content/cours03.qmd) | [{{< fa display >}}](./slides/html/cours03.html) |
-| 04 | 20.10.2022 | **Multilevel models, cognitive models** | [{{< fa book >}}](./content/cours04.qmd) | [{{< fa display >}}](./slides/html/cours04.html) |
+| 01 | 30.11.2023 | **Introduction to Bayesian inference, Beta-Binomial model** | [{{< fa book >}}](./content/cours01.qmd) | [{{< fa display >}}](./slides/html/cours01.html) |
+| 02 | 30.11.2023 | **Introduction to brms, linear regression** | [{{< fa book >}}](./content/cours02.qmd) | [{{< fa display >}}](./slides/html/cours02.html) |
+| 03 | 01.12.2023 | **Markov Chain Monte Carlo, generalised linear model** | [{{< fa book >}}](./content/cours03.qmd) | [{{< fa display >}}](./slides/html/cours03.html) |
+| 04 | 01.12.2023 | **Multilevel models, cognitive models** | [{{< fa book >}}](./content/cours04.qmd) | [{{< fa display >}}](./slides/html/cours04.html) |
 
 : {tbl-colwidths="\[10,10,50,10,10\]"}

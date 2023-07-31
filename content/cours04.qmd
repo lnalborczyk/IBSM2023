@@ -1,9 +1,9 @@
 ---
-title: "Cours n°04"
-subtitle: "Modèle de régression linéaire (suite)"
-date: 2022-10-20
+title: "Course n°04"
+subtitle: "Multilevel models, cognitive models"
+date: 2023-12-01
 toc: false
-lang: fr
+lang: en
 ---
 
 ## En préparation du cours

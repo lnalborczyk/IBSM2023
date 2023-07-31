@@ -1,9 +1,9 @@
 ---
-title: "Cours n°01"
-subtitle: "Introduction à l'inférence bayésienne"
-date: 2022-10-11
+title: "Course n°01"
+subtitle: "Introduction to Bayesian inference, Beta-Binomial model"
+date: 2023-11-30
 toc: false
-lang: fr
+lang: en
 ---
 
 ## En préparation du cours

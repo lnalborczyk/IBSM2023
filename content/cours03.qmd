@@ -1,9 +1,9 @@
 ---
-title: "Cours n°03"
-subtitle: "Introduction à brms, modèle de régression linéaire"
-date: 2022-10-18
+title: "Course n°03"
+subtitle: "Markov Chain Monte Carlo, generalised linear model"
+date: 2023-12-01
 toc: false
-lang: fr
+lang: en
 ---
 
 ## En préparation du cours

@@ -7,17 +7,17 @@ lang: en
 
 ## Installing `R` and `RStudio`
 
-Pour cette formation, vous pourrez utiliser votre propre ordinateur sur lequel vous aurez [installé ou mis à jour](https://pbil.univ-lyon1.fr/CRAN/) `R` (version 4.2.1 pour systèmes Unix et version 4.1.3 pour Windows) ainsi que l'interface utilisateur `RStudio` : <https://www.rstudio.com/products/rstudio/>. 
+For this course, you will be using your own computer on which you have [installed or updated](https://pbil.univ-lyon1.fr/CRAN/) `R` (version 4.2.1 for Unix systems and version 4.1.3 for Windows) and the `RStudio` user interface: <https://www.rstudio.com/products/rstudio/>. 
 
 ## Installing `brms` and `rstan`
 
-Nous utiliserons également `Stan` via les paquets `brms` et `rstan`. Vous trouverez toutes les infos pour installer `brms` selon votre plateforme ici : <https://learnb4ss.github.io/learnB4SS/articles/install-brms.html>.^[En cas de problème, voir aussi : <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>.]
+We'll also be using `Stan` via the `brms` and `rstan` packages. You'll find all the info you need to install `brms` on your platform here: <https://learnb4ss.github.io/learnB4SS/articles/install-brms.html>.^ [In case of problems, see also: <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>.]
 
-Attention, cette étape peut être assez longue complexe selon votre plateforme (surtout sur Windows), il faudra veiller à ne pas la réaliser au dernier moment et à ce que tout fonctionne au début de la formation.
+Please note that this step can be quite long and complex, depending on your platform (especially on Windows), so make sure you don't do it at the last minute, and that everything's up and running at the start of the course.
 
 ## Installing `imsb`
 
-Le reste des paquets ainsi que les données utilisées dans les exercices, et quelques fonctions utiles, peuvent être installées ensemble sous la forme d'un paquet "compagnon" de la formation, le paquet `imsb`. Pour l'installer, vous devez d'abord installer le paquet `remotes` (et `tidyverse` au passage), puis installer `imsb` depuis Github.^[Yeah, the `imsb` acronym comes from the French name of the course I am teaching, hence the loose correspondence with this course's acronym.]
+The rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a "companion" package to the training, the `imsb` package. To install it, you first need to install the `remotes` package (and `tidyverse` by the way), then install `imsb` from Github.^[Yeah, the `imsb` acronym comes from the French name of the course I am teaching, hence the loose correspondence with this course's acronym.]
 
 ```{r, eval = FALSE, echo = TRUE}
 install.packages(pkgs = c("remotes", "tidyverse") )
@@ -25,14 +25,14 @@ options(timeout = 240) # allowing more time to download the package
 remotes::install_github(repo = "lnalborczyk/IMSB2022/_imsb", dependencies = TRUE)
 ```
 
-Au cours de la formation, ce paquet pourra être utilisé pour lire les slides des différents cours (du cours `01` au cours `10`) en ligne via la fonction `open_slides()`.
+During the course, this package can be used to read the slides of the various courses (from course `01` to course `04`) online via the `open_slides()` function.
 
 ```{r, eval = FALSE, echo = TRUE}
 library(imsb)
 open_slides(01)
 ```
 
-Les jeux de données utilisés dans les différents exercices sont également contenus dans ce paquet. Vous pouvez les importer via la function `open_data()`.
+The datasets used in the various exercises are also contained in this package. You can import them using the function `open_data()`.
 
 ```{r, eval = FALSE, echo = TRUE}
 open_data(robot)
@@ -40,4 +40,4 @@ open_data(robot)
 
 ## Important reminder regarding the pre-requisites
 
-Bien qu'une bonne connaissance de `R` soit un **pré-requis à l'inscription**, vous trouverez [ici](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf) une courte introduction aux bases du langage, qui seront nécessaires afin de bien comprendre les exemples traités lors de la formation.
+Although a good knowledge of `R` is a **pre-requisite for registration**, you will find [here](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf) a short introduction to the basics of the language, which will be necessary to fully understand the examples covered during the course.
