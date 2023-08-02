@@ -11,98 +11,98 @@
     "href": "content/index.html",
     "title": "Content",
     "section": "",
-    "text": "See the slides online   Download the PDF version   Download the code \n\nLes slides sont aussi affichées sur la page de chaque cours. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez m vous verrez apparaître un ensemble de commandes spécifiques à la lecture des ces slides (e.g., f pour passer en plein écran)."
+    "text": "See the slides online   Download the PDF version   Download the code \n\nFor each course, you can navigate the slides by using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode)."
   },
   {
     "objectID": "content/cours02.html",
     "href": "content/cours02.html",
     "title": "Course n°02",
     "section": "",
-    "text": "Vérifier l’installation des paquets R avec imsb::check_install().\nRelire les cours précédents.\n(optionnel) Lire les chapitres 2 et 3 de  Statistical Rethinking."
+    "text": "Check previous courses.\n(optional) Read chapters 4-6 from  Statistical Rethinking."
   },
   {
     "objectID": "content/cours02.html#slides",
     "href": "content/cours02.html#slides",
     "title": "Course n°02",
     "section": "Slides",
-    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+    "text": "Slides\nSlides for this course are available below. You can navigate these sides using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode). You can also download a PDF version of these slides or the R code associated with these slides by clicking on the buttons below.\n\n Read the slides online   Download the PDF version   Download the R code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nSee all revealjs commands by pressing m then h."
   },
   {
-    "objectID": "content/cours02.html#pour-aller-plus-loin",
-    "href": "content/cours02.html#pour-aller-plus-loin",
+    "objectID": "content/cours02.html#to-go-further",
+    "href": "content/cours02.html#to-go-further",
     "title": "Course n°02",
-    "section": "Pour aller plus loin",
-    "text": "Pour aller plus loin\n\n3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. https://www.youtube.com/watch?v=8idr1WZ1A7Q\n3Blue1Brown (Director). (2020, April 12). Why “probability of 0” does not mean “impossible” | Probabilities of probabilities, part 2. https://www.youtube.com/watch?v=ZA4JkHKZM50"
+    "section": "To go further",
+    "text": "To go further\n\nHeiss, A. (2022). Visualizing the differences between Bayesian posterior predictions, linear predictions, and the expectation of posterior predictions. Blogpost available at https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/.\nMcElreath, R. (2021). Science Before Statistics: Causal Inference. Conference recording available at https://www.youtube.com/watch?v=KNPYUVmY3NM."
   },
   {
     "objectID": "content/cours03.html",
     "href": "content/cours03.html",
     "title": "Course n°03",
     "section": "",
-    "text": "Relire les cours précédents.\n(optionnel) Lire le chapitre 4 de  Statistical Rethinking."
+    "text": "Check previous courses.\n(optional) Read chapters 4-6 from  Statistical Rethinking."
   },
   {
     "objectID": "content/cours03.html#slides",
     "href": "content/cours03.html#slides",
     "title": "Course n°03",
     "section": "Slides",
-    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+    "text": "Slides\nSlides for this course are available below. You can navigate these sides using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode). You can also download a PDF version of these slides or the R code associated with these slides by clicking on the buttons below.\n\n Read the slides online   Download the PDF version   Download the R code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nSee all revealjs commands by pressing m then h."
   },
   {
     "objectID": "content/cours03.html#pour-aller-plus-loin",
     "href": "content/cours03.html#pour-aller-plus-loin",
     "title": "Course n°03",
     "section": "Pour aller plus loin",
-    "text": "Pour aller plus loin\n\nHeiss, A. (2022). Visualizing the differences between Bayesian posterior predictions, linear predictions, and the expectation of posterior predictions. Blogpost available at https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/."
+    "text": "Pour aller plus loin\nTBD"
   },
   {
     "objectID": "content/cours01.html",
     "href": "content/cours01.html",
     "title": "Course n°01",
     "section": "",
-    "text": "Installer les paquets R : voir page installation.\n(optionnel) Lire le premier chapitre de  Statistical Rethinking."
+    "text": "Install R packages: see the install page.\nVerify everything is correctly installed via imsb::check_install().\n(optional) Read chapters 1-3 from  Statistical Rethinking."
   },
   {
     "objectID": "content/cours01.html#slides",
     "href": "content/cours01.html#slides",
     "title": "Course n°01",
     "section": "Slides",
-    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+    "text": "Slides\nSlides for this course are available below. You can navigate these sides using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode). You can also download a PDF version of these slides or the R code associated with these slides by clicking on the buttons below.\n\n Read the slides online   Download the PDF version   Download the R code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nSee all revealjs commands by pressing m then h."
   },
   {
-    "objectID": "content/cours01.html#pour-aller-plus-loin",
-    "href": "content/cours01.html#pour-aller-plus-loin",
+    "objectID": "content/cours01.html#to-go-further",
+    "href": "content/cours01.html#to-go-further",
     "title": "Course n°01",
-    "section": "Pour aller plus loin",
-    "text": "Pour aller plus loin\n\nHájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), The stanford encyclopedia of philosophy (Fall 2019). Metaphysics Research Lab, Stanford University. https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/\n3Blue1Brown (Director). (2019, December 22). Bayes theorem, the geometry of changing beliefs. https://www.youtube.com/watch?v=HZGCoVF3YvM"
+    "section": "To go further",
+    "text": "To go further\n\nHájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), The stanford encyclopedia of philosophy (Fall 2019). Metaphysics Research Lab, Stanford University. https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/\n3Blue1Brown (Director). (2019, December 22). Bayes theorem, the geometry of changing beliefs. https://www.youtube.com/watch?v=HZGCoVF3YvM\n\n3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. https://www.youtube.com/watch?v=8idr1WZ1A7Q\n\n3Blue1Brown (Director). (2020, April 12). Why “probability of 0” does not mean “impossible” | Probabilities of probabilities, part 2. https://www.youtube.com/watch?v=ZA4JkHKZM50"
   },
   {
     "objectID": "content/cours04.html",
     "href": "content/cours04.html",
     "title": "Course n°04",
     "section": "",
-    "text": "Relire les cours précédents.\n(optionnel) Lire les chapitres 5 et 6 de  Statistical Rethinking."
+    "text": "Check previous courses.\n(optional) Read chapters 4-6 from  Statistical Rethinking."
   },
   {
     "objectID": "content/cours04.html#slides",
     "href": "content/cours04.html#slides",
     "title": "Course n°04",
     "section": "Slides",
-    "text": "Slides\nLes slides de ce cours sont disponibles ci-dessous. Vous pouvez naviguer dans ces slides avec ← et →. Si vous tapez h vous verrez apparaître un ensemble de commandes spécifiques à la lecture de ces slides (e.g., f pour passer en plein écran). Vous pouvez aussi télécharger une version PDF des slides ou le code du cours en cliquant sur un des boutons ci-dessous.\n\n Voir les slides en ligne   Télécharger la version PDF   Télécharger le code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nVoir toutes les commandes de revealjs en appuyant sur m puis h."
+    "text": "Slides\nSlides for this course are available below. You can navigate these sides using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode). You can also download a PDF version of these slides or the R code associated with these slides by clicking on the buttons below.\n\n Read the slides online   Download the PDF version   Download the R code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nSee all revealjs commands by pressing m then h."
   },
   {
-    "objectID": "content/cours04.html#pour-aller-plus-loin",
-    "href": "content/cours04.html#pour-aller-plus-loin",
+    "objectID": "content/cours04.html#to-go-further",
+    "href": "content/cours04.html#to-go-further",
     "title": "Course n°04",
-    "section": "Pour aller plus loin",
-    "text": "Pour aller plus loin\n\nMcElreath, R. (2021). Science Before Statistics: Causal Inference. Conference recording available at https://www.youtube.com/watch?v=KNPYUVmY3NM."
+    "section": "To go further",
+    "text": "To go further\nTBD"
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "IBSM2023",
     "section": "",
-    "text": "Teacher\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Setting up a meeting\n\n\n\nPractical information\n\n   November 30 - December 1 (2023)\n   TBD\n\n\n\nContact\nThe most efficient way to contact me is through e-mail (I’ll answer rapidly)."
+    "text": "Teacher\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Set up a meeting\n\n\n\nPractical information\n\n   November 30 - December 1 (2023)\n   TBD\n\n\n\nContact\nThe most efficient way to contact me is through e-mail (I’ll answer rapidly)."
   },
   {
     "objectID": "install.html",
@@ -144,7 +144,7 @@
     "href": "syllabus.html",
     "title": "Syllabus",
     "section": "",
-    "text": "Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Prendre un RDV\n\n\n\n\n\n   14h-16h\n   TBD"
+    "text": "Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Set up a meeting\n\n\n\n\n\n   November 30 - December 1 (2023)\n   TBD"
   },
   {
     "objectID": "syllabus.html#what-is-bayesian-statistical-modeling",
