@@ -11,7 +11,7 @@
     "href": "content/index.html",
     "title": "Content",
     "section": "",
-    "text": "See the slides online   Download the PDF version   Download the code \n\nFor each course, you can navigate the slides by using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode)."
+    "text": "Read the slides online   Download the PDF version   Download the R code \n\nFor each course, you can navigate the slides by using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode)."
   },
   {
     "objectID": "content/cours02.html",
@@ -39,7 +39,7 @@
     "href": "content/cours03.html",
     "title": "Course n°03",
     "section": "",
-    "text": "Check previous courses.\n(optional) Read chapters 4-6 from  Statistical Rethinking."
+    "text": "Check previous courses.\n(optional) Read chapters 5, 10, and 11 from  Statistical Rethinking."
   },
   {
     "objectID": "content/cours03.html#slides",
@@ -49,18 +49,18 @@
     "text": "Slides\nSlides for this course are available below. You can navigate these sides using the ← and → keys. Pressing m will display all commands you can use (e.g., f to switch to full screen mode). You can also download a PDF version of these slides or the R code associated with these slides by clicking on the buttons below.\n\n Read the slides online   Download the PDF version   Download the R code \n\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nSee all revealjs commands by pressing m then h."
   },
   {
-    "objectID": "content/cours03.html#pour-aller-plus-loin",
-    "href": "content/cours03.html#pour-aller-plus-loin",
+    "objectID": "content/cours03.html#to-go-further",
+    "href": "content/cours03.html#to-go-further",
     "title": "Course n°03",
-    "section": "Pour aller plus loin",
-    "text": "Pour aller plus loin\nTBD"
+    "section": "To go further",
+    "text": "To go further\n\nBetancourt, M. (2018). A Conceptual Introduction to Hamiltonian Monte Carlo (arXiv:1701.02434). arXiv. https://arxiv.org/abs/1701.02434\nFeng, C. (2022). Chi-feng/mcmc-demo [JavaScript]. https://github.com/chi-feng/mcmc-demo / https://chi-feng.github.io/mcmc-demo/\nDogucu, A. A. J., Miles Q., & Ott, Mine. (2022). Chapter 7 - MCMC under the Hood. In Bayes Rules! An Introduction to Applied Bayesian Modeling. Available online at: https://www.bayesrulesbook.com/chapter-7.html.\nNalborczyk, L. (2018). Using R to make sense of the generalised linear model. Blogpost available at https://www.barelysignificant.com/post/glm/."
   },
   {
     "objectID": "content/cours01.html",
     "href": "content/cours01.html",
     "title": "Course n°01",
     "section": "",
-    "text": "Install R packages: see the install page.\nVerify everything is correctly installed via imsb::check_install().\n(optional) Read chapters 1-3 from  Statistical Rethinking."
+    "text": "Install R packages: see the installation page.\nVerify everything is correctly installed via imsb::check_install().\n(optional) Read chapters 1-3 from  Statistical Rethinking."
   },
   {
     "objectID": "content/cours01.html#slides",
@@ -74,14 +74,14 @@
     "href": "content/cours01.html#to-go-further",
     "title": "Course n°01",
     "section": "To go further",
-    "text": "To go further\n\nHájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), The stanford encyclopedia of philosophy (Fall 2019). Metaphysics Research Lab, Stanford University. https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/\n3Blue1Brown (Director). (2019, December 22). Bayes theorem, the geometry of changing beliefs. https://www.youtube.com/watch?v=HZGCoVF3YvM\n\n3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. https://www.youtube.com/watch?v=8idr1WZ1A7Q\n\n3Blue1Brown (Director). (2020, April 12). Why “probability of 0” does not mean “impossible” | Probabilities of probabilities, part 2. https://www.youtube.com/watch?v=ZA4JkHKZM50"
+    "text": "To go further\n\nHájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), The stanford encyclopedia of philosophy (Fall 2019). Metaphysics Research Lab, Stanford University. https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/\n3Blue1Brown (Director). (2019, December 22). Bayes theorem, the geometry of changing beliefs. https://www.youtube.com/watch?v=HZGCoVF3YvM\n3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. https://www.youtube.com/watch?v=8idr1WZ1A7Q\n3Blue1Brown (Director). (2020, April 12). Why “probability of 0” does not mean “impossible” | Probabilities of probabilities, part 2. https://www.youtube.com/watch?v=ZA4JkHKZM50"
   },
   {
     "objectID": "content/cours04.html",
     "href": "content/cours04.html",
     "title": "Course n°04",
     "section": "",
-    "text": "Check previous courses.\n(optional) Read chapters 4-6 from  Statistical Rethinking."
+    "text": "Check previous courses.\n(optional) Read chapters 13-17 from  Statistical Rethinking."
   },
   {
     "objectID": "content/cours04.html#slides",
@@ -95,7 +95,7 @@
     "href": "content/cours04.html#to-go-further",
     "title": "Course n°04",
     "section": "To go further",
-    "text": "To go further\nTBD"
+    "text": "To go further\n\nBürkner, P.-C., & Vuorre, M. (2019). Ordinal Regression Models in Psychology: A Tutorial. Advances in Methods and Practices in Psychological Science, 2(1), 77–101. https://doi.org/10.1177/2515245918823199\nNalborczyk, L., Batailler, C., Lœvenbruck, H., Vilain, A., & Bürkner, P.-C. (2019). An introduction to Bayesian multilevel models using brms: A case study of gender effects on vowel variability in standard indonesian. Journal of Speech Language and Hearing Research, 62(5), 1225–1242. https://doi.org/10.1044/2018_JSLHR-S-18-0006. Preprint: https://psyarxiv.com/guhsa/.\nWinter, B., & Bürkner, P. (2021). Poisson regression for linguists: A tutorial introduction to modelling count data with brms. Language and Linguistics Compass, 15(11). https://doi.org/10.1111/lnc3.12439"
   },
   {
     "objectID": "index.html",
@@ -126,11 +126,11 @@
     "text": "Installing imsb\nThe rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a “companion” package to the training, the imsb package. To install it, you first need to install the remotes package (and tidyverse by the way), then install imsb from Github.1\n\ninstall.packages(pkgs = c(\"remotes\", \"tidyverse\") )\noptions(timeout = 240) # allowing more time to download the package\nremotes::install_github(repo = \"lnalborczyk/IMSB2022/_imsb\", dependencies = TRUE)\n\nDuring the course, this package can be used to read the slides of the various courses (from course 01 to course 04) online via the open_slides() function.\n\nlibrary(imsb)\nopen_slides(01)\n\nThe datasets used in the various exercises are also contained in this package. You can import them using the function open_data().\n\nopen_data(robot)"
   },
   {
-    "objectID": "install.html#important-reminder-regarding-the-pre-requisites",
-    "href": "install.html#important-reminder-regarding-the-pre-requisites",
+    "objectID": "install.html#reminder-regarding-the-pre-requisites",
+    "href": "install.html#reminder-regarding-the-pre-requisites",
     "title": "Installation",
-    "section": "Important reminder regarding the pre-requisites",
-    "text": "Important reminder regarding the pre-requisites\nAlthough a good knowledge of R is a pre-requisite for registration, you will find here a short introduction to the basics of the language, which will be necessary to fully understand the examples covered during the course."
+    "section": "Reminder regarding the pre-requisites",
+    "text": "Reminder regarding the pre-requisites\nAlthough a good knowledge of R is a pre-requisite for registration, you will find here a short introduction to the basics of the language, which will be necessary to fully understand the examples covered during the course."
   },
   {
     "objectID": "planning.html",
@@ -151,28 +151,28 @@
     "href": "syllabus.html#what-is-bayesian-statistical-modeling",
     "title": "Syllabus",
     "section": "What is Bayesian statistical modeling?",
-    "text": "What is Bayesian statistical modeling?\nThe Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing the data. Once the data have been observed, Bayes’ theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.\nThis approach differs - both philosophically and in practice - from the traditional frequentist approach, which makes up the majority of training courses. One of the advantages of the Bayesian approach is that it enables the analyst to solve problems that are difficult, if not impossible, for the traditional frequentist approach.\nIn the course of the proposed examples, we’ll realise that even in simple modeling situations, the Bayesian approach enables more natural and flexible probabilistic reasoning than the inferential machinery of the frequentist approach. Bayesian statistical modeling represents an attractive alternative to frequentist approaches in that it offers a coherent framework for statistical modeling. The Bayesian approach makes it possible to build and fit complex models while offering relatively intuitive conclusions that incorporate all the uncertainty intrinsic to the inferential process."
+    "text": "What is Bayesian statistical modeling?\nThe Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing some data. Once the data have been observed, Bayes’ theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.\nThis approach differs - both philosophically and in practice - from the traditional frequentist approach, which makes up the majority of available courses. One of the advantages of the Bayesian approach is that it enables the analyst to solve problems that are difficult, if not impossible, for the traditional frequentist approach.\nIn the course of the proposed examples, we’ll realise that even in simple modeling situations, the Bayesian approach enables more natural and flexible probabilistic reasoning than the inferential machinery of the frequentist approach. Bayesian statistical modeling represents an attractive alternative to frequentist approaches in that it offers a coherent probabilistic framework for statistical modeling. The Bayesian approach makes it possible to build and fit complex models while offering intuitive conclusions that incorporate all the uncertainty intrinsic to the inferential process."
   },
   {
     "objectID": "syllabus.html#training-objectives",
     "href": "syllabus.html#training-objectives",
     "title": "Syllabus",
     "section": "Training objectives",
-    "text": "Training objectives\nThe aim of this course is to introduce you to the Bayesian approach. The concepts and tools presented will be illustrated by concrete cases of data analysis. The course is built around the R language and the brms package, an interface to the probabilistic Stan language. At the end of this course, you should be able to build and fit regression models adapted to your problem with brms."
+    "text": "Training objectives\nThe aim of this course is to introduce you to the Bayesian approach and the brms package. The concepts and tools presented during the course will be illustrated by concrete cases of data analysis. The course is built around the R language and the brms package, an interface to the probabilistic Stan language. At the end of this course, you should be able to build and fit regression models adapted to your problem with brms."
   },
   {
     "objectID": "syllabus.html#prerequisites",
     "href": "syllabus.html#prerequisites",
     "title": "Syllabus",
     "section": "Prerequisites",
-    "text": "Prerequisites\nCertain prerequisites are essential to take part in this course:\n\nFamiliarity with the basic concepts of inferential statistics (e.g., hypothesis testing, confidence intervals, linear regression).\nBasic knowledge of R data manipulation. Elementary objects and calculations in R."
+    "text": "Prerequisites\nCertain prerequisites are essential to take part in this course:\n\nFamiliarity with the basic concepts of inferential statistics (e.g., hypothesis testing, confidence intervals, linear regression).\nKnowledge of data manipulation in R, elementary objects and calculations in R. Basically, you should already have processed data and fitted a few models in R."
   },
   {
     "objectID": "syllabus.html#training-content",
     "href": "syllabus.html#training-content",
     "title": "Syllabus",
     "section": "Training content",
-    "text": "Training content\nThis course is made up of ten two-hour sessions during which theoretical knowledge and practical work in R will be provided, in the RStudio environment."
+    "text": "Training content\nThis course is made up of 4 two-hour sessions during which theoretical knowledge and practical work in R will be provided, in the RStudio environment."
   },
   {
     "objectID": "resources.html",

@@ -30,15 +30,15 @@ lang: en
 
 ## What is Bayesian statistical modeling?
 
-The Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing the data. Once the data have been observed, Bayes' theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.
+The Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing some data. Once the data have been observed, Bayes' theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.
 
-This approach differs - both philosophically and in practice - from the traditional frequentist approach, which makes up the majority of training courses. One of the advantages of the Bayesian approach is that it enables the analyst to solve problems that are difficult, if not impossible, for the traditional frequentist approach.
+This approach differs - both philosophically and in practice - from the traditional frequentist approach, which makes up the majority of available courses. One of the advantages of the Bayesian approach is that it enables the analyst to solve problems that are difficult, if not impossible, for the traditional frequentist approach.
 
-In the course of the proposed examples, we'll realise that even in simple modeling situations, the Bayesian approach enables more natural and flexible probabilistic reasoning than the inferential machinery of the frequentist approach. Bayesian statistical modeling represents an attractive alternative to frequentist approaches in that it offers a coherent framework for statistical modeling. The Bayesian approach makes it possible to build and fit complex models while offering relatively intuitive conclusions that incorporate all the uncertainty intrinsic to the inferential process.
+In the course of the proposed examples, we'll realise that even in simple modeling situations, the Bayesian approach enables more natural and flexible probabilistic reasoning than the inferential machinery of the frequentist approach. Bayesian statistical modeling represents an attractive alternative to frequentist approaches in that it offers a coherent probabilistic framework for statistical modeling. The Bayesian approach makes it possible to build and fit complex models while offering intuitive conclusions that incorporate all the uncertainty intrinsic to the inferential process.
 
 ## Training objectives
 
-The aim of this course is to introduce you to the Bayesian approach. The concepts and tools presented will be illustrated by concrete cases of data analysis. The course is built around the `R` language and the `brms` package, an interface to the probabilistic `Stan` language. At the end of this course, you should be able to build and fit regression models adapted to your problem with `brms`.
+The aim of this course is to introduce you to the Bayesian approach and the `brms` package. The concepts and tools presented during the course will be illustrated by concrete cases of data analysis. The course is built around the `R` language and the `brms` package, an interface to the probabilistic `Stan` language. At the end of this course, you should be able to build and fit regression models adapted to your problem with `brms`.
 
 ## Prerequisites
 
@@ -46,8 +46,8 @@ Certain prerequisites are essential to take part in this course:
 
 - Familiarity with the basic concepts of inferential statistics (e.g., hypothesis testing, confidence intervals, linear regression).
 
-- Basic knowledge of `R` data manipulation. Elementary objects and calculations in `R`.
+- Knowledge of data manipulation in `R`, elementary objects and calculations in `R`. Basically, you should already have processed data and fitted a few models in `R`.
 
 ## Training content
 
-This course is made up of ten two-hour sessions during which theoretical knowledge and practical work in `R` will be provided, in the `RStudio` environment.
+This course is made up of 4 two-hour sessions during which theoretical knowledge and practical work in `R` will be provided, in the `RStudio` environment.

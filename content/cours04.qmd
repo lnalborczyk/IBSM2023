@@ -9,7 +9,7 @@ lang: en
 ## To be done ahead of this course
 
 - Check previous courses.
-- (*optional*) Read chapters 4-6 from {{< fa book >}} *Statistical Rethinking*.
+- (*optional*) Read chapters 13-17 from {{< fa book >}} *Statistical Rethinking*.
 
 ## Slides
 
@@ -25,4 +25,6 @@ See all `revealjs` commands by pressing <kbd>m</kbd> then <kbd>h</kbd>.
 
 ## To go further
 
-TBD
+- Bürkner, P.-C., & Vuorre, M. (2019). Ordinal Regression Models in Psychology: A Tutorial. *Advances in Methods and Practices in Psychological Science, 2*(1), 77–101. <https://doi.org/10.1177/2515245918823199>
+- Nalborczyk, L., Batailler, C., Lœvenbruck, H., Vilain, A., & Bürkner, P.-C. (2019). An introduction to Bayesian multilevel models using brms: A case study of gender effects on vowel variability in standard indonesian. *Journal of Speech Language and Hearing Research, 62*(5), 1225–1242. <https://doi.org/10.1044/2018_JSLHR-S-18-0006>. Preprint: <https://psyarxiv.com/guhsa/>.
+- Winter, B., & Bürkner, P. (2021). Poisson regression for linguists: A tutorial introduction to modelling count data with brms. *Language and Linguistics Compass, 15*(11). <https://doi.org/10.1111/lnc3.12439>

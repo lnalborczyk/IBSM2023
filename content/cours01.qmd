@@ -8,7 +8,7 @@ lang: en
 
 ## To be done ahead of this course
 
-- Install `R` packages: see the [install](../install.qmd) page.
+- Install `R` packages: see the [installation](../install.qmd) page.
 - Verify everything is correctly installed via `imsb::check_install()`.
 - (*optional*) Read chapters 1-3 from {{< fa book >}} *Statistical Rethinking*.
 
@@ -28,5 +28,5 @@ See all `revealjs` commands by pressing <kbd>m</kbd> then <kbd>h</kbd>.
 
 - Hájek, A. (2019). Interpretations of probability. In E. N. Zalta (Ed.), The stanford encyclopedia of philosophy (Fall 2019). Metaphysics Research Lab, Stanford University. <https://plato.stanford.edu/archives/fall2019/entries/probability-interpret/>
 - 3Blue1Brown (Director). (2019, December 22). Bayes theorem, the geometry of changing beliefs. <https://www.youtube.com/watch?v=HZGCoVF3YvM>
-- - 3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. <https://www.youtube.com/watch?v=8idr1WZ1A7Q>
+- 3Blue1Brown (Director). (2020, March 15). Binomial distributions | Probabilities of probabilities, part 1. <https://www.youtube.com/watch?v=8idr1WZ1A7Q>
 - 3Blue1Brown (Director). (2020, April 12). Why "probability of 0" does not mean "impossible" | Probabilities of probabilities, part 2. <https://www.youtube.com/watch?v=ZA4JkHKZM50>

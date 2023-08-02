@@ -38,6 +38,6 @@ The datasets used in the various exercises are also contained in this package. Y
 open_data(robot)
 ```
 
-## Important reminder regarding the pre-requisites
+## Reminder regarding the pre-requisites
 
 Although a good knowledge of `R` is a **pre-requisite for registration**, you will find [here](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf) a short introduction to the basics of the language, which will be necessary to fully understand the examples covered during the course.

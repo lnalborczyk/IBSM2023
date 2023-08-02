@@ -9,7 +9,7 @@ lang: en
 ## To be done ahead of this course
 
 - Check previous courses.
-- (*optional*) Read chapters 4-6 from {{< fa book >}} *Statistical Rethinking*.
+- (*optional*) Read chapters 5, 10, and 11 from {{< fa book >}} *Statistical Rethinking*.
 
 ## Slides
 
@@ -23,6 +23,9 @@ Slides for this course are available below. You can navigate these sides using t
 See all `revealjs` commands by pressing <kbd>m</kbd> then <kbd>h</kbd>.
 :::
 
-## Pour aller plus loin
+## To go further
 
-TBD
+- Betancourt, M. (2018). A Conceptual Introduction to Hamiltonian Monte Carlo (arXiv:1701.02434). arXiv. <https://arxiv.org/abs/1701.02434>
+- Feng, C. (2022). Chi-feng/mcmc-demo [JavaScript]. <https://github.com/chi-feng/mcmc-demo> / <https://chi-feng.github.io/mcmc-demo/>
+- Dogucu, A. A. J., Miles Q., & Ott, Mine. (2022). Chapter 7 - MCMC under the Hood. In Bayes Rules! An Introduction to Applied Bayesian Modeling. Available online at: <https://www.bayesrulesbook.com/chapter-7.html>.
+- Nalborczyk, L. (2018). Using R to make sense of the generalised linear model. Blogpost available at <https://www.barelysignificant.com/post/glm/>.
