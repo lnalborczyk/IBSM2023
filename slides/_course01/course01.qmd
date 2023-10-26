@@ -1,0 +1,2438 @@
+---
+title: Introduction to Bayesian statistical modelling
+subtitle: A course with R, Stan, and brms
+author: Ladislas Nalborczyk (UNICOG, NeuroSpin, CEA, Gif/Yvette, France)
+from: markdown+emoji
+format:
+  revealjs:
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    incremental: false
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IBSM2023"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "See the code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(countdown)
+library(tidyverse)
+library(MetBrewer)
+library(knitr)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+## Preface :wave: :wave:
+
+This course is largely inspired from the following books:
+
+- McElreath, R. (2016, 2020). *Statistical Rethinking: A Bayesian Course with Examples in R and Stan*. CRC Press.
+
+- Kurz, S. (2019). *Statistical Rethinking with brms, ggplot2, and the tidyverse*. Available [online](https://bookdown.org/ajkurz/Statistical_Rethinking_recoded/).
+
+- Kruschke, J. K. (2015). *Doing Bayesian Data Analysis, Second Edition: A Tutorial with R, JAGS, and Stan*. Academic Press / Elsevier.
+
+- Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A., & Rubin, D. B. (2013). *Bayesian Data Analysis, third edition*. London: CRC Press.
+
+- Lambert, B. (2018). *A Student's Guide to Bayesian Statistics*. SAGE Publications Ltd.
+
+- Noël, Y. (2015). *Psychologie Statistique*. EDP Sciences.
+
+- Nicenboim, B., Schad, D., & Vasishth, S. (2021). *An Introduction to Bayesian Data Analysis for Cognitive Science*. Available [online](https://vasishth.github.io/bayescogsci/book/).
+
+Code and slides are available at the course's website: <https://lnalborczyk.github.io/IBSM2023/>.
+
+## Objectives
+
+General objectives:
+
+::: incremental
+- Understand the fundamental concepts of Bayesian statistical modelling.
+- Be able to understand articles describing Bayesian analyses.
+- Bonus: realise that the Bayesian approach is more intuitive than the frequentist approach.
+:::
+
+. . .
+
+Practical objectives:
+
+- Be able to carry out a complete analysis (i.e., identifying the appropriate model, writing the mathematical model, implementing it in `R`, interpreting and reporting the results) of a simple dataset.
+
+::: notes
+Speaker notes go here...
+:::
+
+## Planning
+
+**Course n°01: Introduction to Bayesian inference, Beta-Binomial model** <br> Course n°02: Introduction to brms, linear regression <br> Course n°03: Markov Chain Monte Carlo, generalised linear model <br> Course n°04: Multilevel models, cognitive models <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## A matter of interpretation
+
+What is the probability...
+
+- Of obtaining an odd number with a fair die?
+
+- Of you learning something cool during this course?
+
+. . .
+
+Do these two questions refer to the same "sort" of probability?
+
+<br>
+
+![](figures/thinking.gif){fig-align="center" width="50%"}
+
+## Classical (or theoretical) interpretation
+
+$$
+\Pr(\text{odd}) = \frac{\text{number of favorable issues}}{\text{total number of possible issues}} = \frac{3}{6} = \frac{1}{2}
+$$
+
+. . .
+
+Problem: this definition only applies to situations in which there is a **finite** number of **equiprobable** potential outcomes...
+
+. . .
+
+Limitation: what is the probability of raining tomorrow?
+
+$$\Pr(\text{rain}) = \frac{\text{rain}}{ \{ \text{rain, not-rain} \} } = \frac{1}{2}$$
+
+## Frequentist (or empirical) interpretation
+
+$$\Pr(x) = \lim_{n_{t} \to \infty}\frac{n_{x}}{n_{t}}$$
+
+Where $n_{x}$ is the number of occurrences of the event $x$ and $n_{t}$ the total number of observations. The **frequentist** interpretation postulates that, in the long-run (i.e., when the number of observations approaches infinity), the relative frequency of an event will converge exactly with what we call "probability".
+
+. . .
+
+Consequence: the concept of probability only applies to collectives, not to single events.
+
+## Frequentist (or empirical) interpretation
+
+```{r frequency, fig.width = 7.5, fig.height = 5, `code-line-numbers` = "|3"}
+library(tidyverse)
+
+sample(x = c(0, 1), size = 500, prob = c(0.5, 0.5), replace = TRUE) %>%
+        data.frame() %>%
+        mutate(x = seq_along(.), y = cummean(.) ) %>%
+        ggplot(aes(x = x, y = y) ) +
+        geom_line(lwd = 1) +
+        geom_hline(yintercept = 0.5, lty = 3) +
+        labs(x = "Trial number", y = "Proportion of heads") +
+        ylim(0, 1)
+```
+
+## Limitations of the frequentist interpretation
+
+Which reference class? *What is the probability that I will live until 80 years old? As a man? As a French person?*
+
+. . .
+
+What about non-repeatable events? *What is the probability of you learning something cool during this course?*
+
+. . .
+
+The resolution issue: How many observations do we need to get a good approximation of the underlying probability? A finite class of events of size $n$ can only produce relative frequencies with precision $1/n$...
+
+## Propensionist interpretation
+
+The frequentist (i.e. long-term) properties of objects (e.g., a coin) are caused by the intrinsic physical properties of the objects. For example, a biased coin will generate a biased relative frequency (and therefore probability) because of its physical properties. For propensionists, probabilities represent these intrinsic characteristics, these **propensities** to generate certain relative frequencies, and not the relative frequencies themselves.
+
+. . .
+
+Consequence: these properties are the properties of individual events... and not of sequences! The propensionist interpretation therefore allows us to talk about the probability of single events.
+
+## Logical interpretation
+
+<br>
+
+<center>There are 10 students in this room</center>
+
+<center>9 wear a <font color = "green">green</font> t-shirt</center>
+
+<center>1 wears a <font color = "red">red</font> t-shirt</center>
+
+<center>One person is drawn at random...</center>
+
+. . .
+
+<hr width = "75%%" size = "2" align = "center" noshade>
+
+<center>Conclusion #1: the student drawn wears a t-shirt ✔</center>
+
+. . .
+
+<hr width = "75%%" size = "1" align = "center" noshade>
+
+<center>Conclusion #2: the student drawn wears a <font color = "green">green</font> t-shirt ✗</center>
+
+. . .
+
+<hr width = "75%%" size = "1" align = "center" noshade>
+
+<center>Conclusion #3: the student selected at random wears a <font color = "red">red</font> t-shirt ✗</center>
+
+## Logical interpretation
+
+The logical interpretation of the concept of probability attempts to generalise logic (true/false) to the probabilistic world. Probability therefore represents the **degree of logical support** that a conclusion can have, relative to a set of premises [@keynes1921; @carnap1971].
+
+. . .
+
+Consequence: all probability is **conditional**.
+
+## Bayesian interpretation
+
+Probability is **a measure of the degree of uncertainty**. An event that is *certain* will therefore have a probability of 1 and an event that is *impossible* will have a probability of 0.
+
+. . .
+
+> So to assign equal probabilities to two events is not in any way an assertion that they must occur equally often in any random experiment \[...\], it is only a formal way of saying I don't know [@jaynes1986].
+
+. . .
+
+To talk about probabilities in this context, we no longer need to refer to the limit of occurrence of an event (frequency).
+
+## Probabilistic interpretations - Summary
+
+-   Classical interpretation (Laplace, Bernouilli, Leibniz)
+-   **Frequentist interpretation** (Venn, Reichenbach, von Mises)
+-   Propensionist interpretation (Popper, Miller)
+-   Logical interpretation (Keynes, Carnap)
+-   **Bayesian interpretation** (Jeffreys, de Finetti, Savage)
+
+[For more details, see the Stanford Encyclopedia of Philosophy.](http://plato.stanford.edu/entries/probability-interpret/)
+
+## Probabilistic interpretations - Summary
+
+<br>
+
+::: columns
+::: {.column width="50%"}
+<center>
+
+**Epistemic probability** <br>
+
+All probabilities are conditional on available information (e.g., premises or data). Probability is used as a means of quantifying uncertainty.<br><br>Logical interpretation, Bayesian interpretation.
+
+</center>
+:::
+
+::: {.column width="50%"}
+<center>
+
+**Physical probability** <br>
+
+Probabilities depend on a state of the world, on physical characteristics, and are independent of available information (or uncertainty)..<br><br>Classical interpretation, frequentist interpretation.
+
+</center>
+:::
+:::
+
+##  {background-image="figures/pill3.jpg"}
+
+## Probability axioms [@kolmogorov1933]
+
+A probability is a numerical value assigned to an event $A$, understood as a possibility belonging to the universe $\Omega$ (the set of all possible outcomes).
+
+. . .
+
+Probabilities have to conform to the following axioms:
+
+-   Non-negativity: $\Pr(A) \geq 0$
+-   Normalisation: $\Pr(\Omega) = 1$
+-   Additivity (for mutually exclusive events): $\Pr(A_{1} \cup A_{2}) = \Pr(A_{1}) + \Pr(A_{2})$
+
+. . .
+
+The last axiom is also known as the **sum rule** and can be generalised to non-mutually exclusive events: $\Pr(A_{1} \cup A_{2}) = \Pr(A_{1}) + \Pr(A_{2}) - \Pr(A_{1} \cap A_{2})$.
+
+## Sum rule and product rule
+
+**Sum rule** (for two mutually exclusive events): $\Pr(A_{1} \cup A_{2}) = \Pr(A_{1}) + \Pr(A_{2}) - \Pr(A_{1} \cap A_{2})$.
+
+Think about the probability of getting an odd number with a fair die. We may also write it as $\Pr(x = 1) + \Pr(x = 3) + \Pr(x = 5) = \frac{3}{6}$.
+
+. . .
+
+**Product rule** (for two independent events): $\Pr(A_{1} \cap A_{2}) = \Pr(A_{1}) \times \Pr(A_{2})$.
+
+Think about the probability of getting two 6s in a row with a fair die. We may also write it as $\Pr(x = 6, y = 6) = \frac{1}{6} \times \frac{1}{6} = \frac{1}{36}$.
+
+. . .
+
+If you understand and remember these two rules, you already know Bayesian statistics!
+
+## Joint probability
+
+Probability that die $x$ is equal to 2 and die $y$ is equal to 3 is: $\Pr(x = 2, y = 3) = \Pr(y = 3, x = 2) = \frac{1}{36}$.
+
+```{r joint-prob-plot}
+#| echo: FALSE
+#| fig-width: 6
+#| fig-height: 6
+crossing(X = 1:6, Y = 1:6) %>%
+    mutate(Z = ifelse(X == 2 & Y == 3, 1, 0) ) %>%
+    ggplot(aes(X, Y, fill = Z) ) +
+    geom_tile(colour = "white", show.legend = FALSE) +
+    scale_x_continuous(expand = c(0, 0), n.breaks = 6) +
+    scale_y_continuous(expand = c(0, 0), n.breaks = 6) +
+    theme_bw(base_size = 16, base_family = "Open Sans") +
+    labs(x = "Die x", y = "Die y")
+```
+
+## From the sum rule to marginalisation
+
+With more than one variable, the sum rule tells us how to ignore one. For instance, the probability that the first die shows 1 is: $\Pr(x = 1) = \Pr(x = 1, y \in \{1, 2, 3, 4, 5, 6\}) = \frac{6}{36}$. This is called **marginal** because you can write the cumulative probability in the **margin** of a joint probability table.
+
+```{r marginalisation-plot1}
+#| echo: FALSE
+#| fig-width: 6
+#| fig-height: 6
+crossing(X = 1:6, Y = 1:6) %>%
+    mutate(Z = ifelse(X == 1, 1, 0) ) %>%
+    ggplot(aes(X, Y, fill = Z) ) +
+    geom_tile(colour = "white", show.legend = FALSE) +
+    scale_x_continuous(expand = c(0, 0), n.breaks = 6) +
+    scale_y_continuous(expand = c(0, 0), n.breaks = 6) +
+    theme_bw(base_size = 16, base_family = "Open Sans") +
+    labs(x = "Die x", y = "Die y")
+```
+
+## From the sum rule to marginalisation
+
+Probability that two dice total 4 is: $\Pr(x + y = 4) = \frac{3}{36}$.
+
+```{r marginalisation-plot2}
+#| echo: FALSE
+#| fig-width: 6
+#| fig-height: 6
+crossing(X = 1:6, Y = 1:6) %>%
+    mutate(Z = ifelse(X + Y == 4, 1, 0) ) %>%
+    ggplot(aes(X, Y, fill = Z) ) +
+    geom_tile(colour = "white", show.legend = FALSE) +
+    scale_x_continuous(expand = c(0, 0), n.breaks = 6) +
+    scale_y_continuous(expand = c(0, 0), n.breaks = 6) +
+    theme_bw(base_size = 16, base_family = "Open Sans") +
+    labs(x = "Die x", y = "Die y")
+```
+
+## Conditional probability
+
+What is the probability that die $x$ equals some value **given that** the total is 4? For instance, the probability of die $x$ being equal to 2: $\Pr(x = 2 \given x + y = 4) = \frac{1}{3}$.
+
+```{r marginalisation-plot3}
+#| echo: FALSE
+#| fig-width: 6
+#| fig-height: 6
+crossing(X = 1:6, Y = 1:6) %>%
+    mutate(
+        Z = case_when(
+            X == 2 & X + Y == 4 ~ 1,
+            X + Y == 4 ~ 0,
+            .default = NA
+            )
+        ) %>%
+    ggplot(aes(X, Y, fill = Z) ) +
+    geom_tile(colour = "white", show.legend = FALSE) +
+    scale_x_continuous(expand = c(0, 0), n.breaks = 6) +
+    scale_y_continuous(expand = c(0, 0), n.breaks = 6) +
+    theme_bw(base_size = 16, base_family = "Open Sans") +
+    labs(x = "Die x", y = "Die y")
+```
+
+## Conditional probability
+
+This conditional probability can be rewritten: $\Pr(x = 2 \given x + y = 4) = \frac{\Pr(x = 2, x + y = 4) }{\Pr(x + y = 4) } = \frac{1/36}{3/36} = \frac{1}{3}$. Note that $\Pr(x \given y)$ **is not necessarily equal** (and is generally not equal) to $\Pr(y \given x)$.
+
+. . .
+
+For instance: the probability of dying knowing that you have been attacked by a shark is not the same as the probability of having been attacked by a shark knowing that you are dead ([confusion of the inverse](https://en.wikipedia.org/wiki/Confusion_of_the_inverse)). In the same way, $p(\text{data} \given \mathcal{H}_{0}) \neq p(\mathcal{H}_{0} \given \text{data})$.
+
+<!--
+
+{{< tweet user=BillGates id=111819660697578700 >}}
+
+<center><iframe border="0" frameborder="0" height="500" width="500" src="https://twitframe.com/show?url=https://twitter.com/BillGates/status/1118196606975787008">
+</iframe></center>
+
+-->
+
+## Deriving Bayes theorem
+
+From Kolmogorov's axioms and the previous definitions of joint, marginal, and conditional probabilities, we derive the **product rule** (for dependent events):
+
+$$p(x,y) = p(x \given y) p(y) = p(y \given x) p(x)$$
+
+. . .
+
+$$p(y \given x) p(x) = p(x \given y) p(y)$$
+
+. . .
+
+Then divide each side by $p(x)$:
+
+$$p(y \given x) = \dfrac{p(x \given y) p(y)}{p(x)}$$
+
+. . .
+
+$$p(x \given y) = \dfrac{p(y \given x) p(x)}{p(y)}$$
+
+. . .
+
+If we replace $x$ by $\text{hypothesis}$ and $y$ by $\text{data}$:
+
+$$
+\Pr(\text{hypothesis} \given \text{data}) = \frac{\Pr(\text{data} \given \text{hypothesis}) \times \Pr(\text{hypothesis})}{\text{sum of products}}
+$$
+
+<!--
+
+## Probability law, discrete case
+
+A probability mass function (*PMF*) is a function that assigns a probability to each value of a random variable. Example of the binomial distribution for an unbiased coin ($\theta = 0.5$), probability of obtaining $N$ faces out of 10 throws.
+
+```{r echo = FALSE, fig.align = "center", dev = "svg", fig.width = 6, fig.height = 4, cache = FALSE}
+coin <- dbinom(x = 0:10, size = 10, prob = 0.5)
+barplot(coin, names.arg = 0:10, border = NA, axes = FALSE, cex.names = 1.5, col = "grey20")
+```
+
+```{r eval = TRUE, echo = TRUE}
+# PMFs sum to 1
+dbinom(x = 0:10, size = 10, prob = 0.5) %>% sum
+```
+
+## Law of probability, continuous case
+
+A probability density function (*PDF*) is a function that allows a probability distribution to be represented in the form of integrals (the equivalent of the PMF for strictly continuous random variables).
+
+```{r echo = FALSE, fig.align = "center", dev = "svg", fig.width = 6, fig.height = 5}
+data.frame(x = c(0, 200) ) %>%
+    ggplot(aes(x) ) +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = 100, sd = 15),
+        lwd = 1.5
+        ) +
+    labs(x = "IQ", y = "Probability density")
+```
+
+```{r echo = TRUE}
+# PDFs integrate to 1
+integrate(dnorm, -Inf, Inf, mean = 100, sd = 15)
+```
+
+## But, what is an integral?
+
+An integral corresponds to the **area** (geometric area) bounded by the graphical representation of a function, *the area under the curve*. A distribution is said to be **improper** if its integral is not equal to a finite number (e.g., $+ \infty$) and **normalised** if its integral is equal to 1.
+
+```{r message = FALSE, echo = FALSE, dev = "svg", fig.align = "center", fig.width = 7, fig.height = 5}
+cord.x <- c(90, seq(90, 96, 0.01), 96) 
+cord.y <- c(0, dnorm(seq(90, 96, 0.01), 100, 15), 0) 
+
+data.frame(x = c(0, 200) ) %>%
+    ggplot(aes(x) ) +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = 100, sd = 15),
+        lwd = 2,
+        color = "black"
+        ) +
+    geom_polygon(
+        data = data.frame(cord.x, cord.y),
+        aes(cord.x, cord.y),
+        color = "black"
+        ) +
+    labs(x = "IQ", y = "Probability density")
+```
+
+## But, what is an integral?
+
+```{r message = FALSE, echo = FALSE, fig.align = "center", dev = "svg", fig.width = 7, fig.height = 5}
+data.frame(x = c(0, 200) ) %>%
+    ggplot(aes(x) ) +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = 100, sd = 15),
+        lwd = 2
+        ) +
+    geom_polygon(
+        data = data.frame(cord.x, cord.y),
+        aes(cord.x, cord.y)
+        ) +
+    labs(x = "QI", y = "Densité de probabilité")
+```
+
+The integral of $f(x)$ over the interval $[90; 96]$ is: $p(90 < x < 96) = \int_{90}^{96} f(x) \ \mathrm{d}x = 0.142$.
+
+```{r eval = TRUE, echo = TRUE, fig.align = "center", fig.width = 8, fig.height = 6}
+integrate(dnorm, 90, 96, mean = 100, sd = 15)
+```
+
+-->
+
+## Exercise - Bag of marbles problem [@mcelreath2020b]
+
+Let's imagine we have a bag containing 4 marbles. These marbles can be either white or blue. We know that there are precisely 4 marbles, but we don't know the number of marbles of each colour.
+
+. . .
+
+However, we do know that there are five possibilities (which we consider to be our **hypotheses**):
+
+<br>
+
+<center>
+
+:white_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle:
+
+</center>
+
+## Exercise - Bag of marbles problem [@mcelreath2020b]
+
+The aim is to determine which combination is the most likely, given certain observations. Let's imagine that we draw three marbles in a row, with replacement, and we obtain the following sequence: :large_blue_circle: :white_circle: :large_blue_circle:.
+
+. . .
+
+This sequence represents our data. What **inference** can we make about the contents of the bag? In other words, what can we say about the probability of each hypothesis?
+
+<br>
+
+<center>
+
+:white_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :white_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :white_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:
+
+:large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle:
+
+</center>
+
+. . .
+
+```{r countown, echo = FALSE, cache = FALSE}
+countdown(
+    minutes = 2,
+    warn_when = 30,
+    left = 0, right = 0,
+    padding = "10px",
+    margin = "5%",
+    font_size = "5em",
+    color_border = "#1c5253",
+    color_text = "#1c5253"
+    )
+```
+
+## Enumerating possibilities
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothesis: :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Data: :large_blue_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+library(rethinking)
+source("./code/forking_data_McElreath.R")
+
+dat <- c(1)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 1
+    )
+```
+
+## Enumerating possibilities
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothesis: :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Data: :large_blue_circle: :white_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+dat <- c(1, 0)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 1
+    )
+```
+
+## Enumerating possibilities
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothesis: :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Data: :large_blue_circle: :white_circle: :large_blue_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+dat <- c(1, 0, 1)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 1
+    )
+```
+
+## Enumerating possibilities
+
+::: columns
+::: {.column width="50%"}
+<center>Hypothesis: :large_blue_circle: :white_circle: :white_circle: :white_circle:</center>
+:::
+
+::: {.column width="50%"}
+<center>Data: :large_blue_circle: :white_circle: :large_blue_circle:</center>
+:::
+:::
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 10, fig.width = 10, fig.align = "center"}
+dat <- c(1, 0, 1)
+arc <- c(0, pi)
+
+garden(
+    arc = arc,
+    possibilities = c(0, 0, 0, 1),
+    data = dat,
+    hedge = 0.05,
+    ring_dist = ring_dist,
+    alpha.fade = 0.3
+    )
+```
+
+## Enumerating possibilities
+
+Under this hypothesis, $3$ paths (out of $4^{3} = 64$) lead to the result obtained. What about the other hypotheses?
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 7, fig.width = 7, fig.align = "center"}
+dat <- c(1, 0, 1)
+ac <- c(1.2, 0.9, 0.6)
+
+arc <- c( pi / 2, pi / 2 + (2 / 3) * pi)
+
+garden(
+    arc = arc,
+    possibilities = c(1, 0, 0, 0),
+    data = dat,
+    hedge = 0.05,
+    adj.cex = ac
+    ) 
+
+arc <- c(arc[2], arc[2] + (2 / 3) * pi)
+
+garden(
+    arc = arc,
+    possibilities = c(1, 1, 0, 0),
+    data = dat,
+    hedge = 0.05,
+    newplot = FALSE,
+    adj.cex = ac
+    )
+
+arc <- c(arc[2], arc[2] + (2 / 3) * pi)
+
+garden(
+    arc = arc,
+    possibilities = c(1, 1, 1, 0),
+    data = dat,
+    hedge = 0.05,
+    newplot = FALSE,
+    adj.cex = ac
+    )
+
+line.polar(c(0, 2), pi / 2, lwd = 1)
+line.polar(c(0, 2), pi / 2 + (2 / 3) * pi, lwd = 1)
+line.polar(c(0, 2), pi / 2 + 2 * (2 / 3) * pi, lwd = 1)
+```
+
+## Comparing hypotheses
+
+Given the data, the most *probable* hypothesis is the one that **maximises the number of possible ways** of obtaining the data obtained.
+
+<br>
+
+|                                    Hypothesis                                    | Way to obtain the data |
+|:----------------------:|:----------------------------------------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |        0 x 4 x 0 = 0         |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         |        1 x 3 x 1 = 3         |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      |        2 x 2 x 2 = 8         |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    |        3 x 1 x 3 = 9         |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |        4 x 0 x 4 = 0         |
+
+## Evidence accumulation
+
+In the previous case, we considered that all the hypotheses were equiprobable a priori (according to the [indifference principle](https://en.wikipedia.org/wiki/Principle_of_indifference)). However, we could have a priori information from our knowledge (of the characteristics of the bags of marbles, for example) or from previous data.
+
+. . .
+
+Let's assume we draw a new marble from the bag. How do we incorporate this new data?
+
+## Evidence accumulation
+
+All we have to do is apply the same strategy as before, and update the last count by multiplying it by the new data. *Yesterday's posterior is today's prior* ([Lindley, 2000](https://rss.onlinelibrary.wiley.com/doi/abs/10.1111/1467-9884.00238)).
+
+<br>
+
+|                                    Hypothesis                                    | Ways to produce :large_blue_circle: | Previous count | New count |
+|:----------------:|:-----------------:|:----------------:|:----------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |                   0                    |        0         |   0 x 0 = 0    |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         |                   1                    |        3         |   3 x 1 = 3    |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      |                   2                    |        8         |   8 x 2 = 16   |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    |                   3                    |        9         |   9 x 3 = 27   |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |                   4                    |        0         |   0 x 4 = 0    |
+
+## Incorporating prior knowledge
+
+Now let's suppose that an employee at the marble factory tells us that blue marbles are rare... This employee tells us that for every bag containing 3 blue marbles, they make two bags containing only two, and three bags containing only one. He also tells us that every bag contains at least one blue marble and one white marble...
+
+<br>
+
+|                                    Hypothesis                                    | Previous count | Factory prior | New count |
+|:----------------:|:-----------------:|:----------------:|:----------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |        0         |      0      |   0 x 0 = 0    |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         |        3         |      3      |   3 x 3 = 9    |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      |        16        |      2      |  16 x 2 = 32   |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    |        27        |      1      |  27 x 1 = 27   |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |        0         |      0      |   0 x 0 = 0    |
+
+## From enumerations to probabilities
+
+The probability of a hypothesis after observing certain data is proportional to the number of ways in which this hypothesis can produce the observed data, multiplied by its a priori probability.
+
+$$
+\Pr(\text{hypothesis} \given \text{data}) \propto \Pr(\text{data} \given \text{hypothesis}) \times \Pr(\text{hypothesis})
+$$
+
+. . .
+
+To convert *plausibilities* to *probabilities*, all we have to do is standardise these plausibilities so that the sum of the plausibilities of all possible hypotheses is equal to $1$.
+
+$$
+\Pr(\text{hypothesis} \given \text{data}) = \frac{\Pr(\text{data} \given \text{hypothesis})\times \Pr(\text{hypothesis})}{\text{sum of products}}
+$$
+
+## From enumerations to probabilities
+
+We define $p$ as the proportion of blue marbles in the bag.
+
+<br>
+
+|                                    Hypothesis                                    | $p$  | Ways to produce the data | Probability |
+|:---------------:|:---------------:|:-------------------:|:---------------:|
+|           :white_circle: :white_circle: :white_circle: :white_circle:           |  0   |                0                 |      0      |
+|        :large_blue_circle: :white_circle: :white_circle: :white_circle:         | 0.25 |                3                 |    0.15     |
+|      :large_blue_circle: :large_blue_circle: :white_circle: :white_circle:      | 0.5  |                8                 |    0.40     |
+|   :large_blue_circle: :large_blue_circle: :large_blue_circle: :white_circle:    | 0.75 |                9                 |    0.45     |
+| :large_blue_circle: :large_blue_circle: :large_blue_circle: :large_blue_circle: |  1   |                0                 |      0      |
+
+<br>
+
+. . .
+
+```{r, echo = TRUE, eval = TRUE}
+ways <- c(0, 3, 8, 9, 0)
+ways / sum(ways)
+```
+
+## Notations
+
+::: incremental
+- $\theta$ is a parameter or vector of parameters (e.g., the proportion of blue marbles).
+- $\color{orangered}{p(x \given \theta)}$ [the conditional probability of the data $x$ given parameter $\theta$ $\color{orangered}{[p(x \given \theta = \theta)]}$.]{style="color:orangered"}
+- $\color{orangered}{p(x \given \theta)}$ [once the value of $x$ is known, it is seen as the likelihood function of the parameter $\theta$. Note that this is not a valid probability distribution $\color{orangered}{[p(x = x \given \theta)]}$.]{style="color:orangered"}
+- $\color{steelblue}{p(\theta)}$ [the a priori probability of $\theta$.]{style="color:steelblue"}
+- $\color{purple}{p(\theta \given x)}$ [the a posteriori probability of $\theta$ (knowing $x$).]{style="color:purple"}
+- $\color{green}{p(x)}$ [the marginal probability of $x$ (on $\theta$) or "marginal likelihood", "integrated likelihood".]{style="color:green"}
+:::
+
+. . .
+
+<br>
+
+$$
+\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{\sum\limits_{\theta}p(x \given \theta)p(\theta)}} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{\int\limits_{\theta}p(x \given \theta)p(\theta)\mathrm{d}x}} \propto \color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}
+$$
+
+## Bayesian inference
+
+In this framework, for each problem, we will follow 3 steps:
+
+::: incremental
+- Build the model (the history of the data): likelihood + prior.
+- Update with data, compute (or approximate) the posterior.
+- Evaluate the model, quality of fit, sensitivity, summarise results, readjust.
+:::
+
+. . .
+
+> Bayesian inference is really just counting and comparing of possibilities
+> \[...\] in order to make good inference about what actually happened,
+> it helps to consider everything that could have happened [@mcelreath2016].
+
+> The first idea is that Bayesian inference is **reallocation of
+> credibility across possibilities**. The second foundational idea is
+> that the possibilities, over which we allocate credibility, are
+> **parameter values** in meaningful mathematical models
+> [@kruschke2015].
+
+## Example, medical diagnosis [@gigerenzer2007]
+
+::: incremental
+-   In women aged 40-50, with no family history and no symptoms, let's assume the probability of developing breast cancer is 0.008.
+
+-   Known properties of mammography:
+
+    -   If a woman has breast cancer, the probability of having a positive result is 0.90 (true positive).
+    -   If a woman does not have breast cancer, the probability of having a positive result is 0.07 (false positive).
+
+-   Suppose a woman has a mammogram and the test is positive. What should be **inferred**? What is the probability that this woman has breast cancer?
+:::
+
+## Maximum likelihood estimation
+
+::: incremental
+- A general approach to parameter estimation.
+- The parameters **govern** the data, the data **depend** on the parameters.
+    - Knowing certain parameter values, we can calculate the **conditional probability** of the observed data.
+    - The result of the mammogram (i.e., the data) depends on the presence/absence of breast cancer (i.e., the parameter).
+- The **maximum likelihood** approach asks the question: "Which values of the parameter make the observed data the most probable?
+- Specify the conditional probability of the data $p(x \given \theta)$.
+- When we consider it as a function of $\theta$, we talk about **likelihood** (likelihood): $\mathcal{L}(\theta \given x) = p(X = x \given \theta)$.
+- The maximum likelihood approach therefore consists of maximising this function, using the (known) values of $x$.
+:::
+
+## Conditional probability
+
+::: incremental
+- If a woman has breast cancer, the probability of obtaining a positive result is .90.
+    - $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
+    - $\Pr(\text{Mum=-} \given \text{Cancer=+}) = 0.10$
+- If a woman does not have breast cancer, the probability of obtaining a positive result is .07.
+    - $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
+    - $\Pr(\text{Mam=-} \given \text{Cancer=-}) = 0.93$
+:::
+
+## Medical diagnosis, maximum likelihood
+
+::: incremental
+- A woman has a mammogram, the result is positive...
+    - $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
+    - $\Pr(\text{Mum=+} \given \text{Cancer=-}) = 0.07$
+- Maximum likelihood: what is the value of $\text{Cancer}$ that **maximises** $\text{Mam=+}$?
+    - $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
+    - $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
+:::
+
+. . .
+
+This approach leads to the conclusion that cancer is present (because it maximises the probability of a positive mammogram)...
+
+## Wait a minute...
+
+![](figures/bayes.png){fig-align="center" width="50%"}
+
+## Medical diagnosis, working with frequencies
+
+::: incremental
+- Consider 1000 women aged between 40 and 50, with no family history of cancer and no symptoms.
+    - 8 out of 1000 women have cancer
+- A mammogram is performed
+    - Of the 8 women with cancer, 7 will have a positive result
+    - Of the remaining 992 women, 69 will have a positive result
+- One woman has a mammogram, the result is positive
+- What should we infer?
+:::
+
+## Medical diagnosis, working with frequencies
+
+![](figures/diagram.png){fig-align="center" width="50%"}
+
+$$\Pr(\text{Cancer=+} \given \text{Mam=+}) = \frac{7}{7 + 69} = \frac{7}{76} \approx 0.09$$
+
+## Medical diagnosis, Bayes' theorem
+
+$$
+\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+$$
+
+
+$\color{steelblue}{p(\theta)}$ [represents the a priori probability of $\theta$: what we know about $\theta$ before observing the data. In this case: $\Pr(\text{Cancer=+}) = 0.008$ and $\Pr(\text{Cancer=-}) = 0.992$.]{style="color:steelblue"}
+
+```{r, echo = TRUE}
+prior <- c(0.008, 0.992)
+```
+
+## Medical diagnosis, Bayes' theorem
+
+$$
+\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}
+$$
+
+$\color{orangered}{p(x \given \theta)}$ [represents the conditional probability of the data $x$ knowing the parameter $\theta$, also known as the likelihood function of the parameter $\theta$.]{style="color:orangered"}
+
+. . .
+
+```{r, echo = TRUE}
+like <- rbind(c(0.9, 0.1), c(0.07, 0.93) ) %>% data.frame
+colnames(like) <- c("Mam+", "Mam-")
+rownames(like) <- c("Cancer+", "Cancer-")
+like
+```
+
+## Medical diagnosis, Bayes' theorem
+
+$$\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}$$
+
+[$p(x)$ the marginal probability of $x$ (over $\theta$). This is a constant used to normalise the distribution (the "sum of products" from the previous example).]{style="color:green"}
+
+$$\color{green}{p(x) = \sum\limits_{\theta}p(x \given \theta)p(\theta)}$$
+
+. . .
+
+```{r, echo = TRUE}
+(marginal <- sum(like$"Mam+" * prior) )
+```
+
+## Medical diagnosis, Bayes' theorem
+
+$$\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}$$
+
+$\color{purple}{p(\theta \given x)}$ [the a posteriori probability of $\theta$ given $x$, that is, what we know about $\theta$ after seeing $x$.]{style="color:purple"}
+
+. . .
+
+```{r, echo = TRUE}
+(posterior <- (like$"Mam+" * prior ) / marginal )
+```
+
+## Bayesian inference as probabilistic knowledge updating
+
+Before the mammogram, the probability of a woman drawn at random having breast cancer was $\Pr(\text{Cancer=+}) = 0.008$ (prior). After a positive result, this probability became $\Pr(\text{Cancer=+} \given \text{Mam=+}) = 0.09$ (posterior). These probabilities are expressions of our *knowledge*. After a positive mammogram, we still think it's "very unlikely" to have cancer, but this probability has changed considerably compared with "before the test".
+
+. . .
+
+> A Bayesianly justifiable analysis is one that treats known values as observed values of random variables, treats unknown values as unobserved random variables, and calculates the conditional distribution of unknowns given knowns and model specifications using Bayes' theorem [@rubin1984].
+
+# Beta-Binomial model
+
+## Bernoulli law
+
+::: notes
+This model has a single parameter (simple enough) and covers many
+situations (flexible enough) in which the outcome is binary (e.g., failure/success, absence/presence).
+:::
+
+Applies to all situations where the data generation process can only result in two mutually exclusive outcomes (e.g., a coin toss). At each trial, if we assume that $\Pr(\text{heads}) = \theta$, then $\Pr(\text{tails}) = 1 - \theta$.
+
+. . .
+
+Since Bernoulli, we know how to compute the probability of the result of a coin toss, as long as we know the coin's bias $theta$. Let's assume that $Y = 0$ when you get tails, and that $Y = 1$ when you get heads. Then $Y$ is distributed according to a
+Bernoulli distribution:
+
+$$p(y \given \theta) = \Pr(Y = y \given \theta) = \theta^{y} (1 - \theta)^{(1 - y)}$$
+
+. . .
+
+If we replace $y$ by $0$ or $1$, we come back to our previous observations:
+
+$$\Pr(Y = 1 \given \theta) = \theta^{1} (1 - \theta)^{(1 - 1)} = \theta \times 1 = \theta$$
+
+. . .
+
+$$\Pr(Y = 0 \given \theta) = \theta^{0} (1 - \theta)^{(1 - 0)} = 1 \times (1 - \theta) = 1 - \theta$$
+
+## Bernoulli process
+
+If we have a series of independent and identically distributed throws $\{Y_i\}$ (i.e., each throw has a Bernoulli distribution of probability distribution with probability $\theta$), the set of throws can be described by a **binomial distribution**.
+
+. . .
+
+For example, suppose we have the following sequence of five throws: Tails, Tails, Tails, Heads, Heads. We can recode this sequence into $\{0, 0, 0, 1, 1\}$.
+
+Reminder: The probability of each $1$ is $\theta$ and the probability of each $0$ is $1 - \theta$.
+
+. . .
+
+What is the probability of getting 2 heads out of 5 throws?
+
+## Bernoulli process
+
+Knowing that the trials are independent of each other, the probability of obtaining this sequence is $(1 - \theta) \times (1 - \theta) \times (1 - \theta) \times \theta \times \theta$, that is: $\theta^{2} (1 - \theta)^{3}$.
+
+. . .
+
+We can generalise this result for a sequence of $n$ throws and $y$ "successes":
+
+$$\theta^{y} (1 - \theta)^{n - y}$$
+
+. . .
+
+
+So far, we have only considered a single sequence resulting in 2 successes for 5 throws, but there are many sequences that can result in 2 successes for 5 throws (e.g., $\{0, 0, 1, 0, 1\}$, $\{0, 1, 1, 0, 0\}$)...
+
+## Binomial coefficient
+
+The **binomial coefficient** allows computing the number of possible combinations resulting in $y$ successes for $n$ throws in the following way (read "$y$ among $n$" or "number of combinations of $y$ among $n$")[^1]:
+
+[^1]:  The factorial function $n!$ associates with any natural number $n$ the integer:
+    $N! = N \times (N - 1) \times (N - 2) \times \ldots \times 3 \times 2 \times 1$
+
+$$
+\left(\begin{array}{l} n \\ y \end{array}\right) = C_{y}^{n} = \frac{n !}{y !(n - y) !}
+$$
+
+. . .
+
+For instance for $y = 1$ and $n = 3$, we know there are 3 possible combinations: $\{0, 0, 1\}, \{0, 1, 0\}, \{1, 0, 0\}$. We can check this by applying the formula above.
+
+$$
+\left(\begin{array}{l} 3 \\ 1\end{array}\right) = C_{1}^{3} = \frac{3 !}{1 !(3 - 1) !} = \frac{3 \times 2 \times 1}{1 \times 2 \times 1} = \frac{6}{2} = 3
+$$
+
+. . .
+
+```{r binomialcoef}
+#| output-location: fragment
+# computing the total number of possible configurations in R
+choose(n = 3, k = 1)
+```
+
+## Binomial distribution
+
+$$
+p(y \given \theta) = \Pr(Y = y \given \theta) = \left(\begin{array}{l} n \\ y \end{array}\right) \theta^{y}(1 - \theta)^{n - y}
+$$
+The binomial distribution allows us to calculate the probability of obtaining $y$
+successes on $n$ trials, for a given $\theta$. Example of the
+binomial distribution for an unbiased coin ($\theta = 0.5$),
+indicating the probability of obtaining $n$ faces in 10 throws (in R:
+`dbinom(x = 0:10, size = 10, prob = 0.5)`).
+
+```{r echo = FALSE, fig.align = "center", dev = "svg", fig.width = 7.5, fig.height = 5, cache = FALSE}
+coin <- dbinom(x = 0:10, size = 10, prob = 0.5)
+
+barplot(
+  coin, names.arg = 0:10, border = NA, axes = FALSE,
+  cex.names = 1.5, col = "grey20", family = "Open Sans"
+  )
+```
+
+## Generating data from a binomial distribution
+
+```{r berndata, out.width = "50%", `code-line-numbers` = "|4"}
+library(tidyverse)
+set.seed(666) # for reproducibility
+
+sample(x = c(0, 1), size = 500, prob = c(0.4, 0.6), replace = TRUE) %>% # theta = 0.6
+        data.frame() %>%
+        mutate(x = seq_along(.), y = cummean(.) ) %>%
+        ggplot(aes(x = x, y = y) ) +
+        geom_line(lwd = 1) +
+        geom_hline(yintercept = 0.6, lty = 3) +
+        labs(x = "Number of trials", y = "Proportion of heads") +
+        ylim(0, 1)
+```
+
+## Defining the model (likelihood)
+
+Likelihood function:
+
+- We consider $y$ to be the number of successes.
+- We consider the number of observations $n$ to be a **constant**.
+- We consider $\theta$ to be the **parameter** of our model (i.e., the probability of success).
+
+. . .
+
+The likelihood function is written as:
+
+$$
+\color{orangered}{\mathcal{L}(\theta \given y, n) = p(y \given \theta, n) = \left(\begin{array}{l} n \\ y \end{array}\right) \theta^{y}(1 - \theta)^{n - y} \propto \theta^{y}(1 - \theta)^{n - y}}
+$$
+
+## Likelihood versus probability
+
+A coin with a bias $\theta$ is tossed again (where $\theta$ represents the probability of getting heads).
+This coin is tossed twice and we obtain a Head and a Tails.
+
+. . .
+
+The probability of observing a Head on two coin tosses **as a function of** different values of $\theta$ can be calculated as follows:
+
+$$
+\begin{aligned}
+\Pr(H, T \given \theta) + \Pr(T, H \given \theta) &= 2 \times \Pr(T \given \theta) \times \Pr(H \given \theta) \\
+&= \theta(1 - \theta) + \theta(1 - \theta) \\
+&= 2 \theta(1 - \theta)
+\end{aligned}
+$$
+
+. . .
+
+This probability is defined for a fixed data set and a variable
+value. This function can be represented visually.
+
+## Likelihood versus probability
+
+```{r likelihood, echo = TRUE, eval = TRUE, fig.width = 10, fig.height = 5, `code-line-numbers` = "|7"}
+# Graphical representation of the likelihood function for y = 1 and n = 2
+
+y <- 1 # number of heads
+n <- 2 # number of trials
+
+data.frame(theta = seq(from = 0, to = 1, length.out = 1e3) ) %>%
+  mutate(likelihood = dbinom(x = y, size = n, prob = theta) ) %>%
+  ggplot(aes(x = theta, y = likelihood) ) +
+  geom_area(color = "orangered", fill = "orangered", alpha = 0.5) +
+  labs(x = expression(paste(theta, " - Pr(head)") ), y = "Likelihood")
+```
+
+## Likelihood versus probability
+
+If we calculate the area under the curve of this function, we get:
+
+$$\int_{0}^{1} 2 \theta(1 - \theta) \mathrm{d} \theta = \frac{1}{3}$$
+
+. . .
+
+```{r echo = TRUE}
+f <- function(theta) {2 * theta * (1 - theta) }
+integrate(f = f, lower = 0, upper = 1)
+```
+
+. . .
+
+When we vary $\theta$, the likelihood function **is not** a valid probability
+distribution (i.e., its integral is not equal to 1). We use the term **likelihood**
+to distinguish this type of function from probability density functions. We use
+the following notation to emphasise the fact that the likelihood function is a function of
+$\theta$, and that the data are fixed:
+$\mathcal{L}(\theta \given \text{data}) = p(\text{data} \given \theta)$.
+
+## Likelihood versus probability
+
+```{r echo = FALSE, results = "asis"}
+library(kableExtra)
+library(knitr)
+
+data.frame(
+  theta = as.character(c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0) ),
+  x0 = c(1.0, 0.64, 0.36, 0.16, 0.04, 0.00),
+  x1 = c(0.0, 0.32, 0.48, 0.48, 0.32, 0.00),
+  x2 = c(0.0, 0.04, 0.16, 0.36, 0.64, 1.00)
+  ) %>%
+  mutate(Total = rowSums(.[2:4]) %>% as.character) %>%
+  tibble::add_row(
+    theta = "Total", x0 = sum(.$x0), x1 = sum(.$x1), x2 = sum(.$x2),
+    Total = ""
+    ) %>%
+  kable(
+    col.names = c("theta", "0", "1", "2", "Total"),
+    format = "html",
+    align = c("c", "c", "c", "c", "c"),
+    # caption = "Vraisemblance versus probabilité pour deux lancers de pièce",
+    caption = "Likelihood versus probability for two coin tosses",
+    escape = FALSE
+    ) %>%
+  kable_styling(full_width = TRUE, position = "center") %>%
+  add_header_above(c(" " = 1, "Number of Heads (y)" = 3, " " = 1) )
+```
+
+Note that the likelihood of $\theta$ for a particular data item is
+equal to the probability of the data for this value of $\theta$.
+However, the *distribution* of these likelihoods (in columns) is not a probability distribution.
+In Bayesian analysis, **the data are considered fixed** and the value of $\theta$
+is considered a **random variable**.
+
+## Defining the model (prior)
+
+How can we define a prior for $\theta$?
+
+. . .
+
+**Semantic aspect** $~\rightarrow~$ *the prior should be able to account for*:
+
+- An absence of information
+- Knowledge of previous observations concerning this coin
+- A level of uncertainty concerning these previous observations
+
+. . .
+
+**Mathematical aspect** $~\rightarrow~$ *for a fully analytical solution*:
+
+- The prior and posterior distributions must have the same form
+- The marginal likelihood must be calculable analytically
+
+## Beta distribution
+
+$$
+\begin{align}
+\color{steelblue}{p(\theta \given a, b)} \ &\color{steelblue}{= \mathrm{Beta}(\theta \given a, b)} \\
+& \color{steelblue}{= \theta^{a - 1}(1 - \theta)^{b - 1} / B(a, b)} \\
+& \color{steelblue}{\propto \theta^{a - 1}(1 - \theta)^{b - 1}}
+\end{align}
+$$
+
+where $a$ and $b$ are two parameters such that $a \geq 0$, $b \geq 0$, and $B(a, b)$ is a normalisation constant.
+
+```{r beta1, echo = FALSE, fig.width = 12, fig.height = 6}
+p <- seq(0, 1, length = 100)
+
+data.frame(
+  p = p,
+  p1 = dbeta(p, 1, 1),
+  p2 = dbeta(p, 2, 2),
+  p3 = dbeta(p, 4, 2),
+  p4 = dbeta(p, 2, 4)
+  ) %>%
+  pivot_longer(p1:p4, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = p, y = prob / sum(prob), color = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.6) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_discrete(
+    name = "Parameters",
+    labels = c(
+      "a = 1, b = 1",
+      "a = 2, b = 2",
+      "a = 4, b = 2",
+      "a = 2, b = 4"
+      )
+    )
+```
+
+## Interpretation of parameters
+
+- The absence of prior knowledge can be expressed by setting $a = b = 1$ (orange distribution).
+- A prior in favour of an absence of bias can be expressed by setting $a = b \geq 2$ (green distribution).
+- A bias in favour of *Heads* can be expressed by setting $a > b$ (blue distribution).
+- A bias in favour of *Tails* can be expressed by setting $a < b$ (purple distribution).
+
+```{r beta2, echo = FALSE, fig.width = 12, fig.height = 6}
+p <- seq(0, 1, length = 100)
+
+data.frame(
+  p = p,
+  p1 = dbeta(p, 1, 1),
+  p2 = dbeta(p, 2, 2),
+  p3 = dbeta(p, 4, 2),
+  p4 = dbeta(p, 2, 4)
+  ) %>%
+  pivot_longer(p1:p4, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = p, y = prob / sum(prob), color = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.6) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_discrete(
+    name = "Parameters",
+    labels = c(
+      "a = 1, b = 1",
+      "a = 2, b = 2",
+      "a = 4, b = 2",
+      "a = 2, b = 4"
+      )
+    )
+```
+
+## Interpretation of parameters
+
+The level of certainty increases with the sum $\kappa = a + b$.
+
+- No idea where the coin comes from: $a = b = 1$ -\> **flat prior**.
+- While waiting for the experiment to begin, the coin was tossed 10 times and we observed 5 "Heads": $a = b = 5$ -\> **weakly informative prior**.
+- The coin comes from the Bank of France: $a = b = 50$ -\> **strongly informative prior**.
+
+```{r beta3, echo = FALSE, fig.width = 10, fig.height = 5}
+p <- seq(0, 1, length = 100)
+
+data.frame(
+  p = p,
+  p1 = dbeta(p, 1, 1),
+  p2 = dbeta(p, 5, 5),
+  p3 = dbeta(p, 50, 50)
+  ) %>%
+  pivot_longer(p1:p3, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = p, y = prob / sum(prob), color = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.6) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_discrete(
+    name = "Parameters",
+    labels = c(
+      "a = 1, b = 1",
+      "a = 5, b = 5",
+      "a = 50, b = 50"
+      )
+    )
+```
+
+## Interpretation of parameters
+
+Suppose we have an estimate of the most likely value of the parameter $\theta$.
+We can re-parametrise the Beta distribution as a function of the mode $\omega$
+and the level of certainty $\kappa$:
+
+$$
+\begin{align}
+a &= \omega(\kappa - 2) + 1 \\
+b &= (1 - \omega)(\kappa - 2) + 1 &&\mbox{for } \kappa > 2
+\end{align}
+$$
+
+. . .
+
+If $\omega = 0.65$ and $\kappa = 25$, then
+$p(\theta) = \mathrm{Beta}(\theta \given 15.95, 9.05)$. <br> If
+$\omega = 0.65$ and $\kappa = 10$ then
+$p(\theta) = \mathrm{Beta}(\theta \given 6.2, 3.8)$.
+
+```{r beta4, echo = FALSE, fig.width = 12, fig.height = 5}
+p <- seq(0, 1, length = 100)
+
+W <- 0.65
+K1 <- 25
+K2 <- 10
+
+data.frame(
+  p = p,
+  p1 = dbeta(p, W * (K1 - 2) + 1, (1 - W) * (K1 - 2) + 1),
+  p2 = dbeta(p, W * (K2 - 2) + 1, (1 - W) * (K2 - 2) + 1)
+  ) %>%
+  pivot_longer(p1:p2, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = p, y = prob / sum(prob), color = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.6) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_discrete(
+    name = "Parameters",
+    labels = c(
+      expression(paste(omega, " = 0.65 ", kappa, " = 25", sep = "") ),
+      expression(paste(omega, " = 0.65 ", kappa, " = 10", sep = "") )
+      )
+    )
+```
+
+## Conjugate prior
+
+Formally, if $\mathcal{F}$ is a class of sampling distributions $p(y \given \theta)$, and $\mathcal{P}$ is a class of prior distributions for $\theta$, then the class $\mathcal{P}$ is **conjugate** to $\mathcal{F}$ if:
+
+$$
+p(\theta \given y) \in \mathcal{P} \text{ for all } p(\cdot \given \theta) \in \mathcal{F} \text{ and } p(\cdot) \in \mathcal{P}
+$$
+
+[p.35, @gelman2013]. In other words, a prior is called a *conjugate prior* if, when converted to a posterior by being multiplied by the likelihood, it keeps the same form. In our case, the Beta prior is a conjugate prior for the Binomial likelihood, because the posterior is a Beta distribution as well.
+
+## Analytical derivation of the posterior distribution
+
+Assume a prior defined by:
+$\ \color{steelblue}{p(\theta \given a, b) = \mathrm{Beta}(a, b) = \frac{\theta^{a - 1}(1 - \theta)^{b - 1}}{B(a, b)} \propto \theta^{a - 1}(1 - \theta)^{b - 1}}$
+
+. . .
+
+Given a likelihood function associated with $y$ "Heads" for $n$ throws:
+
+$\ \color{orangered}{p(y \given n, \theta) = \mathrm{Bin}(y \given n, \theta) = \left(\begin{array}{l} n \\ y \end{array}\right) \theta^{y}(1 - \theta)^{n - y} \propto \theta^{y}(1 - \theta)^{n - y}}$
+
+. . .
+
+Then (omitting the normalisation constants):
+
+$$
+\begin{align}
+\color{purple}{p(\theta \given y, n)} &\propto \color{orangered}{p(y \given n, \theta)} \ \color{steelblue}{p(\theta)} &&\mbox{Bayes theorem} \\
+&\propto \color{orangered}{\mathrm{Bin}(y \given n, \theta)} \ \color{steelblue}{\mathrm{Beta}(\theta \given a, b)} \\
+&\propto \color{orangered}{\theta^{y}(1 - \theta)^{n - y}} \ \color{steelblue}{\theta^{a - 1}(1 - \theta)^{b - 1}} &&\mbox{Application of previous formulas} \\
+&\propto \color{purple}{\theta}^{\color{orangered}{y} + \color{steelblue}{a - 1}}\color{purple}{(1 - \theta)}^{\color{orangered}{n - y} + \color{steelblue}{b - 1}} &&\mbox{Grouping powers of identical terms} \\
+\end{align}
+$$
+
+. . .
+
+Here, we have ignored the constants which do not depend on $\theta$ (i.e., the number of combinations in the binomial likelihood function and the Beta function $B(a, b)$ in the Beta prior).^[For the complete derivation, see for example [this chapter](https://www.bayesrulesbook.com/chapter-3.html).] Taking them into account, we obtain a Beta posterior distribution of the following form:
+
+$$\color{purple}{p(\theta \given y, n) = \mathrm{Beta}(y + a, n - y + b)}$$
+
+## An example to help you digest
+
+We observe $y = 7$ correct answers out of $n = 10$ questions. We choose
+a prior $\mathrm{Beta}(1, 1)$, that is, a uniform prior on $[0, 1]$.
+This prior is equivalent to a priori knowledge of 0 successes and 0 failures (i.e., a flat prior).
+
+. . .
+
+The posterior distribution is given by:
+
+$$
+\begin{align}
+\color{purple}{p(\theta \given y, n)} &\propto \color{orangered}{p(y \given n, \theta)} \ \color{steelblue}{p(\theta)} \\
+&\propto \color{orangered}{\mathrm{Bin}(7 \given 10, \theta)} \ \color{steelblue}{\mathrm{Beta}(\theta \given 1, 1)} \\
+&= \color{purple}{\mathrm{Beta}(y + a, n - y + b)} \\
+&= \color{purple}{\mathrm{Beta}(8, 4)}
+\end{align}
+$$
+
+. . .
+
+The mean of the posterior distribution is given by:
+
+$$
+\color{purple}{\underbrace{\frac{y + a}{n + a + b}}_{posterior}} = \color{orangered}{\underbrace{\frac{y}{n}}_{data}} \underbrace{\frac{n}{n + a + b}}_{weight} + \color{steelblue}{\underbrace{\frac{a}{a + b}}_{prior}} \underbrace{\frac{a + b}{n + a + b}}_{weight}
+$$
+
+## An example to help you digest
+
+```{r beta-exemple, echo = FALSE, fig.width = 9, fig.height = 9}
+library(patchwork)
+
+df <- data.frame(theta = seq(0, 1, length = 100) ) %>%
+  mutate(
+    prior = dbeta(p, 1, 1),
+    likelihood = dbinom(7, 10, p)
+    ) %>%
+  mutate(posterior = (prior * likelihood) )
+
+p1 <- df %>%
+  ggplot(aes(x = theta, y = prior, colour = NULL) ) +
+  geom_area(
+    fill = "steelblue",
+    position = "identity", alpha = 0.5
+    ) +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  ylim(0, 2) +
+  ggtitle("Prior distribution Beta(1, 1)")
+
+p2 <- df %>%
+  ggplot(aes(x = theta, y = likelihood, colour = NULL) ) +
+  geom_area(
+    fill = "orangered",
+    position = "identity", alpha = 0.5
+    ) +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  ggtitle("Likelihood function Bin(7, 10)")
+
+p3 <- df %>%
+  ggplot(aes(x = theta, y = posterior, colour = NULL) ) +
+  geom_area(
+    fill = "purple",
+    position = "identity", alpha = 0.5
+    ) +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  ggtitle("Posterior distribution Beta(8, 4)")
+
+p1 / p2 / p3
+```
+
+## Influence of prior on posterior distribution
+
+Case where $n < a + b, (n = 10, a = 4, b = 16)$.
+
+```{r posterior-exemple1, echo = FALSE, fig.width = 12, fig.height = 8}
+a <- 4
+b <- 16
+y <- 6
+n <- 10
+
+data.frame(theta = seq(0, 1, length = 100) ) %>%
+  mutate(
+    prior = dbeta(p, a, b),
+    likelihood = dbinom(y, n, p)
+    ) %>%
+  mutate(prior = prior / sum(prior) ) %>%
+  mutate(likelihood = likelihood / sum(likelihood) ) %>%
+  mutate(posterior = (prior * likelihood) / sum(prior * likelihood) ) %>%
+  pivot_longer(prior:posterior, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = theta, y = prob, colour = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.5) +
+  xlab(expression(theta) ) +
+  ylab("Densité de probabilité") +
+  scale_fill_manual(
+    name = "",
+    labels = c("Likelihood", "Posterior", "Prior"),
+    values = c("orangered", "purple", "steelblue")
+    )
+```
+
+## Influence of prior on posterior distribution
+
+Case where $n = a + b, (n = 20, a = 4, b = 16)$.
+
+```{r posterior-exemple2, echo = FALSE, fig.width = 12, fig.height = 8}
+a <- 4
+b <- 16
+y <- 12
+n <- 20
+
+data.frame(theta = seq(0, 1, length = 100) ) %>%
+  mutate(
+    prior = dbeta(p, a, b),
+    likelihood = dbinom(y, n, p)
+    ) %>%
+  mutate(prior = prior / sum(prior) ) %>%
+  mutate(likelihood = likelihood / sum(likelihood) ) %>%
+  mutate(posterior = (prior * likelihood) / sum(prior * likelihood) ) %>%
+  pivot_longer(prior:posterior, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = theta, y = prob, colour = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.5) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_manual(
+    name = "",
+    labels = c("Likelihood", "Posterior", "Prior"),
+    values = c("orangered", "purple", "steelblue")
+    )
+```
+
+## Influence of prior on posterior distribution
+
+Case where $n > a + b, (n = 40, a = 4, b = 16)$.
+
+```{r posterior-exemple3, echo = FALSE, fig.width = 12, fig.height = 8}
+a <- 4
+b <- 16
+y <- 24
+n <- 40
+
+data.frame(theta = seq(0, 1, length = 100) ) %>%
+  mutate(
+    prior = dbeta(p, a, b),
+    likelihood = dbinom(y, n, p)
+    ) %>%
+  mutate(prior = prior / sum(prior) ) %>%
+  mutate(likelihood = likelihood / sum(likelihood) ) %>%
+  mutate(posterior = (prior * likelihood) / sum(prior * likelihood) ) %>%
+  pivot_longer(prior:posterior, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = theta, y = prob, colour = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.5) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_manual(
+    name = "",
+    labels = c("Likelihood", "Posterior", "Prior"),
+    values = c("orangered", "purple", "steelblue")
+    )
+```
+
+## Key points to remember
+
+> The posterior distribution is always a compromise between the prior
+> distribution and the likelihood function [@kruschke2015].
+
+```{r posterior-exemple4, echo = FALSE, fig.width = 14, fig.height = 7}
+a <- 3
+b <- 17
+y <- 8
+n <- 10
+
+data.frame(theta = seq(0, 1, length = 100) ) %>%
+  mutate(
+    prior = dbeta(p, a, b),
+    likelihood = dbinom(y, n, p)
+    ) %>%
+  mutate(prior = prior / sum(prior) ) %>%
+  mutate(likelihood = likelihood / sum(likelihood) ) %>%
+  mutate(posterior = (prior * likelihood) / sum(prior * likelihood) ) %>%
+  pivot_longer(prior:posterior, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = theta, y = prob, colour = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.5) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_manual(
+    name = "",
+    labels = c("Likelihood", "Posterior", "Prior"),
+    values = c("orangered", "purple", "steelblue")
+    )
+```
+
+## Key points to remember
+
+The more data we have, the less influence the prior has in estimating the posterior
+distribution (and vice versa). **Warning:**
+When the prior assigns a probability of 0 to certain values of $\theta$,
+the model is unable to learn (these values are then considered "impossible").
+
+```{r posterior-exemple5, echo = FALSE, fig.width = 12, fig.height = 6}
+p <- seq(0, 1, length = 1e3)
+
+y <- 8
+n <- 10
+
+data.frame(theta = seq(0, 1, length = 1e3) ) %>%
+  mutate(
+    prior = dunif(p, 0.25, 0.75),
+    likelihood = dbinom(y, n, p)
+    ) %>%
+  mutate(prior = prior / sum(prior) ) %>%
+  mutate(likelihood = likelihood / sum(likelihood) ) %>%
+  mutate(posterior = (prior * likelihood) / sum(prior * likelihood) ) %>%
+  pivot_longer(prior:posterior, names_to = "params", values_to = "prob") %>%
+  ggplot(aes(x = theta, y = prob, colour = NULL, fill = params) ) +
+  geom_area(position = "identity", alpha = 0.5) +
+  xlab(expression(theta) ) +
+  ylab("Probability density") +
+  scale_fill_manual(
+    name = "",
+    labels = c("Likelihood", "Posterior", "Prior"),
+    values = c("orangered", "purple", "steelblue")
+    )
+```
+
+## Marginal likelihood
+
+$$
+\text{Posterior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Marginal likelihood}} \propto \text{Likelihood} \times \text{Prior}
+$$
+
+$$
+p(\theta \given \text{data}) = \frac{p(\text{data} \given \theta) \times \ p(\theta)}{p(\text{data})} \propto p(\text{data} \given \theta) \times p(\theta)
+$$
+
+. . .
+
+If we zoom in on the marginal likelihood (also known as **evidence**)...
+
+$$
+\begin{align}
+\color{green}{p(\text{data})} &= \int p(\text{data}, \theta) \, \mathrm d\theta &&\mbox{Marginalising over } \theta \\
+\color{green}{p(\text{data})} &= \int p(\text{data} \given \theta) \times p(\theta) \, \mathrm{d} \theta && \mbox{Applying the product rule}
+\end{align}
+$$
+
+## Marginal likelihood
+
+New issue: $p(\text{data})$ is obtained by calculating the sum (for discrete
+discrete variables) or the integral (for continuous variables)
+of the joint density $p(\text{data}, \theta)$ over all possible values of
+of $\theta$. This can become tricky when the model includes
+several continuous parameters...
+
+. . .
+
+Let's consider a model with two discrete parameters. The marginal likelihood is obtained as:
+
+$$
+p(\text{data}) = \sum_{\theta_{1}} \sum_{\theta_{2}} p(\text{data}, \theta_{1}, \theta_{2})
+$$
+
+. . .
+
+Let's now consider a model with two continuous parameters. The marginal likelihood is obtained as:
+
+$$
+p(\text{data}) = \int\limits_{\theta_{1}} \int\limits_{\theta_{2}} p(\text{data}, \theta_{1}, \theta_{2}) \mathrm{d} \theta_{1} \mathrm{d} \theta_{2}
+$$
+
+## Marginal likelihood
+
+There are three ways to get around this problem:
+
+- Analytical solution $\longrightarrow$ Using a conjugate prior (e.g., the Beta-Binomial model).
+
+- Discretised solution $\longrightarrow$ Computing the posterior on a finite set of points (grid method).
+
+- Approximate solution $\longrightarrow$ The parameter space is "cleverly" sampled (e.g., MCMC methods, cf. Course 03).
+
+## Discrete distributions
+
+```{r discrete, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("figures/discrete.png")
+```
+
+## Continuous distributions
+
+```{r continuous, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("figures/continuous.png")
+```
+
+Problem: This solution is very restrictive. Ideally, the model
+(likelihood + prior) model should be defined on the basis of the interpretation
+of the parameters of these distributions, and not to
+facilitate the calculations...
+
+## Posterior distribution, grid method
+
+::: nonincremental
+- **Define the grid**
+- Calculate the prior probability for each grid value
+- Calculate the likelihood for each grid value
+- Calculate the product of prior x likelihood for each grid value, then normalise
+:::
+
+```{r grid1, echo = FALSE, fig.width = 12, fig.height = 6}
+thetaSize <- 30
+
+data.frame(
+  theta = seq(from = 0, to = 1, length.out = thetaSize),
+  pTheta = rep(0.03, thetaSize)
+  ) %>% 
+  ggplot(aes(x = theta, y = 0, xend = theta) ) +
+  geom_segment(aes(yend = pTheta), size = 1, colour = "#339900") +
+  ylim(0, 0.15) +
+  labs(x = expression(theta), y = "Probability density")
+```
+
+## Posterior distribution, grid method
+
+::: nonincremental
+- Define the grid
+- **Calculate the prior probability for each grid value**
+- Calculate the likelihood for each grid value
+- Calculate the product of prior x likelihood for each grid value, then normalise
+:::
+
+```{r grid2, echo = FALSE, fig.width = 12, fig.height = 6}
+thetaSize <- 30
+a <- 3
+b <- 7
+
+data.frame(
+  theta = seq(from = 0, to = 1, length.out = thetaSize)
+  ) %>%
+  mutate(
+    prior = dbeta(theta, 3, 7) / sum(dbeta(theta, 3, 7) )
+  ) %>% 
+  ggplot(aes(x = theta, y = 0, xend = theta) ) +
+  geom_segment(aes(yend = prior), size = 1, colour = "steelblue") +
+  labs(x = expression(theta), y = "Probability density")
+```
+
+## Posterior distribution, grid method
+
+::: nonincremental
+- Define the grid
+- Calculate the prior probability for each grid value
+- **Calculate the likelihood for each grid value**
+- Calculate the product of prior x likelihood for each grid value, then normalise
+:::
+
+```{r grid3, echo = FALSE, fig.width = 12, fig.height = 6}
+thetaSize <- 30
+a <- 3
+b <- 7
+y <- 12
+n <- 20
+
+data.frame(
+  theta = seq(from = 0, to = 1, length.out = thetaSize)
+  ) %>%
+  mutate(
+    prior = dbeta(theta, 3, 7) / sum(dbeta(theta, 3, 7) )
+  ) %>% 
+  mutate(
+    likelihood = dbinom(y, n, theta) / sum(dbinom(y, n, theta) )
+  ) %>% 
+  ggplot(aes(x = theta, y = 0, xend = theta) ) +
+  geom_segment(aes(yend = prior), size = 1, colour = "steelblue") +
+  geom_segment(aes(
+    x = theta + 0.01, yend = likelihood, xend = theta + 0.01),
+    colour = "orangered", size = 1
+    ) +
+  labs(x = expression(theta), y = "Probability density")
+```
+
+## Posterior distribution, grid method
+
+::: nonincremental
+- Define the grid
+- Calculate the prior probability for each grid value
+- Calculate the likelihood for each grid value
+- **Calculate the product of prior x likelihood for each grid value, then normalise**
+:::
+
+```{r grid4, echo = FALSE, fig.width = 12, fig.height = 6}
+thetaSize <- 30
+a <- 3
+b <- 7
+y <- 12
+n <- 20
+
+data.frame(
+  theta = seq(from = 0, to = 1, length.out = thetaSize)
+  ) %>%
+  mutate(
+    prior = dbeta(theta, 3, 7) / sum(dbeta(theta, 3, 7) )
+  ) %>% 
+  mutate(
+    likelihood = dbinom(y, n, theta) / sum(dbinom(y, n, theta) )
+  ) %>%
+  mutate(
+    posterior = (prior * likelihood) / sum(prior * likelihood)
+  ) %>% 
+  ggplot(aes(x = theta, y = 0, xend = theta) ) +
+  geom_segment(aes(yend = prior), size = 1, colour = "steelblue") +
+  geom_segment(aes(
+    x = theta + 0.01, yend = likelihood, xend = theta + 0.01),
+    colour = "orangered", size = 1
+    ) +
+  geom_segment(aes(
+    x = theta - 0.01, yend = posterior, xend = theta - 0.01),
+    colour = "purple", size = 1
+    ) +
+  labs(x = expression(theta), y = "Probability density")
+```
+
+## Posterior distribution, grid method
+
+::: nonincremental
+- Define the grid
+- Calculate the prior probability for each grid value
+- Calculate the likelihood for each grid value
+- **Calculate the product of prior x likelihood for each grid value, then normalise**
+:::
+
+```{r grid5, echo = FALSE, fig.width = 12, fig.height = 6}
+thetaSize <- 100
+a <- 3
+b <- 7
+y <- 12
+n <- 20
+
+data.frame(
+  theta = seq(from = 0, to = 1, length.out = thetaSize)
+  ) %>%
+  mutate(
+    prior = dbeta(theta, 3, 7) / sum(dbeta(theta, 3, 7) )
+  ) %>% 
+  mutate(
+    likelihood = dbinom(y, n, theta) / sum(dbinom(y, n, theta) )
+  ) %>%
+  mutate(
+    posterior = (prior * likelihood) / sum(prior * likelihood)
+  ) %>% 
+  ggplot(aes(x = theta, y = 0, xend = theta) ) +
+  geom_segment(aes(yend = prior), size = 1, colour = "steelblue") +
+  geom_segment(aes(
+    x = theta + 0.01, yend = likelihood, xend = theta + 0.01),
+    colour = "orangered", size = 1
+    ) +
+  geom_segment(aes(
+    x = theta - 0.01, yend = posterior, xend = theta - 0.01),
+    colour = "purple", size = 1
+    ) +
+  labs(x = expression(theta), y = "Probability density")
+```
+
+## Posterior distribution, grid method
+
+Problem with the number of parameters... Refining the grid increases the
+calculation time:
+
+- 3 parameters with a $10^3$ grid = $10^9$ calculation points
+- 10 parameters with a grid of $10^3$ nodes = $10^{30}$ calculation points
+
+. . .
+
+The best supercomputer (Frontier) performs around $1.194 \times 10^{18}$
+operations per second. If we consider that it would have to perform 4 operations per
+node of the grid, it would take more time to go through the grid than the
+estimated age of the universe (approximately $(4.36 ± 0.012) \times 10^{17}$ seconds)...
+
+. . .
+
+```{r work-gif, echo = FALSE, out.width = "500px"}
+knitr::include_graphics("figures/not_gonna_work.gif")
+```
+
+## Another solution: Sampling the posterior distribution
+
+To sample (cleverly) a posterior distribution, we can use different implementations of MCMC methods (e.g., Metropolis-Hastings, Hamiltonian Monte Carlo) which we will discuss in Course 03. In the meantime, we will work with samples from the posterior distribution i) to get used to results from MCMC methods and ii) because it is simpler to compute summary statistics (e.g., mean or credible intervals) on samples rather than by computing integrals.
+
+. . .
+
+```{r sampling1, eval = TRUE, echo = TRUE, fig.width = 6, fig.height = 3, `code-line-numbers` = "|5"}
+#| output-location: fragment
+p_grid <- seq(from = 0, to = 1, length.out = 1000) # creates a grid
+prior <- rep(1, 1000) # uniform prior
+likelihood <- dbinom(x = 12, size = 20, prob = p_grid) # computes likelihood
+posterior <- (likelihood * prior) / sum(likelihood * prior) # computes posterior
+samples <- sample(x = p_grid, size = 1e3, prob = posterior, replace = TRUE) # sampling
+hist(samples, main = "", xlab = expression(theta) ) # histogram
+```
+
+## Posterior distribution, summary
+
+Analytical solution for the Beta-Binomial model:
+
+```{r eval = FALSE, echo = TRUE}
+a <- b <- 1 # parameters of the Beta prior
+n <- 9 # number of observations
+y <- 6 # number of successes
+p_grid <- seq(from = 0, to = 1, length.out = 1000)
+posterior <- dbeta(p_grid, y + a, n - y + b) # plot(posterior)
+```
+
+. . .
+
+Grid method:
+
+```{r eval = FALSE, echo = TRUE}
+p_grid <- seq(from = 0, to = 1, length.out = 1000)
+prior <- rep(1, 1000) # uniform prior
+likelihood <- dbinom(x = y, size = n, prob = p_grid)
+posterior <- (likelihood * prior) / sum(likelihood * prior) # plot(posterior)
+```
+
+. . .
+
+Sampling the posterior distribution to describe it:
+
+```{r eval = FALSE, echo = TRUE}
+samples <- sample(x = p_grid, size = 1e4, prob = posterior, replace = TRUE) # hist(samples)
+```
+
+## Posterior distribution, summary
+
+**Analytical solution**
+
+- The posterior distribution is described explicitly
+- The model is strongly constrained (i.e., we have to pick conjugate priors)
+
+. . .
+
+**Grid method**
+
+- The posterior distribution is only computed for a finite set of values
+- The finer the grid, the better the estimate of the posterior distribution
+- There is an "accuracy - calculation time" trade-off
+
+## Using samples to summarise the posterior distribution
+
+Estimation of the central tendency: From a set of samples
+of samples from a posterior distribution, we can calculate the mean
+mean, mode, and median. For example, for a uniform prior, 10
+coin tosses and 3 heads.
+
+```{r tendance-centrale1, eval = FALSE, echo = TRUE}
+mode_posterior <- find_mode(samples) # in blue
+mean_posterior <- mean(samples) # in orange
+median_posterior <- median(samples) # in green
+```
+
+```{r tendance-centrale2, echo = FALSE}
+library(imsb)
+set.seed(666)
+p_grid <- seq(from = 0, to = 1, length.out = 1000)
+prior <- rep(1, 1000)
+likelihood <- dbinom(x = 3, size = 10, prob = p_grid)
+posterior <- (likelihood * prior) / sum(likelihood * prior)
+samples <- sample(p_grid, size = 1e4, replace = TRUE, prob = posterior)
+mode_posterior <- find_mode(samples)
+mean_posterior <- mean(samples)
+median_posterior <- median(samples)
+```
+
+```{r tendance-centrale3, echo = FALSE, fig.width = 18, fig.height = 6}
+data.frame(samples = samples) %>%
+  ggplot(aes(x = samples) ) +
+  geom_histogram(aes(y = ..density..), fill = "purple", alpha = 0.25, bins = 50) +
+  geom_vline(aes(xintercept = mode_posterior), size = 1, color = "steelblue") +
+  annotate(
+    geom = "text",
+    x = mode_posterior - 0.01, # y = max(posterior) / 2,
+    y = 1,
+    label = "mode", color = "steelblue", angle = 90, size = 5
+    ) +
+  geom_vline(aes(xintercept = mean_posterior), size = 1, color = "orangered") +
+  annotate(
+    geom = "text",
+    x = mean_posterior + 0.01, # y = max(posterior) / 2,
+    y = 1,
+    label = "mean", color = "orangered", angle = 90, size = 5
+    ) +
+  geom_vline(aes(xintercept = median_posterior), size = 1, color = "forestgreen") +
+  annotate(
+    geom = "text",
+    x = median_posterior - 0.01, # y = max(posterior) / 2,
+    y = 1,
+    label = "median", color = "forestgreen", angle = 90, size = 5
+    ) +
+  xlab(expression(theta) ) + ylab("Probability density")
+
+# data.frame(theta = p_grid, posterior = posterior) %>% 
+#   ggplot(aes(x = theta, y = posterior, colour = NULL) ) +
+#   geom_area(position = "identity", fill = "purple", alpha = 0.25) +
+#   geom_vline(aes(xintercept = mode_posterior), size = 1, color = "steelblue") +
+#   annotate(
+#     geom = "text",
+#     x = mode_posterior - 0.01, y = max(posterior) / 2,
+#     label = "mode", color = "steelblue", angle = 90, size = 5
+#     ) +
+#   geom_vline(aes(xintercept = mean_posterior), size = 1, color = "orangered") +
+#   annotate(
+#     geom = "text",
+#     x = mean_posterior + 0.01, y = max(posterior) / 2,
+#     label = "moyenne", color = "orangered", angle = 90, size = 5
+#     ) +
+#   geom_vline(aes(xintercept = median_posterior), size = 1, color = "forestgreen") +
+#   annotate(
+#     geom = "text",
+#     x = median_posterior - 0.01, y = max(posterior) / 2,
+#     label = "médiane", color = "forestgreen", angle = 90, size = 5
+#     ) +
+#   xlab(expression(theta) ) + ylab("Densité de probabilité")
+```
+
+## Using samples to summarise the posterior distribution
+
+What is the probability that the bias of the coin $\theta$ is greater than 0.5?
+
+```{r superiority-prob, eval = TRUE, echo = TRUE}
+sum(samples > 0.5) / length(samples) # equivalent to mean(samples > 0.5)
+```
+
+. . .
+
+What is the probability that the bias of the coin $\theta$ is between 0.2 and 0.4?
+
+```{r interval-prob, eval = TRUE, echo = TRUE}
+sum(samples > 0.2 & samples < 0.4) / length(samples)
+```
+
+```{r interval-prob-plot, echo = FALSE, fig.width = 12, fig.height = 4}
+df <- data.frame(theta = p_grid, posterior = posterior)
+
+ggplot(df, aes(x = theta, y = posterior, colour = NULL) ) +
+    geom_area(
+    position = "identity", fill = "purple", alpha = 0.5
+    ) +
+  geom_area(
+    data = subset(df, theta > 0.4),
+    position = "identity", fill = "purple", alpha = 0.5
+    ) +
+  geom_area(
+    data = subset(df, 0.2 > theta),
+    position = "identity", fill = "purple", alpha = 0.5
+    ) +
+  xlab(expression(theta) ) + ylab("Probability density")
+```
+
+## Highest density interval (HDI)
+
+Properties of the highest density interval:
+
+- The HDI indicates the most likely values for the parameter (given the data and the priors)
+- The narrower the HDI, the greater the degree of certainty
+- The width of the HDI decreases as the number of measurements increases
+
+. . .
+
+> Definition: the values of the parameter $\theta$ contained in an HDI at
+> 89% are such that $p(\theta) > W$ where $W$ satisfies the following condition:
+>
+> $$\int_{\theta \ : \ p(\theta) > W} p(\theta) \, \mathrm{d} \theta = 0.89.$$
+
+## Highest density interval (HDI)
+
+```{r hdi-plot, echo = FALSE, out.width = "35%"}
+knitr::include_graphics("figures/HDI.png")
+```
+
+## Highest density interval (HDI)
+
+```{r eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 6, dev = "png", dpi = 200}
+library(imsb)
+
+set.seed(666)
+p_grid <- seq(from = 0, to = 1, length.out = 1e3)
+pTheta <- dbeta(p_grid, 3, 10)
+massVec <- pTheta / sum(pTheta)
+samples <- sample(x = p_grid, size = 1e4, replace = TRUE, prob = pTheta)
+
+posterior_plot(samples = samples, credmass = 0.89)
+```
+
+## Region of practical equivalence (ROPE)
+
+This procedure can be used to accept or reject a null value. The region of
+practical equivalence or **region of practical equivalence** (ROPE) defines an
+interval of values that are considered to be "equivalent" to the null value.
+The figure below summarises the possible decisions resulting from this procedure [@kruschke2018].
+
+```{r, eval = TRUE, echo = FALSE, fig.align = "center", out.width = "50%"}
+knitr::include_graphics("figures/hdi_rope.png")
+```
+
+## Region of practical equivalence (ROPE)
+
+The value of the parameter (e.g., $\theta = 0.5$) is rejected if the HDI is
+entirely outside the ROPE. The parameter value (e.g., $\theta = 0.5$) is 
+accepted if the HDI is entirely within the ROPE. If the HDI and the ROPE
+overlap, we cannot conclude...
+
+```{r eval = TRUE, echo = FALSE}
+set.seed(666)
+p_grid <- seq(from = 0, to = 1, length.out = 1e3)
+pTheta <- dbeta(p_grid, 3, 10)
+massVec <- pTheta / sum(pTheta)
+samples <- sample(p_grid, size = 1e4, replace = TRUE, prob = pTheta)
+```
+
+```{r eval = TRUE, echo = TRUE, fig.width = 7.5, fig.height = 5, dev = "png", dpi = 200}
+posterior_plot(samples = samples, rope = c(0.49, 0.51) ) +
+    labs(x = expression(theta) )
+```
+
+## Model comparison
+
+We tossed coin 200 times and got 115 "Faces". Is the coin
+coin biased? We build two models and try to find out which one
+which one best accounts for the data.
+
+```{=tex}
+\begin{eqnarray*}
+\left\{ 
+\begin{array}{ll}
+    \mathcal{M}_0: Y \sim \mathrm{Binomial}(n, \theta = 0.5) & \quad \text{The coin is not biased}\\
+    \mathcal{M}_1: Y \sim \mathrm{Binomial}(n, \theta \neq 0.5) & \quad \text{The coin is biased}
+\end{array}\right.
+\end{eqnarray*}
+```
+
+. . .
+
+The Bayes factor is the ratio of the marginal likelihoods (of the two models).
+
+$$\frac{p(\mathcal{M}_{0} \given \text{data})}{p(\mathcal{M}_{1} \given \text{data})} = \color{green}{\frac{p(\text{data} \given \mathcal{M}_{0})}{p(\text{data} \given \mathcal{M}_{1})}} \times \frac{p(\mathcal{M}_{0})}{p(\mathcal{M}_{1})}$$
+
+## Model comparaison
+
+The Bayes factor is the ratio of the marginal likelihoods (of the two models).
+
+$$\frac{p(\mathcal{M}_{0} \given \text{data})}{p(\mathcal{M}_{1} \given \text{data})} = \color{green}{\frac{p(\text{data} \given \mathcal{M}_{0})}{p(\text{data} \given \mathcal{M}_{1})}} \times \frac{p(\mathcal{M}_{0})}{p(\mathcal{M}_{1})}$$
+
+. . .
+
+In our example:
+
+$$\text{BF}_{01} = \color{green}{\frac{p(\text{data} \given \mathcal{M}_{0})}{p(\text{data} \given \mathcal{M}_{1})}} = \frac{0.005955}{0.004975} \approx 1.1971.$$
+
+This BF indicates that the (prior) odds ratio increased (or should be updated) by 20% in favour of
+$\mathcal{M}_{0}$ after observing the data. The Bayes
+factor can also be interpreted as follows: The
+data are approximately 1.2 times more likely under the $\mathcal{M}_{0}$ model
+than under the $\mathcal{M}_{1}$ model.
+
+## Model checking
+
+The two roles of the likelihood function:
+
+- It is a function of $\theta$ for calculating the posterior distribution: $\mathcal{L}(\theta \given y, n)$.
+- When $\theta$ is known/fixed, it is a probability distribution: $p(y \given \theta, n) \propto \theta^y(1 - \theta)^{(n - y)}$.
+
+. . .
+
+This probability distribution can be used to generate data... !
+
+. . .
+
+For example: Generating 10.000 values from a binomial distribution based on 10 coin tosses and a probability of Heads of 0.6:
+
+```{r eval = TRUE, echo = TRUE}
+samples <- rbinom(n = 1e4, size = 10, prob = 0.6)
+```
+
+## Model checking
+
+In a Bayesian models, there are **two sources of uncertainty** when generating predictions:
+
+-   Uncertainty related to the sampling process <br> -\> We draw data from a Binomial pdf
+-   Uncertainty about the value of $\theta$ <br> -\> Our knowledge of $\theta$ is described by a (posterior) pdf
+
+. . .
+
+For example: Generating 10.000 values from a binomial distribution based on
+10 coin tosses and a probability of Heads described by the posterior distribution of $\theta$:
+
+```{r eval = TRUE, echo = TRUE, `code-line-numbers` = "|2"}
+posterior <- rbeta(n = 1e4, shape1 = 16, shape2 = 10)
+samples <- rbinom(n = 1e4, size = 10, prob = posterior)
+```
+
+## Prior and posterior predictive checking
+
+```{r ppc, echo = FALSE, fig.width = 12, fig.height = 8}
+thetaSize <- 1e3
+a <- 3
+b <- 7
+y <- 9
+n <- 10
+
+df <- data.frame(
+  theta = seq(from = 0, to = 1, length.out = thetaSize)
+  ) %>%
+  mutate(
+    prior = dbeta(theta, a, b) / sum(dbeta(theta, a, b) ),
+    likelihood = dbinom(y, n, theta) / sum(dbinom(y, n, theta) )
+    ) %>%
+  mutate(
+    unnormalised_posterior = prior * likelihood,
+    posterior = unnormalised_posterior / sum(unnormalised_posterior)
+    ) %>%
+  mutate(
+    # prior predictive distribution
+    ppc1 = rbinom(thetaSize, n, rbeta(thetaSize, a, b) ),
+    # posterior predictive distribution
+    ppc2 = rbinom(thetaSize, n, rbeta(thetaSize, y + a, n - y + b) )
+    )
+  
+p1 <- df %>%
+  ggplot(aes(x = theta, y = prior) ) +
+  geom_area(aes(colour = NULL), stat = "identity", fill = "steelblue", alpha = 0.8) +
+  labs(
+    x = expression(theta), y = "Probability density",
+    title = "Prior distribution",
+    subtitle = "rbeta(n = 1e4, shape1 = 3, shape2 = 7)"
+    ) +
+  theme_bw(base_size = 16, base_family = "Open Sans")
+
+p2 <- df %>%
+  ggplot(aes(x = ppc1) ) +
+  geom_histogram(aes(colour = NULL), fill = "black") +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  labs(
+    x = "Number of Heads",
+    y = "Number of samples",
+    title = "Prior predictive distribution",
+    subtitle = "rbinom(n = 1e4, size = 10, prob = prior)"
+    ) +
+  scale_x_continuous(breaks = seq(0, 10, 1), labels = seq(0, 10, 1) )
+
+p3 <- df %>%
+  ggplot(aes(x = theta, y = posterior) ) +
+  geom_area(aes(colour = NULL), stat = "identity", fill = "purple", alpha = 0.8) +
+  labs(
+    x = expression(theta), y = "Probability density",
+    title = "Posterior distribution",
+    subtitle = "rbeta(n = 1e4, shape1 = 12, shape2 = 8)"
+    ) +
+  theme_bw(base_size = 16, base_family = "Open Sans")
+
+p4 <- df %>%
+  ggplot(aes(x = ppc2) ) +
+  geom_histogram(aes(colour = NULL), fill = "black") +
+  theme_bw(base_size = 16, base_family = "Open Sans") +
+  labs(
+    x = "Number of Heads",
+    y = "Number of samples",
+    title = "Posterior predictive distribution",
+    subtitle = "rbinom(n = 1e4, size = 10, prob = posterior)"
+    ) +
+  scale_x_continuous(breaks = seq(0, 10, 1), labels = seq(0, 10, 1) )
+
+library(patchwork)
+
+(p1 | p2) / (p3 | p4) # stacking plots
+```
+
+## Posterior predictive checking
+
+```{r model-ppc, echo = FALSE, out.width = "75%"}
+knitr::include_graphics("figures/ModelPredictions.jpg")
+```
+
+## Practical work
+
+```{r tartine, echo = FALSE, out.width = "25%"}
+knitr::include_graphics("figures/tartine.jpg")
+```
+
+An analyst who works in a factory that makes famous Swedish bread rolls
+read a book that raised a thorny question... Why does the toast
+always land on the butter side? Failing to come up with a
+plausible answer, she set out to verify this assertion. The
+first experiment was to drop a slice of buttered bread
+from the height of a table. The results of this experiment are
+available in the `tartine1` dataset from the `imsb` package.
+
+## Retrieving the data
+
+First task: Retrieve the data.
+
+```{r eval = TRUE, echo = TRUE}
+# importing the data
+data <- open_data(tartine1)
+
+# summary of the data
+str(data)
+```
+
+## Questions
+
+::: nonincremental
+- Since the toast only has two sides, the result is similar to a draw according to a binomial distribution with an unknown parameter $\theta$. What is the posterior distribution of the parameter $\theta$ given these data and given that the analyst had no prior knowledge (you can also use your own prior)?
+
+- Calculate the 95% HDI of the posterior distribution and give a graphical representation of the result (hint: use the function `imsb::posterior_plot()`).
+
+- Can the null hypothesis that $\theta = 0.5$ be rejected? Answer this question using the HDI+ROPE procedure.
+
+- Import the `tartine2` data from the `imsb` package. Update the model using the mode of the posterior distribution calculated previously.
+:::
+
+## Proposed solution - Question 1
+
+Since the toast only has two sides, the result is similar to a draw according to a binomial distribution with an unknown parameter $\theta$. What is the posterior distribution of the parameter $\theta$ given these data?
+
+```{r eval = TRUE, echo = TRUE, fig.width = 6, fig.height = 4}
+# number of trials
+nbTrial <- length(data$trial)
+
+# number of "successes" (i.e., when the toast lands on the butter side)
+nbSuccess <- sum(data$side)
+
+# size of the grid
+grid_size <- 1e3
+
+# generating the grid
+p_grid <- seq(from = 0, to = 1, length.out = grid_size)
+
+# uniform prior
+prior <- rep(1, grid_size)
+
+# computing the likelihod
+likelihood <- dbinom(x = nbSuccess, size = nbTrial, prob = p_grid)
+
+# computing the posterior
+posterior <- likelihood * prior / sum(likelihood * prior)
+```
+
+## Proposed solution - Question 2
+
+Calculate the 95% HDI of the posterior distribution and give a graphical representation of the result.
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 6, dev = "png", dpi = 200}
+samples <- sample(x = p_grid, prob = posterior, size = 1e3, replace = TRUE)
+posterior_plot(samples = samples, credmass = 0.95) + labs(x = expression(theta) )
+```
+
+## Proposed solution - Question 3
+
+Can the null hypothesis that $\theta = 0.5$ be rejected? No, because the HDI overlaps with the ROPE...
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 6, dev = "png", dpi = 200}
+posterior_plot(
+  samples = samples, credmass = 0.95,
+  compval = 0.5, rope = c(0.49, 0.51)
+  ) + labs(x = expression(theta) )
+
+```
+
+## Proposed solution - Question 4
+
+At this point, no conclusion can be drawn. The analyst decides to repeat a series of observations to refine her results.
+
+```{r eval = TRUE, echo = TRUE}
+data2 <- open_data(tartine2)
+str(data2)
+nbTrial2 <- length(data2$trial) # number of trials
+nbSucces2 <- sum(data2$side) # number of "successes"
+```
+
+## Proposed solution - Question 4
+
+We use the previous posterior as the prior for this new model.
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5}
+mode1 <- find_mode(samples)
+prior2 <- dbeta(p_grid, mode1 * (nbTrial - 2) + 1, (1 - mode1) * (nbTrial - 2) + 1)
+
+data.frame(x = p_grid, y = prior2) %>%
+  ggplot(aes(x = x, y = y) ) +
+  geom_area(alpha = 0.8, fill = "steelblue") +
+  geom_line(size = 0.8) +
+  labs(x = expression(theta), y = "Probability density")
+```
+
+## Proposed solution - Question 4
+
+```{r eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 6, dev = "png", dpi = 200}
+likelihood2 <- dbinom(x = nbSucces2, size = nbTrial2, prob = p_grid)
+posterior2 <- likelihood2 * prior2 / sum(likelihood2 * prior2)
+samples2 <- sample(p_grid, prob = posterior2, size = 1e4, replace = TRUE)
+
+posterior_plot(
+  samples = samples2, credmass = 0.95,
+  compval = 0.5, rope = c(0.49, 0.51)
+  ) + labs(x = expression(theta) )
+```
+
+## References {.refs}

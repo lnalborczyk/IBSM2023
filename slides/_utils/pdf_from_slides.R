@@ -1,10 +1,10 @@
-##############################################################################
-# Generating pdf and extracting R code from quarto (revealjs) slides
-# -----------------------------------------------------------------------
-# Written by Ladislas Nalborczyk
-# E-mail: ladislas.nalborczyk@gmail.com
-# Last updated on November 16, 2022
-#######################################################################
+######################################################################
+# Generating pdf and extracting R code from quarto (revealjs) slides #
+# ------------------------------------------------------------------ #
+# Written by Ladislas Nalborczyk                                     #
+# E-mail: ladislas.nalborczyk@gmail.com                              #
+# Last updated on October 26, 2023                                   #
+######################################################################
 
 library(renderthis)
 library(pagedown)
@@ -28,7 +28,7 @@ for (input in slides) { # for each course
     course <- str_extract_all(string = input, pattern = "(?<=html/).+(?=.html)")[[1]]
     output <- paste0("pdf/", course, ".pdf")
     
-    if (course == "cours01") {
+    if (course == "course01") {
         
         # printing it using renderthis
         renderthis::to_pdf(

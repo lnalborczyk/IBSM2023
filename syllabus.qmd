@@ -28,7 +28,7 @@ lang: en
 
 :::
 
-## What is Bayesian statistical modeling?
+## What is Bayesian statistical modelling?
 
 The Bayesian approach involves treating each entity (e.g., observed variables, model parameters, missing data) as random variables characterised by probability distributions. In a Bayesian analysis, each unknown entity is assigned an a priori distribution that represents a state of knowledge prior to observing some data. Once the data have been observed, Bayes' theorem is used to update the a priori distribution into an a posteriori distribution. The a posteriori distribution is the goal of a Bayesian analysis and can be summarised by point values or intervals, and interpreted directly within a coherent probabilistic framework.
 

@@ -1,0 +1,30 @@
+---
+title: "Course n°04"
+subtitle: "Multilevel models, cognitive models"
+date: 2023-12-01
+toc: false
+lang: en
+---
+
+## To be done ahead of this course
+
+- Check previous courses.
+- (*optional*) Read chapters 13-17 from {{< fa book >}} *Statistical Rethinking*.
+
+## Slides
+
+Slides for this course are available below. You can navigate these sides using the <kbd>←</kbd> and <kbd>→</kbd> keys. Pressing <kbd>m</kbd> will display all commands you can use (e.g., <kbd>f</kbd> to switch to full screen mode). You can also download a PDF version of these slides or the `R` code associated with these slides by clicking on the buttons below.
+
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/course04.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Read the slides online </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/cours04.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Download the PDF version </a> <a class="btn btn-danger" target="_blank" href="../slides/code/course04.R"><i class="fa-solid fa-code"></i> Download the R code </a> </p>
+
+<div class="ratio ratio-16x9"> <iframe src="../slides/html/course04.html"></iframe> </div>
+
+::: {.callout-tip}
+See all `revealjs` commands by pressing <kbd>m</kbd> then <kbd>h</kbd>.
+:::
+
+## To go further
+
+- Bürkner, P.-C., & Vuorre, M. (2019). Ordinal Regression Models in Psychology: A Tutorial. *Advances in Methods and Practices in Psychological Science, 2*(1), 77–101. <https://doi.org/10.1177/2515245918823199>
+- Nalborczyk, L., Batailler, C., Lœvenbruck, H., Vilain, A., & Bürkner, P.-C. (2019). An introduction to Bayesian multilevel models using brms: A case study of gender effects on vowel variability in standard indonesian. *Journal of Speech Language and Hearing Research, 62*(5), 1225–1242. <https://doi.org/10.1044/2018_JSLHR-S-18-0006>. Preprint: <https://psyarxiv.com/guhsa/>.
+- Winter, B., & Bürkner, P. (2021). Poisson regression for linguists: A tutorial introduction to modelling count data with brms. *Language and Linguistics Compass, 15*(11). <https://doi.org/10.1111/lnc3.12439>
