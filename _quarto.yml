@@ -40,13 +40,13 @@ website:
         - section: "Detailed planning"
           contents:
             - text: "Introduction to Bayesian inference, Beta-Binomial model"
-              file: content/cours01.qmd
+              file: content/course01.qmd
             - text: "Introduction to brms, linear regression"
-              file: content/cours02.qmd
+              file: content/course02.qmd
             - text: "Markov Chain Monte Carlo, generalised linear model"
-              file: content/cours03.qmd
+              file: content/course03.qmd
             - text: "Multilevel models, cognitive models"
-              file: content/cours04.qmd
+              file: content/course04.qmd
               
   page-footer:
     left: |

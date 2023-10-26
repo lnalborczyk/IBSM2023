@@ -7,7 +7,7 @@
 
 ## Objectives
 
-The aim of this 2-day course is to introduce you to Bayesian statistical modelling. The concepts and tools that will be introduced throughout the course will be illustrated by concrete data analysis cases. This course is built around the `R` language and the use of the `brms` package, an interface to the `Stan` probabilistic language. It is therefore *essential* to have some basic knowledge of the `R` language.
+The aim of this 2-day short course is to introduce you to Bayesian statistical modelling. The concepts and tools that will be introduced throughout the course will be illustrated by concrete data analysis cases. This course is built around the `R` language and the use of the `brms` package, an interface to the `Stan` probabilistic language. It is therefore *essential* to have some basic knowledge of the `R` language.
 
 ## Planning
 
