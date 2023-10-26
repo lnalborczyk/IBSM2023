@@ -16,7 +16,7 @@ lang: en
 
 Slides for this course are available below. You can navigate these sides using the <kbd>←</kbd> and <kbd>→</kbd> keys. Pressing <kbd>m</kbd> will display all commands you can use (e.g., <kbd>f</kbd> to switch to full screen mode). You can also download a PDF version of these slides or the `R` code associated with these slides by clicking on the buttons below.
 
-<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/course01.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Read the slides online </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/course01.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Download the PDF version </a> <a class="btn btn-danger" target="_blank" href="../slides/code/cours01.R"><i class="fa-solid fa-code"></i> Download the R code </a> </p>
+<p class="buttons" style="text-align:center;"><a class="btn btn-danger" target="_blank" href="../slides/html/course01.html"><i class="fa-solid fa-arrow-up-right-from-square"></i> Read the slides online </a> <a class="btn btn-danger" target="_blank" href="../slides/pdf/course01.pdf" role="button"><i class="fa-solid fa-file-pdf"></i> Download the PDF version </a> <a class="btn btn-danger" target="_blank" href="../slides/code/course01.R"><i class="fa-solid fa-code"></i> Download the R code </a> </p>
 
 <div class="ratio ratio-16x9"> <iframe src="../slides/html/course01.html"></iframe> </div>
 
