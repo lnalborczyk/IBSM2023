@@ -95,14 +95,14 @@
     "href": "content/course03.html#to-go-further",
     "title": "Course n°03",
     "section": "To go further",
-    "text": "To go further\n\nBetancourt, M. (2018). A Conceptual Introduction to Hamiltonian Monte Carlo (arXiv:1701.02434). arXiv. https://arxiv.org/abs/1701.02434\nFeng, C. (2022). Chi-feng/mcmc-demo [JavaScript]. https://github.com/chi-feng/mcmc-demo / https://chi-feng.github.io/mcmc-demo/\nDogucu, A. A. J., Miles Q., & Ott, Mine. (2022). Chapter 7 - MCMC under the Hood. In Bayes Rules! An Introduction to Applied Bayesian Modeling. Available online at: https://www.bayesrulesbook.com/chapter-7.html.\nNalborczyk, L. (2018). Using R to make sense of the generalised linear model. Blogpost available at https://www.barelysignificant.com/post/glm/."
+    "text": "To go further\n\nBetancourt, M. (2018). A Conceptual Introduction to Hamiltonian Monte Carlo (arXiv:1701.02434). arXiv. https://arxiv.org/abs/1701.02434\nFeng, C. (2022). Chi-feng/mcmc-demo [JavaScript]. https://github.com/chi-feng/mcmc-demo / https://chi-feng.github.io/mcmc-demo/\nDogucu, A. A. J., Miles Q., & Ott, Mine. (2022). Chapter 7 - MCMC under the Hood. In Bayes Rules! An Introduction to Applied Bayesian Modeling. Available online at: https://www.bayesrulesbook.com/chapter-7.html.\nNalborczyk, L. (2018). Using R to make sense of the generalised linear model. Blogpost available at https://lnalborczyk.github.io/post/glm/."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "IBSM2023",
     "section": "",
-    "text": "Teacher\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Set up a meeting\n\n\n\nPractical information\n\n   November 30 - December 1 (2023)\n   TBD\n\n\n\nContact\nThe most efficient way to contact me is through e-mail (I’ll answer rapidly)."
+    "text": "Teacher\n\n   Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Set up a meeting\n\n\n\nPractical information\n\n   November 30 - December 1 (2023)\n   University of Basel, Missionsstrasse 62\n\n\n\nContact\nThe most efficient way to contact me is through e-mail (I’ll answer rapidly)."
   },
   {
     "objectID": "install.html",
@@ -144,7 +144,7 @@
     "href": "syllabus.html",
     "title": "Syllabus",
     "section": "",
-    "text": "Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Set up a meeting\n\n\n\n\n\n   November 30 - December 1 (2023)\n   TBD"
+    "text": "Ladislas Nalborczyk\n   ladislas.nalborczyk@gmail.com\n   lnalborczyk\n   Set up a meeting\n\n\n\n\n\n   November 30 - December 1 (2023)\n   University of Basel, Missionsstrasse 62"
   },
   {
     "objectID": "syllabus.html#what-is-bayesian-statistical-modelling",

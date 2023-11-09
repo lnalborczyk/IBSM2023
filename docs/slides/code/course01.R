@@ -15,6 +15,10 @@ knitr::opts_chunk$set(
 theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
 
 
+## ----jquery, echo=FALSE----------------------------------------------------------------------------------------------------
+htmltools::tagList(rmarkdown::html_dependency_jquery())
+
+
 ## ----frequency, fig.width = 7.5, fig.height = 5, `code-line-numbers` = "|3"------------------------------------------------
 library(tidyverse)
 
@@ -533,7 +537,7 @@ data.frame(theta = seq(0, 1, length = 100) ) %>%
   ggplot(aes(x = theta, y = prob, colour = NULL, fill = params) ) +
   geom_area(position = "identity", alpha = 0.5) +
   xlab(expression(theta) ) +
-  ylab("Densité de probabilité") +
+  ylab("Probability density") +
   scale_fill_manual(
     name = "",
     labels = c("Likelihood", "Posterior", "Prior"),

@@ -16,6 +16,8 @@ slides <- list.files(
     recursive = TRUE, full.names = TRUE
     )
 
+slides <- slides[1]
+
 for (input in slides) { # for each course
 
     # printing progress
@@ -26,7 +28,7 @@ for (input in slides) { # for each course
     output <- paste0("pdf/", course, ".pdf")
     
     # if (course == "course01") {
-    #     
+    # 
     #     # printing it using renderthis
     #     renderthis::to_pdf(
     #         # from = input,
@@ -34,9 +36,9 @@ for (input in slides) { # for each course
     #         # to = output
     #         complex_slides = FALSE
     #         )
-    #     
+    # 
     # } else {
-    #     
+    # 
     #     # printing it using pagedown
     #     pagedown::chrome_print(
     #         input = input,
@@ -44,7 +46,7 @@ for (input in slides) { # for each course
     #         format = "pdf",
     #         timeout = 60
     #         )
-    #     
+    # 
     # }
     
     # printing it using pagedown

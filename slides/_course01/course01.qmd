@@ -57,6 +57,11 @@ theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
 
 ## Preface :wave: :wave:
 
+```{r jquery, echo=FALSE}
+# solution from https://github.com/jhelvy/renderthis/issues/46
+htmltools::tagList(rmarkdown::html_dependency_jquery())
+```
+
 This course is largely inspired from the following books:
 
 - McElreath, R. (2016, 2020). *Statistical Rethinking: A Bayesian Course with Examples in R and Stan*. CRC Press.
@@ -107,7 +112,7 @@ What is the probability...
 
 - Of obtaining an odd number with a fair die?
 
-- Of you learning something cool during this course?
+- Of you learning something new during this course?
 
 . . .
 
@@ -164,7 +169,7 @@ Which reference class? *What is the probability that I will live until 80 years 
 
 . . .
 
-What about non-repeatable events? *What is the probability of you learning something cool during this course?*
+What about non-repeatable events? *What is the probability of you learning something new during this course?*
 
 . . .
 
@@ -172,7 +177,7 @@ The resolution issue: How many observations do we need to get a good approximati
 
 ## Propensionist interpretation
 
-The frequentist (i.e. long-term) properties of objects (e.g., a coin) are caused by the intrinsic physical properties of the objects. For example, a biased coin will generate a biased relative frequency (and therefore probability) because of its physical properties. For propensionists, probabilities represent these intrinsic characteristics, these **propensities** to generate certain relative frequencies, and not the relative frequencies themselves.
+The frequentist (i.e., long-term) properties of objects (e.g., a coin) are caused by the intrinsic physical properties of the objects. For example, a biased coin will generate a biased relative frequency (and therefore probability) because of its physical properties. For propensionists, probabilities represent these intrinsic characteristics, these **propensities** to generate certain relative frequencies, and not the relative frequencies themselves.
 
 . . .
 
@@ -210,7 +215,7 @@ Consequence: these properties are the properties of individual events... and not
 
 ## Logical interpretation
 
-The logical interpretation of the concept of probability attempts to generalise logic (true/false) to the probabilistic world. Probability therefore represents the **degree of logical support** that a conclusion can have, relative to a set of premises [@keynes1921; @carnap1971].
+The logical interpretation of the concept of probability attempts to generalise logic (true/false) to the probabilistic world. Probability therefore represents the **degree of logical support** that a conclusion has, relative to a set of premises [@keynes1921; @carnap1971].
 
 . . .
 
@@ -236,7 +241,7 @@ To talk about probabilities in this context, we no longer need to refer to the l
 -   Logical interpretation (Keynes, Carnap)
 -   **Bayesian interpretation** (Jeffreys, de Finetti, Savage)
 
-[For more details, see the Stanford Encyclopedia of Philosophy.](http://plato.stanford.edu/entries/probability-interpret/)
+[For more details, see this article from the Stanford Encyclopedia of Philosophy.](http://plato.stanford.edu/entries/probability-interpret/)
 
 ## Probabilistic interpretations - Summary
 
@@ -258,7 +263,7 @@ All probabilities are conditional on available information (e.g., premises or da
 
 **Physical probability** <br>
 
-Probabilities depend on a state of the world, on physical characteristics, and are independent of available information (or uncertainty)..<br><br>Classical interpretation, frequentist interpretation.
+Probabilities depend on a state of the world, on physical characteristics, and are independent of available information (or uncertainty).<br><br>Classical interpretation, frequentist interpretation.
 
 </center>
 :::
@@ -268,7 +273,7 @@ Probabilities depend on a state of the world, on physical characteristics, and a
 
 ## Probability axioms [@kolmogorov1933]
 
-A probability is a numerical value assigned to an event $A$, understood as a possibility belonging to the universe $\Omega$ (the set of all possible outcomes).
+A probability is a numerical value assigned to an event $A$, understood as a possibility belonging to the set of all possible outcomes $\Omega$.
 
 . . .
 
@@ -397,21 +402,21 @@ For instance: the probability of dying knowing that you have been attacked by a 
 
 From Kolmogorov's axioms and the previous definitions of joint, marginal, and conditional probabilities, we derive the **product rule** (for dependent events):
 
-$$p(x,y) = p(x \given y) p(y) = p(y \given x) p(x)$$
+$$p(x,y) = p(x \given y) \ p(y) = p(y \given x) \ p(x)$$
 
 . . .
 
-$$p(y \given x) p(x) = p(x \given y) p(y)$$
+$$p(y \given x) \ p(x) = p(x \given y) \ p(y)$$
 
 . . .
 
 Then divide each side by $p(x)$:
 
-$$p(y \given x) = \dfrac{p(x \given y) p(y)}{p(x)}$$
+$$p(y \given x) = \dfrac{p(x \given y) \ p(y)}{p(x)}$$
 
 . . .
 
-$$p(x \given y) = \dfrac{p(y \given x) p(x)}{p(y)}$$
+$$p(x \given y) = \dfrac{p(y \given x) \ p(x)}{p(y)}$$
 
 . . .
 
@@ -532,7 +537,7 @@ However, we do know that there are five possibilities (which we consider to be o
 
 ## Exercise - Bag of marbles problem [@mcelreath2020b]
 
-The aim is to determine which combination is the most likely, given certain observations. Let's imagine that we draw three marbles in a row, with replacement, and we obtain the following sequence: :large_blue_circle: :white_circle: :large_blue_circle:.
+The aim is to determine which combination is the most likely, given certain observations. Let's assume that we drawn three marbles in a row, with replacement, and we obtained the following sequence: :large_blue_circle: :white_circle: :large_blue_circle:.
 
 . . .
 
@@ -678,7 +683,7 @@ garden(
 
 ## Enumerating possibilities
 
-Under this hypothesis, $3$ paths (out of $4^{3} = 64$) lead to the result obtained. What about the other hypotheses?
+Under this hypothesis, $3$ paths (out of $4^{3} = 64$) lead to the observed data. What about the other hypotheses?
 
 ```{r, echo = FALSE, eval = TRUE, fig.height = 7, fig.width = 7, fig.align = "center"}
 dat <- c(1, 0, 1)
@@ -723,11 +728,11 @@ line.polar(c(0, 2), pi / 2 + 2 * (2 / 3) * pi, lwd = 1)
 
 ## Comparing hypotheses
 
-Given the data, the most *probable* hypothesis is the one that **maximises the number of possible ways** of obtaining the data obtained.
+Given the data, the most *probable* hypothesis is the one that **maximises the number of possible ways** of obtaining the observed data.
 
 <br>
 
-|                                    Hypothesis                                    | Way to obtain the data |
+|                                    Hypothesis                                    | Ways to obtain the data |
 |:----------------------:|:----------------------------------------------:|
 |           :white_circle: :white_circle: :white_circle: :white_circle:           |        0 x 4 x 0 = 0         |
 |        :large_blue_circle: :white_circle: :white_circle: :white_circle:         |        1 x 3 x 1 = 3         |
@@ -737,11 +742,11 @@ Given the data, the most *probable* hypothesis is the one that **maximises the n
 
 ## Evidence accumulation
 
-In the previous case, we considered that all the hypotheses were equiprobable a priori (according to the [indifference principle](https://en.wikipedia.org/wiki/Principle_of_indifference)). However, we could have a priori information from our knowledge (of the characteristics of the bags of marbles, for example) or from previous data.
+In the previous case, we considered that all the hypotheses were equally probable a priori (according to the [principle of indifference](https://en.wikipedia.org/wiki/Principle_of_indifference)). However, we could have a priori information from our knowledge (of the characteristics of the bags of marbles, for example) or from previous data.
 
 . . .
 
-Let's assume we draw a new marble from the bag. How do we incorporate this new data?
+Let's assume we draw a new marble from the bag. How do we incorporate this new observation?
 
 ## Evidence accumulation
 
@@ -816,9 +821,9 @@ ways / sum(ways)
 - $\theta$ is a parameter or vector of parameters (e.g., the proportion of blue marbles).
 - $\color{orangered}{p(x \given \theta)}$ [the conditional probability of the data $x$ given parameter $\theta$ $\color{orangered}{[p(x \given \theta = \theta)]}$.]{style="color:orangered"}
 - $\color{orangered}{p(x \given \theta)}$ [once the value of $x$ is known, it is seen as the likelihood function of the parameter $\theta$. Note that this is not a valid probability distribution $\color{orangered}{[p(x = x \given \theta)]}$.]{style="color:orangered"}
-- $\color{steelblue}{p(\theta)}$ [the a priori probability of $\theta$.]{style="color:steelblue"}
-- $\color{purple}{p(\theta \given x)}$ [the a posteriori probability of $\theta$ (knowing $x$).]{style="color:purple"}
-- $\color{green}{p(x)}$ [the marginal probability of $x$ (on $\theta$) or "marginal likelihood", "integrated likelihood".]{style="color:green"}
+- $\color{steelblue}{p(\theta)}$ [the prior probability of $\theta$.]{style="color:steelblue"}
+- $\color{purple}{p(\theta \given x)}$ [the posterior probability of $\theta$ (knowing $x$).]{style="color:purple"}
+- $\color{green}{p(x)}$ [the marginal probability of $x$ (on $\theta$) or "marginal likelihood".]{style="color:green"}
 :::
 
 . . .
@@ -834,7 +839,7 @@ $$
 In this framework, for each problem, we will follow 3 steps:
 
 ::: incremental
-- Build the model (the history of the data): likelihood + prior.
+- Build the model (the story of the data): likelihood + prior.
 - Update with data, compute (or approximate) the posterior.
 - Evaluate the model, quality of fit, sensitivity, summarise results, readjust.
 :::
@@ -854,7 +859,7 @@ In this framework, for each problem, we will follow 3 steps:
 ## Example, medical diagnosis [@gigerenzer2007]
 
 ::: incremental
--   In women aged 40-50, with no family history and no symptoms, let's assume the probability of developing breast cancer is 0.008.
+-   In women aged 40-50, with no family history and no symptoms, the probability of developing breast cancer is around $0.008$.
 
 -   Known properties of mammography:
 
@@ -873,7 +878,7 @@ In this framework, for each problem, we will follow 3 steps:
     - The result of the mammogram (i.e., the data) depends on the presence/absence of breast cancer (i.e., the parameter).
 - The **maximum likelihood** approach asks the question: "Which values of the parameter make the observed data the most probable?
 - Specify the conditional probability of the data $p(x \given \theta)$.
-- When we consider it as a function of $\theta$, we talk about **likelihood** (likelihood): $\mathcal{L}(\theta \given x) = p(X = x \given \theta)$.
+- When we consider it as a function of $\theta$, we talk about **likelihood**: $\mathcal{L}(\theta \given x) = p(X = x \given \theta)$.
 - The maximum likelihood approach therefore consists of maximising this function, using the (known) values of $x$.
 :::
 
@@ -882,7 +887,7 @@ In this framework, for each problem, we will follow 3 steps:
 ::: incremental
 - If a woman has breast cancer, the probability of obtaining a positive result is .90.
     - $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
-    - $\Pr(\text{Mum=-} \given \text{Cancer=+}) = 0.10$
+    - $\Pr(\text{Mam=-} \given \text{Cancer=+}) = 0.10$
 - If a woman does not have breast cancer, the probability of obtaining a positive result is .07.
     - $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
     - $\Pr(\text{Mam=-} \given \text{Cancer=-}) = 0.93$
@@ -891,12 +896,10 @@ In this framework, for each problem, we will follow 3 steps:
 ## Medical diagnosis, maximum likelihood
 
 ::: incremental
-- A woman has a mammogram, the result is positive...
+- A woman gets a mammogram, the result is positive...
     - $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
     - $\Pr(\text{Mum=+} \given \text{Cancer=-}) = 0.07$
 - Maximum likelihood: what is the value of $\text{Cancer}$ that **maximises** $\text{Mam=+}$?
-    - $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
-    - $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
 :::
 
 . . .
@@ -932,7 +935,7 @@ $$
 $$
 
 
-$\color{steelblue}{p(\theta)}$ [represents the a priori probability of $\theta$: what we know about $\theta$ before observing the data. In this case: $\Pr(\text{Cancer=+}) = 0.008$ and $\Pr(\text{Cancer=-}) = 0.992$.]{style="color:steelblue"}
+$\color{steelblue}{p(\theta)}$ [represents the prior probability of $\theta$: what we know about $\theta$ before observing the data. In this case: $\Pr(\text{Cancer=+}) = 0.008$ and $\Pr(\text{Cancer=-}) = 0.992$.]{style="color:steelblue"}
 
 ```{r, echo = TRUE}
 prior <- c(0.008, 0.992)
@@ -973,7 +976,7 @@ $$\color{green}{p(x) = \sum\limits_{\theta}p(x \given \theta)p(\theta)}$$
 
 $$\color{purple}{p(\theta \given x)} = \dfrac{\color{orangered}{p(x \given \theta)} \color{steelblue}{p(\theta)}}{\color{green}{p(x)}}$$
 
-$\color{purple}{p(\theta \given x)}$ [the a posteriori probability of $\theta$ given $x$, that is, what we know about $\theta$ after seeing $x$.]{style="color:purple"}
+$\color{purple}{p(\theta \given x)}$ [the posterior probability of $\theta$ given $x$, that is, what we know about $\theta$ after seeing $x$.]{style="color:purple"}
 
 . . .
 
@@ -1002,7 +1005,7 @@ Applies to all situations where the data generation process can only result in t
 
 . . .
 
-Since Bernoulli, we know how to compute the probability of the result of a coin toss, as long as we know the coin's bias $theta$. Let's assume that $Y = 0$ when you get tails, and that $Y = 1$ when you get heads. Then $Y$ is distributed according to a
+Since Bernoulli, we know how to compute the probability of the result of a coin toss, as long as we know the coin's bias $\theta$. Let's assume that $Y = 0$ when you get tails, and that $Y = 1$ when you get heads. Then $Y$ is distributed according to a
 Bernoulli distribution:
 
 $$p(y \given \theta) = \Pr(Y = y \given \theta) = \theta^{y} (1 - \theta)^{(1 - y)}$$
@@ -1050,8 +1053,7 @@ So far, we have only considered a single sequence resulting in 2 successes for 5
 
 The **binomial coefficient** allows computing the number of possible combinations resulting in $y$ successes for $n$ throws in the following way (read "$y$ among $n$" or "number of combinations of $y$ among $n$")[^1]:
 
-[^1]:  The factorial function $n!$ associates with any natural number $n$ the integer:
-    $N! = N \times (N - 1) \times (N - 2) \times \ldots \times 3 \times 2 \times 1$
+[^1]: The factorial of a non-negative integer $n$, denoted by $n!$, is the product of all positive integers less than or equal to $n$: $n! = n \times (n - 1) \times (n - 2) \times \ldots \times 3 \times 2 \times 1$
 
 $$
 \left(\begin{array}{l} n \\ y \end{array}\right) = C_{y}^{n} = \frac{n !}{y !(n - y) !}
@@ -1093,7 +1095,7 @@ barplot(
   )
 ```
 
-## Generating data from a binomial distribution
+## Sampling binary data
 
 ```{r berndata, out.width = "50%", `code-line-numbers` = "|4"}
 library(tidyverse)
@@ -1128,11 +1130,11 @@ $$
 ## Likelihood versus probability
 
 A coin with a bias $\theta$ is tossed again (where $\theta$ represents the probability of getting heads).
-This coin is tossed twice and we obtain a Head and a Tails.
+This coin is tossed twice and we obtain a Heads and a Tails.
 
 . . .
 
-The probability of observing a Head on two coin tosses **as a function of** different values of $\theta$ can be calculated as follows:
+The probability of observing a Heads on two coin tosses **as a function of** different values of $\theta$ can be calculated as follows:
 
 $$
 \begin{aligned}
@@ -1144,8 +1146,7 @@ $$
 
 . . .
 
-This probability is defined for a fixed data set and a variable
-value. This function can be represented visually.
+This probability is defined for a fixed data set and a variable value of $\theta$. This function can be represented visually.
 
 ## Likelihood versus probability
 
@@ -1216,7 +1217,7 @@ data.frame(
 Note that the likelihood of $\theta$ for a particular data item is
 equal to the probability of the data for this value of $\theta$.
 However, the *distribution* of these likelihoods (in columns) is not a probability distribution.
-In Bayesian analysis, **the data are considered fixed** and the value of $\theta$
+In a usual Bayesian analysis, **the data are considered fixed** and the value of $\theta$
 is considered a **random variable**.
 
 ## Defining the model (prior)
@@ -1225,7 +1226,7 @@ How can we define a prior for $\theta$?
 
 . . .
 
-**Semantic aspect** $~\rightarrow~$ *the prior should be able to account for*:
+**Semantic aspect** $~\rightarrow~$ *the prior should be able to represent*:
 
 - An absence of information
 - Knowledge of previous observations concerning this coin
@@ -1279,7 +1280,7 @@ data.frame(
 ## Interpretation of parameters
 
 - The absence of prior knowledge can be expressed by setting $a = b = 1$ (orange distribution).
-- A prior in favour of an absence of bias can be expressed by setting $a = b \geq 2$ (green distribution).
+- A prior in favour of an absence of bias can be expressed by setting $a = b > 1$ (green distribution).
 - A bias in favour of *Heads* can be expressed by setting $a > b$ (blue distribution).
 - A bias in favour of *Tails* can be expressed by setting $a < b$ (purple distribution).
 
@@ -1525,7 +1526,7 @@ data.frame(theta = seq(0, 1, length = 100) ) %>%
   ggplot(aes(x = theta, y = prob, colour = NULL, fill = params) ) +
   geom_area(position = "identity", alpha = 0.5) +
   xlab(expression(theta) ) +
-  ylab("Densité de probabilité") +
+  ylab("Probability density") +
   scale_fill_manual(
     name = "",
     labels = c("Likelihood", "Posterior", "Prior"),
@@ -1684,7 +1685,7 @@ New issue: $p(\text{data})$ is obtained by calculating the sum (for discrete
 discrete variables) or the integral (for continuous variables)
 of the joint density $p(\text{data}, \theta)$ over all possible values of
 of $\theta$. This can become tricky when the model includes
-several continuous parameters...
+many continuous parameters...
 
 . . .
 
@@ -1710,7 +1711,7 @@ There are three ways to get around this problem:
 
 - Discretised solution $\longrightarrow$ Computing the posterior on a finite set of points (grid method).
 
-- Approximate solution $\longrightarrow$ The parameter space is "cleverly" sampled (e.g., MCMC methods, cf. Course 03).
+- Approximate solution $\longrightarrow$ The parameter space is "cleverly" sampled (e.g., MCMC methods, cf. Course n°03).
 
 ## Discrete distributions
 
@@ -1915,7 +1916,7 @@ knitr::include_graphics("figures/not_gonna_work.gif")
 
 ## Another solution: Sampling the posterior distribution
 
-To sample (cleverly) a posterior distribution, we can use different implementations of MCMC methods (e.g., Metropolis-Hastings, Hamiltonian Monte Carlo) which we will discuss in Course 03. In the meantime, we will work with samples from the posterior distribution i) to get used to results from MCMC methods and ii) because it is simpler to compute summary statistics (e.g., mean or credible intervals) on samples rather than by computing integrals.
+To sample (cleverly) a posterior distribution, we can use different implementations of MCMC methods (e.g., Metropolis-Hastings, Hamiltonian Monte Carlo) which we will discuss in Course n°03. In the meantime, we will work with samples from the posterior distribution i) to get used to results from MCMC methods and ii) because it is simpler to compute summary statistics (e.g., mean or credible intervals) on samples rather than by computing integrals.
 
 . . .
 
@@ -2326,7 +2327,7 @@ available in the `tartine1` dataset from the `imsb` package.
 
 ## Retrieving the data
 
-First task: Retrieve the data.
+First task: Retrieving the data.
 
 ```{r eval = TRUE, echo = TRUE}
 # importing the data

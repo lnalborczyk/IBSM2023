@@ -72,7 +72,7 @@ robot visits 20 different cafés, 5 times in the morning and 5 times in the afte
 knitr::include_graphics("figures/robot.png")
 ```
 
-## Visiting robot
+## Coffee robot
 
 ```{r eval = TRUE, echo = TRUE}
 library(tidyverse)
@@ -82,7 +82,7 @@ df <- open_data(robot)
 head(x = df, n = 15)
 ```
 
-## Visiting robot
+## Coffee robot
 
 ```{r eval = TRUE, echo = TRUE, fig.width = 15, fig.height = 5}
 df %>%
@@ -96,10 +96,9 @@ df %>%
   labs(x = "Café", y = "Waiting time (min)")
 ```
 
-## Visiting robot, a first model
+## Coffee robot, a first model
 
-On peut construire un premier modèle, qui estime le temps moyen (sur
-tous les bistrots confondus) pour être servi.
+An initial model can be built, estimating the average time (across all cafés combined) to be served.
 
 $$
 \begin{align}
@@ -124,7 +123,7 @@ ggplot(data = data.frame(x = c(0, 10) ), aes(x = x) ) +
         )
 ```
 
-## Robot et café, premier modèle
+## Coffee robot, a first model
 
 ```{r eval = TRUE, echo = TRUE, results = "hide"}
 library(brms)
@@ -136,7 +135,6 @@ mod1 <- brm(
     prior(cauchy(0, 2), class = sigma)
     ),
   data = df,
-  # on utilise tous les coeurs disponibles
   cores = parallel::detectCores()
   )
 ```
@@ -156,10 +154,9 @@ plot(
   )
 ```
 
-## Un intercept par café
+## One intercept per café
 
-Deuxième modèle qui estime un intercept par café. Équivalent à
-construire 20 dummy variables.
+Second model which estimates one intercept per coffee. Equivalent to constructing 20 dummy variables.
 
 $$
 \begin{align}
@@ -182,38 +179,31 @@ mod2 <- brm(
   )
 ```
 
-## Un intercept par café
+## One intercept per café
 
 ```{r eval = TRUE, echo = TRUE, warning = FALSE}
 posterior_summary(x = mod2, pars = "^b_")
 ```
 
-## Modèle multi-niveaux
+## Multilevel model
 
-Est-ce qu'on ne pourrait pas faire en sorte que le temps mesuré au café
-1 **informe** la mesure réalisée au café 2, et au café 3 ? Ainsi que le
-temps moyen pour être servi ? Nous allons apprendre le prior à partir
-des données...
+Couldn't we ensure that the time measured at café 1 **informs** the measurement taken at coffee 2 and coffee 3? As well as the average time taken to be served? We're going to learn the priors from the data...
 
 $$
 \begin{align}
-\text{Niveau 1}: \color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\text{Level 1}: \color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
 \color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{café}[i]}} \\
-\text{Niveau 2}: \color{steelblue}{\alpha_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{Normal}(\alpha,\sigma_{\text{café}})} \\
+\text{Level 2}: \color{steelblue}{\alpha_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{Normal}(\alpha,\sigma_{\text{café}})} \\
 \color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(5, 10)} \\
 \color{steelblue}{\sigma_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
 \color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
 \end{align}
 $$
 
-Le prior de l'intercept pour chaque café ($\alpha_{\text{café}}$) est
-maintenant fonction de deux paramètres ($\alpha$ et
-$\sigma_{\text{café}}$). $\alpha$ et $\sigma_{\text{café}}$ sont appelés
-des **hyper-paramètres**, ce sont des paramètres pour des paramètres, et
-leurs priors sont appelés des **hyperpriors**. Il y a deux niveaux dans
-le modèle...
+The prior for the intercept of each coffee ($\alpha_{\text{café}}$) is now a function of two parameters ($\alpha$ and
+$\sigma_{\text{café}}$). $\alpha$ and $\sigma_{\text{café}}$ are called **hyper-parameters**, they are parameters for parameters, and their priors are called **hyperpriors**. There are two levels in the model...
 
-## Équivalences (encore)
+## Equivalences
 
 $$
 \begin{align}
@@ -223,9 +213,7 @@ $$
 \end{align}
 $$
 
-NB : $\alpha$ est ici défini dans le prior de $\alpha_{\text{café}}$
-mais on pourrait, de la même manière, le définir dans le modèle linéaire
-:
+NB: $\alpha$ is defined here in the prior for $\alpha_{\text{café}}$ but it could, in the same way, be defined in the linear model:
 
 $$
 \begin{align}
@@ -235,17 +223,14 @@ $$
 \end{align}
 $$
 
-On peut toujours "enlever" la moyenne d'une distribution gaussienne et
-la considérer comme une constante plus une gaussienne centrée sur zéro.
+We can always "remove" the mean from a Gaussian distribution and consider it as a constant plus a Gaussian centred on zero.
 
 . . .
 
-NB : quand $\alpha$ est défini dans le modèle linéaire, les
-$\alpha_{\text{café}}$ représentent des déviations de l'intercept moyen.
-Il faut donc ajouter $\alpha$ et $\alpha_{\text{café}}$ pour obtenir le
-temps d'attente moyen par café...
+NB: when $\alpha$ is defined in the linear model, the $\alpha_{\text{café}}$ represent deviations from the mean intercept.
+It is therefore necessary to add $\alpha$ and $\alpha_{\text{café}}$ to obtain the average waiting time per café...
 
-## Équivalences (encore)
+## Equivalences
 
 ```{r eval = TRUE, echo = TRUE, out.width = "33%"}
 y1 <- rnorm(n = 1e4, mean = 5, sd = 1)
@@ -259,7 +244,7 @@ data.frame(y1 = y1, y2 = y2) %>%
 
 ## {background-iframe="http://mfviz.com/hierarchical-models/"}
 
-## Modèle multi-niveaux
+## Multilevel model
 
 ```{r eval = TRUE, echo = TRUE, results = "hide"}
 mod3 <- brm(
@@ -275,15 +260,13 @@ mod3 <- brm(
   )
 ```
 
-Ce modèle a 23 paramètres, l'intercept général $\alpha$, la variabilité
-résiduelle $\sigma$, la variabilité entre les cafés
-$\sigma_{\text{café}}$, et un intercept par café.
+This model has 23 parameters, the general intercept $\alpha$, the residual variability $\sigma$, the variability between cafés and one intercept per café.
 
 ## Shrinkage
 
 ```{r echo = FALSE, fig.width = 14, fig.height = 8}
 library(wesanderson) # for plotting
-post <- as_draws_df(mod3) # extracts posterior samples
+post <- as_draws_df(mod3) # retrieving posterior samples
 
 df %>%
     group_by(cafe) %>%
@@ -296,7 +279,7 @@ df %>%
     scale_color_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
     scale_fill_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
     scale_x_continuous(name = "Café", breaks = 1:20) +
-    ylab("Temps d'attente (en minutes)") +
+    ylab("Waiting time (min)") +
     theme(legend.title = element_blank() )
 ```
 
