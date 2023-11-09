@@ -116,14 +116,14 @@
     "href": "install.html#installing-brms-and-rstan",
     "title": "Installation",
     "section": "Installing brms and rstan",
-    "text": "Installing brms and rstan\nWe’ll also be using Stan via the brms and rstan packages. You’ll find all the info you need to install brms on your platform here: https://learnb4ss.github.io/learnB4SS/articles/install-brms.html.^ [In case of problems, see also: https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started.]\nPlease note that this step can be quite long and complex, depending on your platform (especially on Windows), so make sure you don’t do it at the last minute, and that everything’s up and running at the start of the course."
+    "text": "Installing brms and rstan\nWe’ll also be using Stan via the brms and rstan packages. You’ll find all the info you need to install brms on your platform here: https://learnb4ss.github.io/learnB4SS/articles/install-brms.html.1\nPlease note that this step can be quite long and complex, depending on your platform (especially on Windows), so make sure you don’t do it at the last minute, and that everything’s up and running at the start of the course."
   },
   {
     "objectID": "install.html#installing-imsb",
     "href": "install.html#installing-imsb",
     "title": "Installation",
     "section": "Installing imsb",
-    "text": "Installing imsb\nThe rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a “companion” package to the training, the imsb package. To install it, you first need to install the remotes package (and tidyverse by the way), then install imsb from Github.1\n\ninstall.packages(pkgs = c(\"remotes\", \"tidyverse\") )\noptions(timeout = 240) # allowing more time to download the package\nremotes::install_github(repo = \"lnalborczyk/IMSB2022/_imsb\", dependencies = TRUE)\n\nDuring the course, this package can be used to read the slides of the various courses (from course 01 to course 04) online via the open_slides() function.\n\nlibrary(imsb)\nopen_slides(01)\n\nThe datasets used in the various exercises are also contained in this package. You can import them using the function open_data().\n\nopen_data(robot)"
+    "text": "Installing imsb\nThe rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a “companion” package to the training, the imsb package. To install it, you first need to install the remotes package (and tidyverse by the way), then install imsb from Github.2\n\ninstall.packages(pkgs = c(\"remotes\", \"tidyverse\") )\noptions(timeout = 240) # allowing more time to download the package\nremotes::install_github(repo = \"lnalborczyk/IMSB2022/_imsb\", dependencies = TRUE)\n\nDuring the course, this package can be used to read the slides of the various courses (from course 01 to course 04) online via the open_slides() function.\n\nlibrary(imsb)\nopen_slides(01)\n\nThe datasets used in the various exercises are also contained in this package. You can import them using the function open_data().\n\nopen_data(robot)"
   },
   {
     "objectID": "install.html#reminder-regarding-the-pre-requisites",

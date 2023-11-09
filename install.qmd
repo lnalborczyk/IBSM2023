@@ -11,7 +11,7 @@ For this course, you will be using your own computer on which you have [installe
 
 ## Installing `brms` and `rstan`
 
-We'll also be using `Stan` via the `brms` and `rstan` packages. You'll find all the info you need to install `brms` on your platform here: <https://learnb4ss.github.io/learnB4SS/articles/install-brms.html>.^ [In case of problems, see also: <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>.]
+We'll also be using `Stan` via the `brms` and `rstan` packages. You'll find all the info you need to install `brms` on your platform here: <https://learnb4ss.github.io/learnB4SS/articles/install-brms.html>.^[In case of problems, see also: <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>.]
 
 Please note that this step can be quite long and complex, depending on your platform (especially on Windows), so make sure you don't do it at the last minute, and that everything's up and running at the start of the course.
 

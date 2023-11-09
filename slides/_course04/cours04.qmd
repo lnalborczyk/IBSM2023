@@ -59,25 +59,20 @@ Course n°01: Introduction to Bayesian inference, Beta-Binomial model <br> Cours
 
 $$\newcommand\given[1][]{\:#1\vert\:}$$
 
-## Modèles multi-niveaux
+## Multilevel models
 
-Le but est de construire un modèle qui puisse **apprendre à plusieurs
-niveaux**, qui puisse produire des estimations qui seront informées par
-les différents groupes présents dans les données. Nous allons suivre
-l'exemple suivant tout au long de ce cours.
+The aim is to build a model that can **learn at several levels**, that can produce estimates that will be informed by the different groups present in the data. We will follow the following example throughout this course.
 
 . . .
 
-Imaginons que nous ayons construit un robot visiteur de cafés, et que
-celui-ci s'amuse à mesurer le temps d'attente après avoir commandé. Ce
-robot visite 20 cafés différents, 5 fois le matin et 5 fois
-l'après-midi, et mesure le temps (en minutes) de service d'un café.
+Let's imagine that we've built a robot that visits cafés, and that has fun measuring the waiting time after ordering. This
+robot visits 20 different cafés, 5 times in the morning and 5 times in the afternoon, and measures the time (in minutes) it takes to get a coffee.
 
 ```{r echo = FALSE, out.width = "300px"}
 knitr::include_graphics("figures/robot.png")
 ```
 
-## Robot et café
+## Visiting robot
 
 ```{r eval = TRUE, echo = TRUE}
 library(tidyverse)
@@ -87,7 +82,7 @@ df <- open_data(robot)
 head(x = df, n = 15)
 ```
 
-## Robot et café
+## Visiting robot
 
 ```{r eval = TRUE, echo = TRUE, fig.width = 15, fig.height = 5}
 df %>%
@@ -98,10 +93,10 @@ df %>%
     ) +
   geom_hline(yintercept = mean(df$wait), linetype = 3) +
   facet_wrap(~afternoon, ncol = 2) +
-  labs(x = "Café", y = "Temps d'attente (en minutes)")
+  labs(x = "Café", y = "Waiting time (min)")
 ```
 
-## Robot et café, premier modèle
+## Visiting robot, a first model
 
 On peut construire un premier modèle, qui estime le temps moyen (sur
 tous les bistrots confondus) pour être servi.
@@ -1063,7 +1058,7 @@ knitr::include_graphics("figures/bayes_workflow_1.png")
 knitr::include_graphics("figures/bayes_workflow_2.png")
 ```
 
-# Cognitive modelling
+# Scientific and cognitive modelling
 
 ## What's a model?
 
@@ -1071,11 +1066,11 @@ knitr::include_graphics("figures/bayes_workflow_2.png")
 
 ## What's in a model?
 
-...
+Assumptions (not arbitrary!)...
 
 ## What is a model good for?
 
-...
+"One of the most basic problem in scientific inference is the so-called inverse problem: How to figure out causes from observations. It is a problem, because many different causes can produce the same evidence. So while it can be easy to go forward from a known cause to predicted observations, it can very hard to go backwards from observation to cause" (McElreath, 2020)...
 
 ## Geometric people
 

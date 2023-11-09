@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------ #
 # Written by Ladislas Nalborczyk                                     #
 # E-mail: ladislas.nalborczyk@gmail.com                              #
-# Last updated on October 26, 2023                                   #
+# Last updated on November 9, 2023                                   #
 ######################################################################
 
 library(renderthis)
@@ -12,12 +12,9 @@ library(stringr)
 
 # listing extant .html slides in the /html/ folder
 slides <- list.files(
-    path = "html", pattern = ".html",
+    path = "html", pattern = "course",
     recursive = TRUE, full.names = TRUE
     )
-
-# some example
-# input <- slides[10]
 
 for (input in slides) { # for each course
 
@@ -28,27 +25,35 @@ for (input in slides) { # for each course
     course <- str_extract_all(string = input, pattern = "(?<=html/).+(?=.html)")[[1]]
     output <- paste0("pdf/", course, ".pdf")
     
-    if (course == "course01") {
-        
-        # printing it using renderthis
-        renderthis::to_pdf(
-            # from = input,
-            from = paste0("_", course, "/", course, ".qmd"),
-            # to = output
-            complex_slides = FALSE
-            )
-        
-    } else {
-        
-        # printing it using pagedown
-        pagedown::chrome_print(
-            input = input,
-            output = output,
-            format = "pdf",
-            timeout = 60
-            )
-        
-    }
+    # if (course == "course01") {
+    #     
+    #     # printing it using renderthis
+    #     renderthis::to_pdf(
+    #         # from = input,
+    #         from = paste0("_", course, "/", course, ".qmd"),
+    #         # to = output
+    #         complex_slides = FALSE
+    #         )
+    #     
+    # } else {
+    #     
+    #     # printing it using pagedown
+    #     pagedown::chrome_print(
+    #         input = input,
+    #         output = output,
+    #         format = "pdf",
+    #         timeout = 60
+    #         )
+    #     
+    # }
+    
+    # printing it using pagedown
+    pagedown::chrome_print(
+        input = input,
+        output = output,
+        format = "pdf",
+        timeout = 60
+        )
     
     # extracting the R code from slides
     knitr::purl(

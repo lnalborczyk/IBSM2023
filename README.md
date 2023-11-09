@@ -15,8 +15,8 @@ The aim of this 2-day short course is to introduce you to Bayesian statistical m
 |--------|:--------:|
 | Course n°01 : Introduction to Bayesian inference, Beta-Binomial model | November 30, 13h-15h |
 | Course n°02 : Introduction to brms, linear regression | November 30, 15h-17h |
-| Course n°03 : Markov Chain Monte Carlo, generalised linear model | December 1st, 8h-10h |
-| Course n°04 : Multilevel models, cognitive models | December 1st, 10h-12h |
+| Course n°03 : Markov Chain Monte Carlo, generalised linear model | December 1, 9h-11h |
+| Course n°04 : Multilevel models, cognitive models | December 1, 11h-13h |
 
 ## Contact
 
