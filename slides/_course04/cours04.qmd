@@ -156,7 +156,7 @@ plot(
 
 ## One intercept per café
 
-Second model which estimates one intercept per coffee. Equivalent to constructing 20 dummy variables.
+Second model which estimates one intercept per café. Equivalent to constructing 20 dummy variables.
 
 $$
 \begin{align}
@@ -187,7 +187,7 @@ posterior_summary(x = mod2, pars = "^b_")
 
 ## Multilevel model
 
-Couldn't we ensure that the time measured at café 1 **informs** the measurement taken at coffee 2 and coffee 3? As well as the average time taken to be served? We're going to learn the priors from the data...
+Couldn't we ensure that the time measured at café 1 **informs** the measurement taken at café 2 and café 3? As well as the average time taken to be served? We're going to learn the priors from the data...
 
 $$
 \begin{align}
@@ -289,13 +289,13 @@ df %>%
 knitr::include_graphics("figures/stein1.png")
 ```
 
-L'estimateur James-Stein est défini comme $z = \bar{y} + c(y - \bar{y})$,
-où $\bar{y}$ désigne la moyenne de l'échantillon, $y$ une observation individuelle,
-et $c$ une constante, le **shrinking factor** [@efron1977].
+The James-Stein estimator is defined as $z = \bar{y} + c(y - \bar{y})$,
+where $bar{y}$ is the sample mean, $y$ is an individual observation,
+and $c$ is a constant, the **shrinking factor** [@efron1977].
 
 ## Shrinkage magic [@efron1977]
 
-Le shrinking factor est déterminé à la fois par la variabilité (imprécision) de la mesure (e.g., son écart-type) et par la distance à l'estimation moyenne (i.e., $y - \bar{y}$). En d'autres termes, cet estimateur fait moins "confiance" (i.e., accorde moins de poids) aux observations imprécises et/ou extrêmes. En pratique, le shrinkage agit comme une protection contre le sur-apprentissage (overfitting).
+The shrinking factor is determined both by the variability (imprecision) of the measurement (e.g., its standard deviation) and by the distance to the mean estimate (i.e., $y - \bar{y}$). In other words, this estimator is less "confident" about (i.e., gives less weight to) imprecise and/or extreme observations. In practice, shrinkage acts as a safeguard against overlearning (overfitting).
 
 ```{r echo = FALSE, fig.align = "center", out.width = "75%"}
 knitr::include_graphics("figures/stein2.png")
@@ -303,86 +303,62 @@ knitr::include_graphics("figures/stein2.png")
 
 ## Pooling
 
-Le **shrinkage** observé slide précédente est dû à des phénomènes de
-partage (pooling) de l'information entre les cafés. L'estimation de
-l'intercept pour chaque café informe l'estimation de l'intercept des
-autres cafés, ainsi que l'estimation de l'intercept général (i.e., la
-moyenne générale).
+The **shrinkage** observed on the previous slide is due to information pooling between cafés. The estimate of the
+intercept for each café informs the intercept estimates of the other cafés, as well as the estimate of the general intercept (i.e., the overall average waiting time).
 
 . . .
 
-On distingue en général trois perspectives (ou stratégies) :
+There are generally three perspectives (or strategies):
 
--   **Complete pooling** : on suppose que le temps d'attente est
-    invariant, on estime un intercept commun (`mod1`).
+- **Complete pooling**: the waiting time is assumed to be invariant, a common intercept (`mod1`) is estimated.
 
--   **No pooling** : on suppose que les temps d'attente de chaque café
-    sont uniques et indépendants : on estime un intercept par café, mais
-    sans informer le niveau supérieur (`mod2`).
+- **No pooling**: it is assumed that each café's waiting time is unique and independent: an intercept is estimated for each café, but without informing the higher level (`mod2`).
 
--   **Partial pooling** : on utilise un prior adaptatif, comme dans
-    l'exemple précédent (`mod3`).
+- **Partial pooling**: an adaptive prior is used, as in the previous example (`mod3`).
 
 . . .
 
-La stratégie **complete pooling** en général underfitte les données
-(faibles capacités de prédiction) tandis que le stratégie **no pooling**
-revient à overfitter les données (faibles capacités de prédiction ici
-aussi). La stratégie **partial pooling** (i.e., celle des modèles multi-niveaux)
-permet d''équilibrer underfitting et overfitting.
+The **complete pooling** strategy generally underfits the data (low predictive capacity) whereas the **no pooling** strategy amounts to overfitting the data (low predictive capacity here too). The **partial pooling** strategy (i.e., that of multilevel models) balances underfitting and overfitting.
 
-## Comparaison de modèles
+## Model comparison
 
-On peut comparer ces trois modèles en utilisant le WAIC (discuté au
-Cours n°07).
+We can compare these models using indices derived from information theory (extensions of AIC), such as the WAIC (the lower the better).
 
 ```{r eval = TRUE, echo = TRUE}
-# calcul du WAIC et ajout du WAIC à chaque modèle
+# computing the WAIC for each model and storing it
 mod1 <- add_criterion(mod1, "waic")
 mod2 <- add_criterion(mod2, "waic")
 mod3 <- add_criterion(mod3, "waic")
 
-# comparaison des WAIC de chaque modèle
+# comparing these WAICs
 w <- loo_compare(mod1, mod2, mod3, criterion = "waic")
 print(w, simplify = FALSE)
 ```
 
-On remarque que le modèle 3 a seulement 18 "effective parameters"
-(pWAIC) et moins de paramètres que le modèle 2, alors qu'il en a en
-réalité 2 de plus... `posterior_summary(mod3)[3, 1]` nous donne le
-sigma du prior adaptatif des $\alpha_{\text{café}}$
-($\sigma_{\text{café}} = 0.82$). On remarque que ce sigma est très
-faible et correspond à assigner un prior très contraignant, ou
-**régularisateur**.
+We note that model 3 has only 18 effective parameters (pWAIC) and fewer parameters than model 2, whereas it actually has
+2 more... `posterior_summary(mod3)[3, 1]` gives us the sigma of the adaptive priority of $\alpha_{\text{café}}$ ($\sigma_{\text{café}} = 0.82$). Note that this sigma is very low is very low and corresponds to assigning a very restrictive or **regularising** prior.
 
-## Comparaison de modèles
+## Model comparaison
 
-On compare les estimations du premier modèle (complete pooling model) et du troisième
-modèle (partial pooling model).
+The estimates of the first model (complete pooling model) and the third model (partial pooling model) are compared.
 
 ```{r eval = TRUE, echo = TRUE}
 posterior_summary(mod1, pars = c("^b", "sigma") )
 posterior_summary(mod3, pars = c("^b", "sigma") )
 ```
 
-Les deux modèles font la même prédiction (en moyenne) pour $\alpha$,
-mais le modèle 3 est plus incertain de sa prédiction que le modèle 1 (voir l'erreur standard pour $\alpha$)...
+Both models make the same prediction (on average) for $\alpha$, but model 3 is more uncertain of its prediction than model 1 (see the standard error for $\alpha$)...
 
 . . .
 
-L'estimation de $\sigma$ du modèle 3 est plus petite que celle du modèle
-1 car le modèle 3 **décompose** la variabilité non expliquée en deux
-sources : la variabilité du temps d'attente entre les cafés
-$\sigma_{\text{café}}$ et la variabilité résiduelle $\sigma$.
+The $\sigma$ estimate of model 3 is smaller than that of model 1 because model 3 **decomposes** the unexplained variability into two sources: variability in waiting time between cafés and the residual variability $\sigma$.
 
-## Robot et café
+## Coffee robot
 
-Imaginons que notre robot ne visite pas tous les cafés le même nombre de
-fois (comme dans le cas précédent) mais qu'il visite plus souvent les
-cafés proches de chez lui...
+Let's assume that our robot doesn't visit all the cafés the same number of times (as in the previous case) but that it visits more often the cafés close to home...
 
 ```{r eval = TRUE, echo = TRUE, results = "hide"}
-df2 <- open_data(robot_unequal) # nouveau jeu de données
+df2 <- open_data(robot_unequal) # new dataset
 
 mod4 <- brm(
   formula = wait ~ 1 + (1 | cafe),
@@ -399,10 +375,7 @@ mod4 <- brm(
 
 ## Shrinkage
 
-On observe que les cafés qui sont souvent visités (à droite) subissent
-moins l'effet du **shrinkage**. Leur estimation est moins "tirée" vers la
-moyenne générale que les estimations des cafés les moins souvent visités
-(à gauche).
+We can see that cafés that are visited frequently (right) are less affected by the effect of **shrinkage**. Their estimates are less "pulled" towards the average than the estimates of the least frequently visited cafés (left).
 
 ```{r echo = FALSE, fig.width = 12, fig.height = 6}
 post <- as_draws_df(mod4)
@@ -417,14 +390,14 @@ df2 %>%
     geom_point(pch = 21, size = 5, alpha = 0.8, colour = "white", show.legend = TRUE) +
     scale_color_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
     scale_fill_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
-    scale_x_continuous(name = "Café (du moins visité au plus visité)", breaks = 1:20) +
-    ylab("Temps d'attente (en minutes)") +
+    scale_x_continuous(name = "Café (from the least to the most visited)", breaks = 1:20) +
+    ylab("Waiting time (min)") +
     theme(legend.title = element_blank() )
 ```
 
-## Aparté : effets fixes et effets aléatoires
+## Aparté: fixed and random effects
 
-Cinq définitions (contradictoires) relevées par @gelman2005.
+Five (contradictory) definitions identified by @gelman2005.
 
 -   Fixed effects are constant across individuals, and random effects
     vary.
@@ -440,51 +413,35 @@ Cinq définitions (contradictoires) relevées par @gelman2005.
 
 . . .
 
-@gelman2006a suggèrent plutôt l'utilisation des termes de **constant
-effects** et **varying effects**, et de toujours utiliser la modélisation
-multi-niveaux, en considérant que ce qu'on appelle **effet fixe** peut
-simplement être considéré comme un **effet aléatoire** dont la variance
-serait égale à $0$.
+@gelman2006a suggest instead the use of the terms **constant effcts** and **varying effects**, and to always use multilevel modelling, considering that the so-called **fixed effect** can simply be considered as a **random effect** whose variance would be equal to $0$.
 
-## Régularisation et terminologie
+## Regularisation and terminology
 
-Le fait de faire varier les intercepts de chaque café est simplement une
-autre manière de régulariser (de manière adaptative), c'est à dire de
-diminuer le poids accordé aux données dans l'estimation. Le modèle
-devient à même d'estimer à quel point les groupes (ici les cafés) sont
-différents, tout en estimant les caractéristiques de chaque café...
+Varying the intercepts for each café is simply another way of (adaptively) regularising, that is, reducing the weight
+given to the data in the estimation. The model becomes able to estimate the extent to which the groups (in this case the cafés) are different, while estimating the characteristics of each café...
 
 . . .
 
-Différence entre les **cross-classified** (ou "crossed") multilevel
-models et **nested or hierarchical** multilevel models. Le premier type
-de modèle concerne des données structurées selon deux (ou plus) facteurs
-aléatoires non "nichés". Le deuxième type de modèles concerne des
-données structurées de manière hiérarchique (e.g., un élève dans une
-classe dans une école dans une ville...). Voir [cette
-discussion](https://stats.stackexchange.com/questions/228800/crossed-vs-nested-random-effects-how-do-they-differ-and-how-are-they-specified)
-pour plus de détails.
+Difference between **cross-classified** (or "crossed") multilevel models and **nested or hierarchical** multilevel models. Cross-classified models refer to data structured according to two (or more) non-nested random factors
+Hierarchical models usually refers to hierarchically structured data (e.g., a student in a class in a school in a city...). See [this discussion](https://stats.stackexchange.com/questions/228800/crossed-vs-nested-random-effects-how-do-they-differ-and-how-are-they-specified) for more details.
 
 . . .
 
-Les deux types de modèles s'écrivent cependant de manière similaire, sur
-plusieurs "niveaux". Le terme "multi-niveaux" (dans notre terminologie)
-fait donc référence à la structure du modèle, à sa spécification. À
-distinguer de la structure des données.
+However, the two types of models are written in a similar way, on several "levels". The term "multilevel" (in our terminology) therefore refers to the structure of the model, to its specification. It is distinct from the structure of the data.
 
-## Exemple de modèle "cross-classified"
+<!--
 
-On pourrait se poser la question de savoir si la récence des cafés (leur
-âge) ne serait pas une source de variabilité non contrôlée ? Il suffit
-d'ajouter un intercept qui varie par âge, et de lui attribuer un prior
-adaptatif.
+## Example of "cross-classified" model
+
+We could ask ourselves whether the recency of the cafés (their age) might not be a source of uncontrolled variability?
+All we have to do is add an intercept that varies by age, and assign it an adaptive prior.
 
 $$
 \begin{align}
 \color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
-\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \alpha_{\text{café}[i]} + \alpha_{\text{âge}[i]}} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \alpha_{\text{café}[i]} + \alpha_{\text{age}[i]}} \\
 \color{steelblue}{\alpha_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{Normal}(5, \sigma_{\text{café}})} \\
-\color{steelblue}{\alpha_{\text{âge}}} \ &\color{steelblue}{\sim \mathrm{Normal}(5, \sigma_{\text{âge}})} \\
+\color{steelblue}{\alpha_{\text{âge}}} \ &\color{steelblue}{\sim \mathrm{Normal}(5, \sigma_{\text{age}})} \\
 \color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(0, 10)} \\
 \color{steelblue}{\sigma_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
 \color{steelblue}{\sigma_{\text{âge}}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
@@ -492,10 +449,11 @@ $$
 \end{align}
 $$
 
-## Robot et café : varying intercept + varying slope
+-->
 
-On s'intéresse maintenant à l'effet du moment de la journée sur le temps
-d'attente. Attend-on plus le matin, ou l'après-midi ?
+## Coffee robot: varying intercept + varying slope
+
+We are now interested in the effect of the time of day on the waiting time. Do we wait more in the morning, or in the afternoon?
 
 $$
 \begin{align}
@@ -504,31 +462,19 @@ $$
 \end{align}
 $$
 
-Où $A_{i}$ est une dummy variable codée 0/1 pour le matin et
-l'après-midi et où $\beta_{\text{café}}$ est donc un paramètre de différence
-(i.e., une pente) entre le matin et l'après-midi.
+Where $A_{i}$ is a dummy variable coded 0/1 for morning/afternoon and where $\beta_{\text{café}}$ is therefore a difference parameter (i.e., a slope) between morning and afternoon.
 
 . . .
 
-Remarque : on sait que les cafés ont des intercepts et des pentes qui
-co-varient... Les cafés populaires seront surchargés le matin et beaucoup
-moins l'après-midi, résultant en une pente importante. Ces cafés auront
-aussi un temps d'attente moyen plus long (i.e., un intercept plus
-grand). Dans ces cafés, $\alpha$ est grand et $\beta$ est loin de zéro.
-À l'inverse, dans un café peu populaire, le temps d'attente sera faible,
-ainsi que la différence entre matin et après-midi.
+Note: we know that cafés have intercepts and slopes which co-vary... Popular cafés will be overcrowded in the morning and much less in the afternoon, resulting in a significant slope. These cafés will also have a longer average waiting time (i.e., a larger intercept). In these cafés, $\alpha$ is large and $\beta$ is far from zero. Conversely, in an unpopular café, the waiting time will be short, as well as the difference between the morning and afternoon's waiting the.
 
 . . .
 
-On pourrait donc utiliser la co-variation entre intercept et pente pour
-faire de meilleures inférences. Autrement dit, faire en sorte que
-l'estimation de l'intercept informe celle de la pente, et
-réciproquement.
+We could therefore use the co-variation between the intercept and slope to make better inferences. In other words, ensure that the estimate of the intercept informs the estimate of the slope, and reciprocally.
 
-## Robot et café : varying intercept + varying slope
+## Coffee robot: varying intercept + varying slope
 
-On s'intéresse maintenant à l'effet du moment de la journée sur le temps
-d'attente. Attend-on plus le matin, ou l'après-midi ?
+We are now interested in the effect of the time of day on the waiting time. Do we wait more in the morning, or in the afternoon?
 
 $$
 \begin{align}
@@ -541,23 +487,17 @@ $$
 \end{align}
 $$
 
-La troisième ligne postule que chaque café a un intercept
-$\alpha_{\text{café}}$ et une pente $\beta_{\text{café}}$, définis par
-un prior Gaussien bivarié (i.e., à deux dimensions) ayant comme moyennes
-$\alpha$ et $\beta$ et comme matrice de covariance $\textbf{S}$.
+The third line posits that every café has an intercept $\alpha_{\text{café}}$ and a slope $\beta_{\text{café}}$, defined by a bivariate (i.e., two-dimensional) Gaussian prior having as means $\alpha$ and $\beta$ and as covariance matrix $\textbf{S}$.
 
-## Aparté : distribution gaussienne multivariée
+## Aparté: multivariate Normal distribution
 
 $$\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$$
 
-Où $\boldsymbol{\mu}$ est un vecteur (à $k$ dimensions) de moyennes, par
-exemple: `mu <- c(a, b)`.
+Where $\boldsymbol{\mu}$ is a ($k$-dimensional) vector of means, for instance: `mu <- c(a, b)`.
 
 . . .
 
-$\boldsymbol{\Sigma}$ est une matrice de covariance de $k \times k$
-dimensions, et qui correspond à la matrice donnée par la fonction
-`vcov()`.
+$\boldsymbol{\Sigma}$ is a covariance matrix of $k \times k$ dimensions, and which corresponds to the matrix given by the function `vcov()`.
 
 $$
 \begin{align}
@@ -569,7 +509,7 @@ $$
 \end{align}
 $$
 
-## Aparté : distribution gaussienne multivariée
+## Aparté: multivariate Normal distribution
 
 <!--
 
@@ -583,7 +523,7 @@ $$
 knitr::include_graphics("figures/bivariate.png")
 ```
 
-## Aparté : distribution gaussienne multivariée
+## Aparté: multivariate Normal distribution
 
 $$
 \begin{align}
@@ -595,8 +535,7 @@ $$
 \end{align}
 $$
 
-Cette matrice peut se construire de deux manières différentes,
-strictement équivalentes.
+This matrix can be constructed in two different ways, strictly equivalent.
 
 ```{r eval = TRUE, echo = TRUE}
 sigma_a <- 1
@@ -606,7 +545,7 @@ cov_ab <- sigma_a * sigma_b * rho
 (Sigma1 <- matrix(c(sigma_a^2, cov_ab, cov_ab, sigma_b^2), ncol = 2) )
 ```
 
-## Aparté : distribution gaussienne multivariée
+## Aparté: multivariate Normal distribution
 
 $$
 \begin{align}
@@ -618,8 +557,7 @@ $$
 \end{align}
 $$
 
-La deuxième méthode est pratique car elle considère séparément les
-écart-types et les corrélations.
+The second method is convenient because it considers separately the standard deviations and correlations.
 
 ```{r eval = TRUE, echo = TRUE}
 (sigmas <- c(sigma_a, sigma_b) ) # standard deviations
@@ -627,7 +565,7 @@ La deuxième méthode est pratique car elle considère séparément les
 (Sigma2 <- diag(sigmas) %*% Rho %*% diag(sigmas) )
 ```
 
-## Robot et café : varying intercept + varying slope
+## Coffee robot: varying intercept + varying slope
 
 $$
 \begin{align}
@@ -655,17 +593,11 @@ $$
 \end{align}
 $$
 
-$\textbf{S}$ est définie en factorisant $\sigma_{\alpha}$,
-$\sigma_{\beta}$, et la matrice de corrélation $\textbf{R}$. La suite du
-modèle définit simplement les priors pour les effets constants. La
-dernière ligne spécifie le prior pour $\textbf{R}$.
+$\textbf{S}$ is defined by factoring $\sigma_{\alpha}$, $\sigma_{\beta}$, and the correlation matrix $\textbf{R}$. The next lines of the model simply define priors for constant effects. The last line specifies the prior for $\textbf{R}$.
 
 ## LKJ prior
 
-Prior proposé par @lewandowski2009. Un seul paramètre $\zeta$ (zeta) spécifie la
-concentration de la distribution du coefficient de corrélation. Le prior
-$\mathrm{LKJ}(2)$ définit un prior peu informatif pour $\rho$ (rho) qui est
-sceptique des corrélations extrêmes (i.e., des valeurs proches de $-1$ ou $1$).
+Prior proposed by @lewandowski2009. A single parameter $\zeta$ (zeta) specifies the concentration of the distribution of the correlation coefficient. The $\mathrm{LKJ}(2)$ prior defines an uninformative prior for $\rho$ (rho) which is sceptical of extreme correlations (i.e., values close to $-1$ or $1$).
 
 ```{r, echo = FALSE, fig.width = 14, fig.height = 7, cache = TRUE}
 library(ggdist)
@@ -679,7 +611,7 @@ expand.grid(eta = c(0.5, 2, 5, 10), K = c(2, 3, 4, 5) ) %>%
       ) +
   stat_dist_slab(p_limits = c(0, 1), alpha = 0.8) +
   facet_grid(~paste0(K, "x", K) ) +
-  labs(x = expression(rho), y = "Densité de probabilité (par prior)") +
+  labs(x = expression(rho), y = "Probability density (per prior)") +
   scale_fill_manual(
       values = c("steelblue", "orangered", "purple", "darkgreen"),
       labels = c(
@@ -696,51 +628,41 @@ expand.grid(eta = c(0.5, 2, 5, 10), K = c(2, 3, 4, 5) ) %>%
         )
 ```
 
-## Rappels de syntaxe
+## Syntax reminders
 
-Le paquet `brms` utilise la même syntaxe que les fonctions de base R
-(comme `lm`) ou que le paquet `lme4`.
+The `brms` package uses the same syntax as R base functions (like `lm`) or the `lme4` package.
 
 ```{r eval = FALSE, echo = TRUE}
 Reaction ~ Days + (1 + Days | Subject)
 ```
 
-La partie gauche représente notre variable dépendante (ou "outcome",
-i.e., ce qu'on essaye de prédire).
+The left-hand side defines the dependent variable (or "outcome", i.e., what we are trying to predict).
 
 . . .
 
-La partie droite permet de définir les prédicteurs. L'intercept est
-généralement implicite, de sorte que les deux écritures ci-dessous sont
-équivalentes.
+The right-hand side defines the predictors. The intercept is usually implied, so the two formulations below are equivalent.
 
 ```{r eval = FALSE, echo = TRUE}
 Reaction ~ Days + (1 + Days | Subject)
 Reaction ~ 1 + Days + (1 + Days | Subject)
 ```
 
-## Rappels de syntaxe
+## Syntax reminders
 
-La première partie de la partie droite de la formule représente les
-effets constants (effets fixes), tandis que la seconde partie (entre
-parenthèses) représente les effets "variants" ou "variables" (effets aléatoires).
+The first part of the right-hand side of the formula represents the constant effects (fixed effects), whereas the second part (between parentheses) represents varying effects (random effects).
 
 ```{r eval = FALSE, echo = TRUE}
 Reaction ~ 1 + Days + (1 | Subject)
 Reaction ~ 1 + Days + (1 + Days | Subject)
 ```
 
-Le premier modèle ci-dessus contient seulement un intercept variable,
-qui varie par `Subject`. Le deuxième modèle contient également un
-intercept variable, mais aussi une pente variable pour l'effet de
-`Days`.
+The first model above contains only an intercept variable, which varies by `Subject`. The second model also contains a
+variable intercept, but also a variable slope for the effect of `Days`.
 
-## Rappels de syntaxe
+## Syntax reminders
 
-Lorsqu'on inclut plusieurs effets variants (e.g., un intercept et une
-pente variables), `brms` postule qu'on souhaite aussi estimer la
-corrélation entre ces deux effets. Dans le cas contraire, on peut
-supprimer cette corrélation (i.e., la fixer à 0) en utilisant `||`.
+When including several varying effects (e.g., an intercept and a slope), `brms` assumes that we also want to estimate the
+correlation between these two effects. Otherwise, we can remove this correlation (i.e., set it to 0) using `||`.
 
 ```{r eval = FALSE, echo = TRUE}
 Reaction ~ Days + (1 + Days || Subject)
@@ -748,18 +670,15 @@ Reaction ~ Days + (1 + Days || Subject)
 
 . . .
 
-Les modèles précédents postulaient un modèle génératif Gaussien. Ce
-postulat peut être changé facilement en spécifiant la fonction souhaitée
-via l'argument `family`.
+Previous models assumed a Gaussian generative model. This assumption can be changed easily by specifying the desired function via the `family` argument.
 
 ```{r eval = FALSE, echo = TRUE}
 brm(formula = Reaction ~ 1 + Days + (1 + Days | Subject), family = lognormal() )
 ```
 
-## Modèle brms
+## Implementation of our model via brms
 
-On spécifie un intercept et une pente (pour l'effet d'`afternoon`) qui
-varient par `cafe`.
+We specify an intercept and a slope (for the `afternoon` effect) which vary by `cafe`.
 
 ```{r eval = TRUE, echo = TRUE, results = "hide"}
 mod5 <- brm(
@@ -776,20 +695,20 @@ mod5 <- brm(
   )
 ```
 
-## Distribution postérieure
+## Posterior distribution
 
 ```{r eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6}
-post <- as_draws_df(x = mod5) # extracts posterior samples
+post <- as_draws_df(x = mod5) # extracting posterior samples
 R <- rethinking::rlkjcorr(n = 16000, K = 2, eta = 2) # samples from prior
 
 data.frame(prior = R[, 1, 2], posterior = post$cor_cafe__Intercept__afternoon) %>%
     gather(type, value, prior:posterior) %>%
     ggplot(aes(x = value, color = type, fill = type) ) +
     geom_histogram(position = "identity", alpha = 0.2) +
-    labs(x = expression(rho), y = "Nombre d'échantillons")
+    labs(x = expression(rho), y = "Number of samples")
 ```
 
-## Shrinkage en deux dimensions
+## Two-dimensional shrinkage
 
 ```{r eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 8}
 a1 <- sapply(1:20, function(i) mean(df$wait[df$cafe == i & df$afternoon == 0]) )
@@ -854,25 +773,20 @@ shrinkage %>%
     labs(x = "Intercept", y = "Slope")
 ```
 
-## Comparaison de modèles
+## Model comparaison
 
-On compare le premier modèle (complete pooling model), le troisième
-modèle (partial pooling model), et le dernier modèle (avec intercept et pente variable).
+We compare the first model (complete pooling model), the third model (partial pooling model), and the last model (with varying intercept and slope).
 
 ```{r eval = TRUE, echo = TRUE}
-# comparaison des WAIC de chaque modèle
 mod5 <- add_criterion(mod5, "waic")
 w <- loo_compare(mod1, mod2, mod3, mod5, criterion = "waic")
 print(w, simplify = FALSE)
 model_weights(mod1, mod2, mod3, mod5, weights = "waic")
 ```
 
-## Comparaison de modèles
+## Model comparaison
 
-L'estimation du temps d'attente moyen est plus incertaine lorsqu'on
-prend en compte de nouvelles sources d'erreur. Cependant, l'erreur du
-modèle (i.e., ce qui n'est pas expliqué), la variation résiduelle
-$\sigma$, diminue...
+The estimate of the average waiting time is more uncertain when we takes into account new sources of error. However, the overall error of the model (i.e., what is not explained), the residual variation $\sigma$, decreases...
 
 ```{r eval = TRUE, echo = TRUE, warning = FALSE}
 posterior_summary(mod1, pars = c("^b", "sigma") )
@@ -882,32 +796,20 @@ posterior_summary(mod5, pars = c("^b", "sigma") )
 
 ## Conclusions
 
-Les modèles multi-niveaux (ou "modèles mixtes") sont des extensions
-naturelles des modèles de régression classiques, où les paramètres de
-ces derniers se voient eux-même attribués des "modèles", gouvernés par
-des hyper-paramètres.
+Multilevel models (or "mixed-effects models") are natural extensions of classical (single-level) regression models, where classical parameters are themselves assigned "models", governed by hyper-parameters.
 
 . . .
 
-Cette extension permet de faire des prédictions plus précises en prenant
-en compte la variabilité liée aux groupes ou structures (clusters)
-présent(e)s dans les données. Autrement dit, en modélisant les
-populations d'où sont tirés les effets aléatoires (e.g., la population
-de participants ou de stimuli).
+This extension makes it possible to make more precise predictions by taking into account the variability related to groups or structures (clusters) present in the data. In other words, by modelling the populations from which the varying effects are drawn (e.g., the population of participants or stimuli).
 
-Un modèle de régression classique est équivalent à un modèle
-multi-niveaux où la variabilité des effets aléatoires serait fixée à
-$0$.
+A single-level regression model is equivalent to a multilevel model where the variability of varying effects would be fixed at $0$.
 
 . . .
 
-La cadre bayésien permet une interprétation naturelle des distributions
-desquelles proviennent les effets aléatoires (varying effects). En
-effet, ces distributions peuvent être interprétées comme des
-distributions a priori, dont les paramètres sont estimés à partir des
-données.
+The Bayesian framework allows a natural interpretation of distributions from which the varying effects come. Indeed, these distributions can be interpreted as prior distributions, whose parameters are estimated from the
+data.
 
-## Travaux pratiques - sleepstudy
+## Practical work - sleepstudy
 
 ```{r eval = TRUE, echo = TRUE}
 library(lme4)
@@ -915,7 +817,7 @@ data(sleepstudy)
 head(sleepstudy, 20)
 ```
 
-## Travaux pratiques - sleepstudy
+## Practical work - sleepstudy
 
 ```{r eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
 sleepstudy %>%
@@ -926,24 +828,19 @@ sleepstudy %>%
     scale_x_continuous(breaks = c(0, 2, 4, 6, 8) )
 ```
 
-## Travaux pratiques - sleepstudy
+## Practical work - sleepstudy
 
 ::: nonincremental
-À vous de construire les modèles mathématiques et les modèles `brms`
-correspondant aux modèles suivants :
+It's up to you to build the mathematical models and `brms` models corresponding to the following models:
 
--   Modèle avec seulement l'effet fixe de `Days`.
--   Modèle avec l'effet fixe de `Days` + un effet aléatoire de `Subject`
-    (varying intercept).
--   Modèle avec l'effet fixe de `Days` + un effet aléatoire de `Subject`.
-    (varying intercept) + un effet aléatoire de `Days` (varying
-    slope).
+- A model with only the fixed effect of `Days`.
+- A model with the fixed effect of `Days` + a random effect of `Subject` (varying intercept).
+- A model with the fixed effect of `Days` + a random effect of `Subject` (varying intercept + varying slope for `Days`).
 
-Comparez ensuite ces modèles en utilisant les outils discutés aux cours
-précédents (e.g., WAIC) et concluez.
+Then, compare these models using model comparison tools and conclude.
 :::
 
-## Proposition de solution
+## Proposed solution
 
 ```{r eval = TRUE, echo = TRUE}
 fmod0 <- lm(Reaction ~ Days, sleepstudy)
@@ -953,7 +850,7 @@ fmod2 <- lmer(Reaction ~ Days + (1 + Days | Subject), sleepstudy)
 anova(fmod1, fmod2)
 ```
 
-## Proposition de solution
+## Proposed solution
 
 ```{r eval = TRUE, echo = TRUE, results = "hide"}
 mod6 <- brm(
@@ -973,7 +870,7 @@ mod6 <- brm(
 posterior_summary(mod6)
 ```
 
-## Proposition de solution
+## Proposed solution
 
 ```{r eval = TRUE, echo = TRUE, results = "hide"}
 mod7 <- brm(
@@ -994,7 +891,7 @@ mod7 <- brm(
 posterior_summary(mod7, pars = c("^b", "sigma") )
 ```
 
-## Proposition de solution
+## Proposed solution
 
 ```{r eval = TRUE, echo = TRUE, results = "hide"}
 mod8 <- brm(
@@ -1015,30 +912,20 @@ mod8 <- brm(
 posterior_summary(mod8, pars = c("^b", "sigma") )
 ```
 
-## Proposition de solution
+## Proposed solution
 
 ```{r eval = TRUE, echo = TRUE}
-# calcul du WAIC et ajout du WAIC à chaque modèle
+# computing and storing the WAIC of each model
 mod6 <- add_criterion(mod6, "waic")
 mod7 <- add_criterion(mod7, "waic")
 mod8 <- add_criterion(mod8, "waic")
 
-# comparaison des WAIC de chaque modèle
+# comparing the WAICs of these models
 w <- loo_compare(mod6, mod7, mod8, criterion = "waic")
 print(w, simplify = FALSE)
 
-# calcul du poids relatif de chaque modèle
+# computing the relative weight of each model
 model_weights(mod6, mod7, mod8, weights = "waic")
-```
-
-```{r echo = FALSE, out.width = "66%"}
-knitr::include_graphics("figures/bayes_workflow_1.png")
-```
-
-## Bayesian workflow [@gelman2020]
-
-```{r echo = FALSE, out.width = "50%"}
-knitr::include_graphics("figures/bayes_workflow_2.png")
 ```
 
 # Scientific and cognitive modelling
@@ -1067,57 +954,40 @@ Assumptions (not arbitrary!)...
 
 ...
 
-## Conclusions
+## Bayesian workflow [@gelman2020]
 
-La statistique bayésienne est une approche générale de l'estimation de
-paramètres. Cette approche utilise la théorie des probabilités pour
-quantifier l'incertitude vis à vis de la valeur des paramètres de
-modèles statistiques.
+```{r echo = FALSE, out.width = "66%"}
+knitr::include_graphics("figures/bayes_workflow_1.png")
+```
 
-. . .
+## Bayesian workflow [@gelman2020]
 
-Ces modèles sont composés de différents blocs (e.g., fonction de
-vraisemblance, priors, modèle linéaire ou non-linéaire) qui sont
-modifiables à souhait. Ce qu'on appelle classiquement "conditions
-d'application" sont simplement les conséquences des choix de
-modélisation réalisés par l'utilisateur. Autrement dit, c'est
-l'utilisateur qui choisit (et ne subit pas) les conditions
-d'application.
-
-. . .
-
-Nous avons vu que le modèle de régression linéaire est un modèle très
-flexible qui permet de décrire, via la modification de la fonction de
-vraisemblance et via l'introduction de fonctions de lien, des relations
-complexes (e.g., non-linéaires) entre variable prédite et variables
-prédictrices. Ces modèles peuvent gagner en précision par la prise en
-compte de la variabilité et des structures présentes dans les données
-(cf. modèles multi-niveaux).
+```{r echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/bayes_workflow_2.png")
+```
 
 ## Conclusions
 
-Le paquet `brms` est un véritable couteau suisse de l'analyse
-statistique bayésienne en `R`. Il permet de fitter presque n'importe
-quel type de modèle de régression. Cela comprend tous les modèles que
-nous avons vu en cours, mais également bien d'autres. Entre autres, des
-modèles multivariés (i.e., avec plusieurs outcomes), des modèles
-"distributionnels" (e.g., pour prédire des différence de variance), des
-[generalised additive
-models](https://fromthebottomoftheheap.net/2018/04/21/fitting-gams-with-brms/),
-des [procesus Gaussiens](https://rdrr.io/cran/brms/man/gp.html)
-(Gaussian processes), des modèles issus de la [théorie de détection du
-signal](https://mvuorre.github.io/posts/2017-10-09-bayesian-estimation-of-signal-detection-theory-models/),
-des [mixture
-models](https://www.martinmodrak.cz/2021/04/01/using-brms-to-model-reaction-times-contaminated-with-errors/),
-des [modèles de
-diffusion](http://singmann.org/wiener-model-analysis-with-brms-part-i/),
-des modèles
-[non-linéaires](https://paul-buerkner.github.io/brms/articles/brms_nonlinear.html)...
+Bayesian inference is a general approach to parameter estimation. This approach uses probability theory to quantify the uncertainty with respect to the value of the parameters of statistical models.
 
-N'hésitez pas à me contacter pour plus d'informations sur ces modèles ou
-si vous avez des questions par rapport à vos propres données. Vous
-pouvez aussi contacter le créateur du paquet `brms`, très actif en ligne
-(voir [son site](https://paul-buerkner.github.io/about/)). Voir aussi le
-[forum Stan](https://discourse.mc-stan.org).
+. . .
+
+These models are composed of different blocks (e.g., likelihood function, priors, linear or non-linear model) which are
+modifiable as desired. What is classically called "conditions of application" are simply the consequences of modelling choices. In other words, the user defines (and does not suffer) the conditions of application.
+
+. . .
+
+We have seen that the linear regression model provides a very flexible architecture which makes possible to describe, via the modification of the likelihood function and via the introduction of link functions, complex (e.g., non-linear) relationships between outcomes and predictors. These models can gain in precision by taking into account the variability and structures present in the data (cf. multilevel models).
+
+## Conclusions
+
+The `brms` package is a real Swiss army knife of Bayesian statistics in `R`. It allows you to fit almost any
+type of regression model. This includes all models that we have seen, but also many others. Among others,
+multivariate models (i.e., models with several outcomes), "distributional" models (e.g., to predict variance differences),
+[generalized additive models](https://fromthebottomoftheheap.net/2018/04/21/fitting-gams-with-brms/), [Gaussian processes](https://rdrr.io/cran/brms/man/gp.html) (Gaussian processes), models from [signal detection theory](https://mvuorre.github.io/posts/2017-10-09-bayesian-estimation-of-signal-detection-theory-models/),
+[mixture models](https://www.martinmodrak.cz/2021/04/01/using-brms-to-model-reaction-times-contaminated-with-errors/),
+[drift diffusion models](http://singmann.org/wiener-model-analysis-with-brms-part-i/), [non-linear models](https://paul-buerkner.github.io/brms/articles/brms_nonlinear.html)...
+
+Do not hesitate to contact me for more information on these models or if you have any questions about your own data. You can also contact the creator of the `brms` package, who is very active online (see [his site](https://paul-buerkner.github.io/about/)). See also the [Stan forum](https://discourse.mc-stan.org).
 
 ## References {.refs}

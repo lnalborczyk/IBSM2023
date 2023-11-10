@@ -400,7 +400,7 @@ For instance: the probability of dying knowing that you have been attacked by a 
 
 ## Deriving Bayes theorem
 
-From Kolmogorov's axioms and the previous definitions of joint, marginal, and conditional probabilities, we derive the **product rule** (for dependent events):
+From Kolmogorov's axioms and the previous definitions of joint, marginal, and conditional probabilities, we derive the general version (i.e., not necessarily for independent events) of the **product rule**:
 
 $$p(x,y) = p(x \given y) \ p(y) = p(y \given x) \ p(x)$$
 
@@ -1022,7 +1022,7 @@ $$\Pr(Y = 0 \given \theta) = \theta^{0} (1 - \theta)^{(1 - 0)} = 1 \times (1 - \
 
 ## Bernoulli process
 
-If we have a series of independent and identically distributed throws $\{Y_i\}$ (i.e., each throw has a Bernoulli distribution of probability distribution with probability $\theta$), the set of throws can be described by a **binomial distribution**.
+If we have a series of independent and identically distributed throws $\{Y_i\}$ (i.e., each throw has a Bernoulli probability distribution with probability $\theta$), the set of throws can be described by a **Binomial distribution**.
 
 . . .
 
@@ -1081,9 +1081,9 @@ $$
 p(y \given \theta) = \Pr(Y = y \given \theta) = \left(\begin{array}{l} n \\ y \end{array}\right) \theta^{y}(1 - \theta)^{n - y}
 $$
 The binomial distribution allows us to calculate the probability of obtaining $y$
-successes on $n$ trials, for a given $\theta$. Example of the
+successes in $n$ trials, for a given $\theta$. Example of the
 binomial distribution for an unbiased coin ($\theta = 0.5$),
-indicating the probability of obtaining $n$ faces in 10 throws (in R:
+indicating the probability of obtaining $n$ heads in 10 throws (in R:
 `dbinom(x = 0:10, size = 10, prob = 0.5)`).
 
 ```{r echo = FALSE, fig.align = "center", dev = "svg", fig.width = 7.5, fig.height = 5, cache = FALSE}
@@ -1134,7 +1134,7 @@ This coin is tossed twice and we obtain a Heads and a Tails.
 
 . . .
 
-The probability of observing a Heads on two coin tosses **as a function of** different values of $\theta$ can be calculated as follows:
+We can compute the probability of getting one Heads in two coin tosses **as a function of** $\theta$ as follows:
 
 $$
 \begin{aligned}
@@ -1146,7 +1146,7 @@ $$
 
 . . .
 
-This probability is defined for a fixed data set and a variable value of $\theta$. This function can be represented visually.
+This probability is defined for a fixed data set and a varying $\theta$. This function can be represented visually.
 
 ## Likelihood versus probability
 
@@ -1432,7 +1432,7 @@ $$\color{purple}{p(\theta \given y, n) = \mathrm{Beta}(y + a, n - y + b)}$$
 
 We observe $y = 7$ correct answers out of $n = 10$ questions. We choose
 a prior $\mathrm{Beta}(1, 1)$, that is, a uniform prior on $[0, 1]$.
-This prior is equivalent to a priori knowledge of 0 successes and 0 failures (i.e., a flat prior).
+This prior is equivalent to a prior knowledge of 0 successes and 0 failures (i.e., a flat prior).
 
 . . .
 
@@ -1594,7 +1594,7 @@ data.frame(theta = seq(0, 1, length = 100) ) %>%
     )
 ```
 
-## Key points to remember
+## Take-home message
 
 > The posterior distribution is always a compromise between the prior
 > distribution and the likelihood function [@kruschke2015].
@@ -1625,12 +1625,9 @@ data.frame(theta = seq(0, 1, length = 100) ) %>%
     )
 ```
 
-## Key points to remember
+## Take-home message
 
-The more data we have, the less influence the prior has in estimating the posterior
-distribution (and vice versa). **Warning:**
-When the prior assigns a probability of 0 to certain values of $\theta$,
-the model is unable to learn (these values are then considered "impossible").
+The more data we have, the less influence the prior has in estimating the posterior distribution (and vice versa). **Warning:** When the prior assigns a probability of 0 to certain values of $\theta$, the model is unable to learn (these values are then considered "impossible").
 
 ```{r posterior-exemple5, echo = FALSE, fig.width = 12, fig.height = 6}
 p <- seq(0, 1, length = 1e3)
@@ -1711,7 +1708,7 @@ There are three ways to get around this problem:
 
 - Discretised solution $\longrightarrow$ Computing the posterior on a finite set of points (grid method).
 
-- Approximate solution $\longrightarrow$ The parameter space is "cleverly" sampled (e.g., MCMC methods, cf. Course n°03).
+- Approximated solution $\longrightarrow$ The parameter space is "cleverly" sampled (e.g., MCMC methods, cf. Course n°03).
 
 ## Discrete distributions
 
@@ -1725,10 +1722,7 @@ knitr::include_graphics("figures/discrete.png")
 knitr::include_graphics("figures/continuous.png")
 ```
 
-Problem: This solution is very restrictive. Ideally, the model
-(likelihood + prior) model should be defined on the basis of the interpretation
-of the parameters of these distributions, and not to
-facilitate the calculations...
+Problem: This solution is very restrictive. Ideally, the model (likelihood + prior) model should be defined on the basis of the interpretation of the parameters of these distributions, and not to facilitate the calculations...
 
 ## Posterior distribution, grid method
 
@@ -2155,9 +2149,7 @@ posterior_plot(samples = samples, rope = c(0.49, 0.51) ) +
 
 ## Model comparison
 
-We tossed coin 200 times and got 115 "Faces". Is the coin
-coin biased? We build two models and try to find out which one
-which one best accounts for the data.
+We tossed coin 200 times and got 115 "Heads". Is the coin biased? We build two models and try to find out which one best accounts for the data.
 
 ```{=tex}
 \begin{eqnarray*}
@@ -2195,7 +2187,7 @@ than under the $\mathcal{M}_{1}$ model.
 
 ## Model checking
 
-The two roles of the likelihood function:
+Two roles of the likelihood function:
 
 - It is a function of $\theta$ for calculating the posterior distribution: $\mathcal{L}(\theta \given y, n)$.
 - When $\theta$ is known/fixed, it is a probability distribution: $p(y \given \theta, n) \propto \theta^y(1 - \theta)^{(n - y)}$.

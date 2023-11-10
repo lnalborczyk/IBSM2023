@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------ #
 # Written by Ladislas Nalborczyk                                     #
 # E-mail: ladislas.nalborczyk@gmail.com                              #
-# Last updated on November 9, 2023                                   #
+# Last updated on November 10, 2023                                   #
 ######################################################################
 
 library(renderthis)
@@ -16,7 +16,8 @@ slides <- list.files(
     recursive = TRUE, full.names = TRUE
     )
 
-slides <- slides[1]
+# keeping only the first course (for testing)
+# slides <- slides[1]
 
 for (input in slides) { # for each course
 

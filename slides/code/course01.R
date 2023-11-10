@@ -16,6 +16,7 @@ theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
 
 
 ## ----jquery, echo=FALSE----------------------------------------------------------------------------------------------------
+# solution from https://github.com/jhelvy/renderthis/issues/46
 htmltools::tagList(rmarkdown::html_dependency_jquery())
 
 
