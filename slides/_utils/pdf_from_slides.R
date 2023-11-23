@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------ #
 # Written by Ladislas Nalborczyk                                     #
 # E-mail: ladislas.nalborczyk@gmail.com                              #
-# Last updated on November 10, 2023                                   #
+# Last updated on November 23, 2023                                   #
 ######################################################################
 
 library(renderthis)
@@ -17,7 +17,7 @@ slides <- list.files(
     )
 
 # keeping only the first course (for testing)
-# slides <- slides[1]
+slides <- slides[1]
 
 for (input in slides) { # for each course
 
@@ -55,7 +55,7 @@ for (input in slides) { # for each course
         input = input,
         output = output,
         format = "pdf",
-        timeout = 60
+        timeout = 120
         )
     
     # extracting the R code from slides

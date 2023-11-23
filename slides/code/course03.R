@@ -1,4 +1,4 @@
-## ----setup, eval = TRUE, include = FALSE, cache = FALSE--------------------------------------------------------------------
+## ----setup, eval = TRUE, include = FALSE, cache = FALSE---------------------------------------------------------------------
 library(countdown)
 library(tidyverse)
 library(patchwork)
@@ -22,11 +22,11 @@ posterior_color <- "magenta4"
 theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
 
 
-## ----greek, echo = FALSE, fig.cap = "Figure from <https://masterofmemory.com/mmem-0333-learn-the-greek-alphabet/>."--------
+## ----greek, echo = FALSE, fig.cap = "Figure from <https://masterofmemory.com/mmem-0333-learn-the-greek-alphabet/>."---------
 knitr::include_graphics("figures/greek.jpeg")
 
 
-## ----eval = FALSE, echo = TRUE---------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = TRUE----------------------------------------------------------------------------------------------
 ## #####################################################################
 ## # We define a model with:                                           #
 ## # A Gaussian likelihood function: y ~ Normal(mu, sigma)             #
@@ -54,7 +54,7 @@ knitr::include_graphics("figures/greek.jpeg")
 ## rnorm(n = 1e4, mean = mu_prior, sd = sigma_prior) |> hist(breaks = "FD")
 
 
-## ----eval = TRUE, echo = FALSE, out.width = "75%", fig.asp = 0.75----------------------------------------------------------
+## ----eval = TRUE, echo = FALSE, out.width = "75%", fig.asp = 0.75-----------------------------------------------------------
 ################################################################################
 # Assume a model with a Normal likelihood function: y ~ Normal(mu, sigma)      #
 # A Normal prior on the mean: mu ~ Normal(100, 10)                             #
@@ -89,7 +89,7 @@ rnorm(n = nsamples, mean = mu_prior, sd = sigma_prior) |>
     hist(breaks = "FD", xlim = c(-50, 250) )
 
 
-## ----eval = FALSE, echo = FALSE--------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = FALSE---------------------------------------------------------------------------------------------
 ## # from https://plotly.com/r/3d-surface-plots/
 ## 
 ## z <- c(
@@ -124,21 +124,21 @@ rnorm(n = nsamples, mean = mu_prior, sd = sigma_prior) |>
 ## htmlwidgets::saveWidget(fig, file = "plotly1.html")
 
 
-## ----eval = TRUE-----------------------------------------------------------------------------------------------------------
+## ----eval = TRUE------------------------------------------------------------------------------------------------------------
 #| echo: false
 #| out.width: "100%"
 knitr::include_url(url = "plotly1.html", height = "600px")
 
 
-## ----metropolis_picture, echo = FALSE, out.width = "20%"-------------------------------------------------------------------
+## ----metropolis_picture, echo = FALSE, out.width = "20%"--------------------------------------------------------------------
 knitr::include_graphics("figures/Nicholas_Metropolis_cropped.png")
 
 
-## ----pi_gif, echo = FALSE, out.width = "25%"-------------------------------------------------------------------------------
+## ----pi_gif, echo = FALSE, out.width = "25%"--------------------------------------------------------------------------------
 knitr::include_graphics("figures/Pi_30K.gif")
 
 
-## ----pi1, eval = TRUE, echo = TRUE, out.width = "25%"----------------------------------------------------------------------
+## ----pi1, eval = TRUE, echo = TRUE, out.width = "25%"-----------------------------------------------------------------------
 trials <- 1e5 # number of samples
 radius <- 1 # radius of the circle
 x <- runif(n = trials, min = 0, max = radius) # draws for x
@@ -148,7 +148,7 @@ inside <- distance < radius # is it within the quarter of circle?
 pi_estimate <- 4 * sum(inside) / trials # estimated value of pi
 
 
-## ----pi2, eval = TRUE, echo = FALSE, out.width = "33%", dev = "png"--------------------------------------------------------
+## ----pi2, eval = TRUE, echo = FALSE, out.width = "33%", dev = "png"---------------------------------------------------------
 data.frame(x, y, inside) %>%
     ggplot(aes(x, y, color = inside) ) +
     ggtitle(paste(round(trials), "Trials,", "Estimate =", pi_estimate) ) +
@@ -156,7 +156,7 @@ data.frame(x, y, inside) %>%
     geom_point(size = 1 / trials)
 
 
-## ----eval = FALSE, echo = FALSE--------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = FALSE---------------------------------------------------------------------------------------------
 ## # from https://plotly.com/r/3d-surface-plots/
 ## 
 ## z <- c(
@@ -188,13 +188,13 @@ data.frame(x, y, inside) %>%
 ## htmlwidgets::saveWidget(fig, file = "plotly2.html")
 
 
-## ----eval = TRUE-----------------------------------------------------------------------------------------------------------
+## ----eval = TRUE------------------------------------------------------------------------------------------------------------
 #| echo: false
 #| out.width: "100%"
 knitr::include_url(url = "plotly2.html", height = "600px")
 
 
-## ----distribution_theta1, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"----------------------------------
+## ----distribution_theta1, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-----------------------------------
 # knitr::include_graphics("figures/distributionTheta1-7.png")
 
 theta <- c(1, 2, 3, 4, 5, 6, 7)
@@ -207,18 +207,18 @@ theta %>%
   scale_x_continuous(breaks = 1:7)
 
 
-## ----distribution_theta2, echo = FALSE, out.width = "50%"------------------------------------------------------------------
+## ----distribution_theta2, echo = FALSE, out.width = "50%"-------------------------------------------------------------------
 knitr::include_graphics("figures/DistribCarré1-7.png")
 
 
-## ----eval = FALSE, echo = TRUE---------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = TRUE----------------------------------------------------------------------------------------------
 ## niter <- 100 # number of samples
 ## theta <- 1:7 # possible values for theta
 ## ptheta <- theta # probability of theta
 ## samples <- sample(x = theta, prob = ptheta, size = niter, replace = TRUE) # samples
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 25-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 25------------------------------------------------------------------------------
 set.seed(667)
 
 trajLength <- 100
@@ -244,7 +244,7 @@ barplot(
     )
 
 
-## ----metro1, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-----------------------------------------------
+## ----metro1, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------------
 theta %>%
   data.frame() %>%
   ggplot(aes(x = theta, y = theta) ) +
@@ -261,7 +261,7 @@ theta %>%
       )
 
 
-## ----metro2, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-----------------------------------------------
+## ----metro2, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------------
 theta %>%
   data.frame() %>%
   ggplot(aes(x = theta, y = theta) ) +
@@ -286,7 +286,7 @@ theta %>%
       )
 
 
-## ----metro3, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-----------------------------------------------
+## ----metro3, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------------
 theta %>%
   data.frame() %>%
   ggplot(aes(x = theta, y = theta) ) +
@@ -303,7 +303,7 @@ theta %>%
       )
 
 
-## ----metro4, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-----------------------------------------------
+## ----metro4, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------------
 theta %>%
   data.frame() %>%
   ggplot(aes(x = theta, y = theta) ) +
@@ -320,7 +320,7 @@ theta %>%
       )
 
 
-## ----metropolis, eval = TRUE, echo = TRUE----------------------------------------------------------------------------------
+## ----metropolis, eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------
 metropolis <- function (niter = 1e2, startval = 4) {
     
     x <- rep(0, niter) # initialising the chain (vector) of length niter
@@ -347,7 +347,7 @@ metropolis <- function (niter = 1e2, startval = 4) {
 }
 
 
-## ----metropolis1, eval = TRUE, echo = FALSE, fig.width = 25, fig.height = 6, fig.align = "center"--------------------------
+## ----metropolis1, eval = TRUE, echo = FALSE, fig.width = 25, fig.height = 6, fig.align = "center"---------------------------
 set.seed(666)
 
 theta <- 1:7
@@ -371,7 +371,7 @@ barplot(
     )
 
 
-## ----metropolis2, eval = TRUE, echo = FALSE, fig.width = 25, fig.height = 6, fig.align = "center"--------------------------
+## ----metropolis2, eval = TRUE, echo = FALSE, fig.width = 25, fig.height = 6, fig.align = "center"---------------------------
 set.seed(666)
 
 trajectory <- metropolis(niter = trajLength, startval = 4)
@@ -391,11 +391,11 @@ barplot(
   )
 
 
-## ----echo = FALSE, out.width = "75%"---------------------------------------------------------------------------------------
+## ----echo = FALSE, out.width = "75%"----------------------------------------------------------------------------------------
 knitr::include_graphics("figures/MetroAlgoAcceptProposal.png")
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8--------------------------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8---------------------------------------------------------------
 # source("code/DBDA2E-utilities.R")
 
 # specifies the data to be used in the likelihood function
@@ -575,7 +575,7 @@ text(
   )
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8--------------------------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8---------------------------------------------------------------
 # source("code/DBDA2E-utilities.R")
 
 # specifies the data to be used in the likelihood function
@@ -757,7 +757,7 @@ text(
   )
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8--------------------------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 8, fig.height = 8---------------------------------------------------------------
 # source("code/DBDA2E-utilities.R")
 
 # specifies the data to be used in the likelihood function
@@ -939,7 +939,7 @@ text(
   )
 
 
-## ----metropolis-beta-binomial1, eval = TRUE, echo = TRUE-------------------------------------------------------------------
+## ----metropolis-beta-binomial1, eval = TRUE, echo = TRUE--------------------------------------------------------------------
 metropolis_beta_binomial <- function (niter = 1e2, startval = 0.5) {
     
     x <- rep(0, niter) # initialising the chain (vector) of length niter
@@ -967,7 +967,7 @@ metropolis_beta_binomial <- function (niter = 1e2, startval = 0.5) {
 }
 
 
-## ----metropolis-beta-binomial2, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5-----------------------------------
+## ----metropolis-beta-binomial2, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5------------------------------------
 z1 <- metropolis_beta_binomial(niter = 1e4, startval = 0.5)
 z2 <- metropolis_beta_binomial(niter = 1e4, startval = 0.5)
 
@@ -979,7 +979,7 @@ data.frame(z1 = z1, z2 = z2) %>%
   labs(x = "Number of iterations", y = expression(theta) ) + ylim(c(0, 1) )
 
 
-## ----metropolis-beta-binomial3, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5-----------------------------------
+## ----metropolis-beta-binomial3, eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5------------------------------------
 data.frame(z1 = z1, z2 = z2) %>%
   pivot_longer(cols = z1:z2) %>%
   rownames_to_column() %>%
@@ -991,43 +991,43 @@ data.frame(z1 = z1, z2 = z2) %>%
   labs(x = expression(theta), y = "Density")
 
 
-## ----hmc1, echo = FALSE, out.width = "50%"---------------------------------------------------------------------------------
+## ----hmc1, echo = FALSE, out.width = "50%"----------------------------------------------------------------------------------
 knitr::include_graphics("figures/HMC alorithme.png")
 
 
-## ----hmc_erreur, echo = FALSE, out.width = "50%"---------------------------------------------------------------------------
+## ----hmc_erreur, echo = FALSE, out.width = "50%"----------------------------------------------------------------------------
 knitr::include_graphics("figures/HMC alorithme ERREUR1.png")
 
 
-## ----hmc_erreur2, echo = FALSE, out.width = "50%"--------------------------------------------------------------------------
+## ----hmc_erreur2, echo = FALSE, out.width = "50%"---------------------------------------------------------------------------
 knitr::include_graphics("figures/HMC alorithme ERREUR2.png")
 
 
-## ----repres1, echo = FALSE, out.width = "50%"------------------------------------------------------------------------------
+## ----repres1, echo = FALSE, out.width = "50%"-------------------------------------------------------------------------------
 knitr::include_graphics("figures/Verif_representativité1.png")
 
 
-## ----repres2, echo = FALSE, out.width = "50%"------------------------------------------------------------------------------
+## ----repres2, echo = FALSE, out.width = "50%"-------------------------------------------------------------------------------
 knitr::include_graphics("figures/Verif_representativité2.png")
 
 
-## ----repres3, echo = FALSE, out.width = "50%"------------------------------------------------------------------------------
+## ----repres3, echo = FALSE, out.width = "50%"-------------------------------------------------------------------------------
 knitr::include_graphics("figures/Verif_representativité3.png")
 
 
-## ----autocorrelation, echo = FALSE, out.width = "40%"----------------------------------------------------------------------
+## ----autocorrelation, echo = FALSE, out.width = "40%"-----------------------------------------------------------------------
 knitr::include_graphics("figures/Verif_autocorrelation.png")
 
 
-## ----repres4, echo = FALSE, out.width = "50%"------------------------------------------------------------------------------
+## ----repres4, echo = FALSE, out.width = "50%"-------------------------------------------------------------------------------
 knitr::include_graphics("figures/Verif_representativité4.png")
 
 
-## ----repres5, echo = FALSE, out.width = "50%"------------------------------------------------------------------------------
+## ----repres5, echo = FALSE, out.width = "50%"-------------------------------------------------------------------------------
 knitr::include_graphics("figures/Verif_representativité5.png")
 
 
-## ----diagnostics1, eval = TRUE, echo = TRUE, results = "hide"--------------------------------------------------------------
+## ----diagnostics1, eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------
 library(tidyverse)
 library(imsb)
 library(brms)
@@ -1053,30 +1053,30 @@ mod1 <- brm(
   )
 
 
-## ----diagnostics2, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6------------------------------------------------
+## ----diagnostics2, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6-------------------------------------------------
 # combo can be hist, dens, dens_overlay, trace, trace_highlight...
 # cf. https://mc-stan.org/bayesplot/reference/MCMC-overview.html
 plot(x = mod1, combo = c("dens_overlay", "trace") )
 
 
-## ----diagnostics3, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6------------------------------------------------
+## ----diagnostics3, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6-------------------------------------------------
 library(bayesplot)
 post <- posterior_samples(mod1, add_chain = TRUE)
 post %>% mcmc_acf(pars = vars(b_Intercept:sigma), lags = 10)
 
 
-## ----diagnostics4, eval = TRUE, echo = TRUE--------------------------------------------------------------------------------
+## ----diagnostics4, eval = TRUE, echo = TRUE---------------------------------------------------------------------------------
 summary(mod1)
 
 
-## ----diagnostics5, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6------------------------------------------------
+## ----diagnostics5, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6-------------------------------------------------
 post %>% # rank plots
   mcmc_rank_overlay(pars = vars(b_Intercept:sigma) ) +
-  labs(x = "Rang", y = "Fréquence") +
+  labs(x = "Rang", y = "Frequency") +
   coord_cartesian(ylim = c(25, NA) )
 
 
-## ----rugged, eval = TRUE, echo = TRUE--------------------------------------------------------------------------------------
+## ----rugged, eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------
 library(tidyverse)
 library(imsb)
 
@@ -1085,7 +1085,7 @@ df1 <- d[complete.cases(d$rgdppc_2000), ]
 str(df1)
 
 
-## ----mod2b, eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------
+## ----mod2b, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
 priors2 <- c(
   prior(normal(0, 100), class = Intercept),
   prior(normal(0, 10), class = b),
@@ -1103,19 +1103,19 @@ mod2 <- brm(
   )
 
 
-## ----mod2-summary, eval = TRUE, echo = TRUE--------------------------------------------------------------------------------
+## ----mod2-summary, eval = TRUE, echo = TRUE---------------------------------------------------------------------------------
 summary(mod2)
 
 
-## ----mod2-diagnostics, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6--------------------------------------------
+## ----mod2-diagnostics, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6---------------------------------------------
 plot(x = mod2, combo = c("dens_overlay", "trace"), pars = "^b_")
 
 
-## ----mod2-pairs, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6---------------------------------------------------
+## ----mod2-pairs, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6----------------------------------------------------
 pairs(x = mod2, np = nuts_params(mod2) ) # voir ?nuts_params
 
 
-## ----echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-------------------------------------------------------
+## ----echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"--------------------------------------------------------
 # plot from https://bookdown.org/content/4857/big-entropy-and-the-generalized-linear-model.html#generalized-linear-models
 
 tibble(x = seq(from = -1, to = 3, by = 0.01) ) %>%
@@ -1131,7 +1131,7 @@ tibble(x = seq(from = -1, to = 3, by = 0.01) ) %>%
   labs(x = "Predictor value", y = "Probability")
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-------------------------------------------
 # plot from https://bookdown.org/content/4857/big-entropy-and-the-generalized-linear-model.html#generalized-linear-models
 
 # make data for the horizontal lines
@@ -1185,7 +1185,7 @@ p2 <-
 p1 + p2
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-------------------------------------------
 # plot from https://bookdown.org/content/4857/big-entropy-and-the-generalized-linear-model.html#generalized-linear-models
 
 # make data for the horizontal lines
@@ -1239,11 +1239,11 @@ p2 <-
 p1 + p2
 
 
-## ----chimp, echo = FALSE, out.width = "50%"--------------------------------------------------------------------------------
+## ----chimp, echo = FALSE, out.width = "50%"---------------------------------------------------------------------------------
 knitr::include_graphics("figures/chimp_exp.jpg")
 
 
-## ----echo = TRUE-----------------------------------------------------------------------------------------------------------
+## ----echo = TRUE------------------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(imsb)
 
@@ -1251,7 +1251,7 @@ df1 <- open_data(chimpanzees)
 str(df1)
 
 
-## ----mod1, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
+## ----mod1, eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------
 library(brms)
 
 mod1.1 <- brm(
@@ -1265,17 +1265,17 @@ mod1.1 <- brm(
   )
 
 
-## ----ppc-mod1.1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "60%"-------------------------------
+## ----ppc-mod1.1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "60%"--------------------------------
 # retrieving sample from the prior predictive distribution
 prior_draws(x = mod1.1) %>%
   # applying the inverse link function
   mutate(p = brms::inv_logit_scaled(Intercept) ) %>%
   ggplot(aes(x = p) ) +
   geom_density(fill = "steelblue", adjust = 0.1) +
-  labs(x = "Probabilité a priori de tirer le levier gauche", y = "Densité de probabilité")
+  labs(x = "Prior probability of pulling the left lever", y = "Probability density")
 
 
-## ----ppc-mod1.2, eval = TRUE, echo = FALSE, results = "hide", fig.width = 12, fig.height = 6, out.width = "80%"------------
+## ----ppc-mod1.2, eval = TRUE, echo = FALSE, results = "hide", fig.width = 12, fig.height = 6, out.width = "80%"-------------
 mod1.2 <- brm(
   formula = pulled_left | trials(1) ~ 1,
   family = binomial,
@@ -1295,7 +1295,7 @@ bind_rows(prior_draws(mod1.1), prior_draws(mod1.2) ) %>%
   labs(x = "Prior probability of pulling the left lever", y = "Probability density")
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 fixed_effects <- fixef(mod1.2) # fixed effects (i.e., the intercept)
 plogis(fixed_effects) # inverse link function
 
@@ -1307,7 +1307,7 @@ intercept_samples <- plogis(post$b_Intercept) # posterior samples for the interc
 posterior_plot(samples = intercept_samples, compval = 0.5) + labs(x = "Probability of pulling left")
 
 
-## ----mod2, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
+## ----mod2, eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------
 # recoding predictors
 df1 <- df1 %>%
   mutate(
@@ -1329,7 +1329,7 @@ mod2.1 <- brm(
   )
 
 
-## ----ppc-mod2.1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "50%"-------------------------------
+## ----ppc-mod2.1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "50%"--------------------------------
 prior_draws(x = mod2.1) %>% # prior samples
   mutate(
     condition1 = plogis(Intercept - 0.5 * b), # p in condition 1
@@ -1343,7 +1343,7 @@ prior_draws(x = mod2.1) %>% # prior samples
     )
 
 
-## ----mod2.2, eval = TRUE, echo = TRUE, results = "hide"--------------------------------------------------------------------
+## ----mod2.2, eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------
 priors <- c(
   prior(normal(0, 1), class = Intercept),
   prior(normal(0, 1), class = b)
@@ -1358,7 +1358,7 @@ mod2.2 <- brm(
   )
 
 
-## ----ppc-mod2.2, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "50%"-------------------------------
+## ----ppc-mod2.2, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "50%"--------------------------------
 prior_draws(mod2.2) %>% # prior samples
   mutate(
     condition1 = plogis(Intercept - 0.5 * b), # p in condition 1
@@ -1372,27 +1372,27 @@ prior_draws(mod2.2) %>% # prior samples
     )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 summary(mod2.2)
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 fixef(mod2.2) # retrieving estimates for "fixed effects"
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6, out.width = "50%", dev = "png", dpi = 200--------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6, out.width = "50%", dev = "png", dpi = 200---------------------
 post <- as_draws_df(x = mod2.2) # posterior samples
 posterior_plot(samples = exp(post$b_prosoc_left), compval = 1) + labs(x = "Odds ratio")
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 model_predictions <- fitted(mod2.2) %>% # prediction for p (i.e., the probability)
   data.frame() %>% 
   bind_cols(df1) %>%
   mutate(condition = factor(condition), prosoc_left = factor(prosoc_left) )
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 9, fig.height = 6, out.width = "50%"-------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 9, fig.height = 6, out.width = "50%"--------------------------------------------
 model_predictions %>%
   ggplot(aes(
     x = prosoc_left, y = Estimate,
@@ -1418,11 +1418,11 @@ model_predictions %>%
   )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 (df2 <- open_data(admission) )
 
 
-## ----mod3, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
+## ----mod3, eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------
 priors <- c(prior(normal(0, 1), class = Intercept) )
 
 mod3 <- brm(
@@ -1434,7 +1434,7 @@ mod3 <- brm(
   )
 
 
-## ----mod4, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
+## ----mod4, eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------
 priors <- c(
   prior(normal(0, 1), class = Intercept),
   prior(normal(0, 1), class = b)
@@ -1452,11 +1452,11 @@ mod4 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 summary(mod4)
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 6, out.width = "50%", dev = "png", dpi = 200--------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 6, out.width = "50%", dev = "png", dpi = 200---------------------
 post <- as_draws_df(x = mod4)
 p.admit.male <- plogis(post$b_Intercept + post$b_male)
 p.admit.female <- plogis(post$b_Intercept)
@@ -1464,7 +1464,7 @@ diff.admit <- p.admit.male - p.admit.female
 posterior_plot(samples = diff.admit, compval = 0)
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-------------------------------------------
 # pp_check(mod4, type = "intervals", nsamples = 1e2, prob = 0.5, prob_outer = 0.95) +
 #   scale_x_continuous(breaks = 1:12, limits = c(1, 12) ) +
 #   theme_bw(base_size = 20) +
@@ -1517,7 +1517,7 @@ ggplot(data = df2, aes(x = case, y = admit / applications) ) +
     )
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
 # model without any predictor
 mod5 <- brm(
   admit | trials(applications) ~ 0 + dept,
@@ -1535,15 +1535,15 @@ mod6 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 summary(mod6)
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 fixef(mod6)
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 6, out.width = "75%"-------------------------------------------
 predict(mod6) %>%
   as_tibble() %>% 
   bind_cols(df2) %>%
@@ -1579,12 +1579,12 @@ predict(mod6) %>%
     )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 df3 <- open_data(absence)
 df3 %>% sample_frac %>% head(10)
 
 
-## ----mod7, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
+## ----mod7, eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------
 mod7 <- brm(
     presence | trials(total) ~ 1,
     family = binomial(link = "logit"),
@@ -1595,12 +1595,12 @@ mod7 <- brm(
     )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 fixef(mod7) # relative effect (log-odds)
 fixef(mod7) %>% plogis # absolute effect (probability of presence)
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 df3 <-
   df3 %>%
   mutate(
@@ -1611,7 +1611,7 @@ df3 <-
 head(df3, n = 10)
 
 
-## ----mod8, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
+## ----mod8, eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------
 priors <- c(
   prior(normal(0, 1), class = Intercept),
   prior(normal(0, 1), class = b)
@@ -1626,18 +1626,18 @@ mod8 <- brm(
     )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 exp(fixef(mod8)[2]) # odds ratio with and without the reminder e-mail
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5, dev = "png", dpi = 200--------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5, dev = "png", dpi = 200---------------------------------------
 post <- as_draws_df(x = mod8) # retrieving posterior samples
 p.no <- plogis(post$b_Intercept) # probability of presence without reminder e-mail
 p.yes <- plogis(post$b_Intercept + post$b_reminder) # probability of presence with reminder e-mail
 posterior_plot(samples = p.yes - p.no, compval = 0, usemode = TRUE)
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 4---------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 8, fig.height = 4----------------------------------------------------------------
 library(tidybayes)
 library(modelr)
 
@@ -1655,7 +1655,7 @@ df3 %>%
   labs(x = "Reminder e-mail", y = "Probability of presence")
 
 
-## ----mod9, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
+## ----mod9, eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------
 priors <- c(
   prior(normal(0, 1), class = Intercept),
   prior(normal(0, 1), class = b)
@@ -1670,14 +1670,14 @@ mod9 <- brm(
     )
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5, dev = "png", dpi = 200--------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 10, fig.height = 5, dev = "png", dpi = 200---------------------------------------
 post <- as_draws_df(x = mod9)
 p.panel <- plogis(post$b_Intercept) # average probability of presence - panel
 p.doodle <- plogis(post$b_Intercept + post$b_inscription) # average probability of presence- doodle
 posterior_plot(samples = p.panel - p.doodle, compval = 0, usemode = TRUE)
 
 
-## ----mod10, eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------
+## ----mod10, eval = TRUE, echo = TRUE, results = "hide"----------------------------------------------------------------------
 priors <- c(
   prior(normal(0, 1), class = Intercept),
   prior(normal(0, 1), class = b)
@@ -1692,24 +1692,24 @@ mod10 <- brm(
     )
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 summary(mod10)
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 fixef(mod8) %>% exp() # computing the odds ratio
 fixef(mod9) %>% exp() # computing the odds ratio
 fixef(mod10) %>% exp() # computing the odds ratio
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6--------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6---------------------------------------------------------------
 as_draws_df(x = mod10) %>%
     ggplot(aes(b_reminder, b_inscription) ) +
     geom_point(size = 3, pch = 21, alpha = 0.8, color = "white", fill = "black") +
     labs(x = "Effect (slope) of reminder email", y = "Effect (slope) of registration method")
 
 
-## ----eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
 open_data(absence) %>%
   group_by(inscription, reminder) %>%
   summarise(n = sum(total) ) %>%

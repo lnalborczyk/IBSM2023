@@ -203,20 +203,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="installing-imsb" class="level2">
 <h2 class="anchored" data-anchor-id="installing-imsb">Installing <code>imsb</code></h2>
-<p>The rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a “companion” package to the training, the <code>imsb</code> package. To install it, you first need to install the <code>remotes</code> package (and <code>tidyverse</code> by the way), then install <code>imsb</code> from Github.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>The rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a “companion” package to the workshop, the <code>imsb</code> package. To install it, you first need to install the <code>remotes</code> and <code>tidyverse</code> packages, then install <code>imsb</code> from Github.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="at">pkgs =</span> <span class="fu">c</span>(<span class="st">"remotes"</span>, <span class="st">"tidyverse"</span>) )</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">240</span>) <span class="co"># allowing more time to download the package</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="at">repo =</span> <span class="st">"lnalborczyk/IMSB2022/_imsb"</span>, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>During the course, this package can be used to read the slides of the various courses (from course <code>01</code> to course <code>04</code>) online via the <code>open_slides()</code> function.</p>
+<p>The datasets used during the workshop are contained in this package. You can import them using the function <code>open_data()</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(imsb)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">open_slides</span>(<span class="dv">01</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>The datasets used in the various exercises are also contained in this package. You can import them using the function <code>open_data()</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">open_data</span>(robot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">open_data</span>(robot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="reminder-regarding-the-pre-requisites" class="level2">

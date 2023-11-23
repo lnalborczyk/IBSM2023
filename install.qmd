@@ -17,7 +17,7 @@ Please note that this step can be quite long and complex, depending on your plat
 
 ## Installing `imsb`
 
-The rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a "companion" package to the training, the `imsb` package. To install it, you first need to install the `remotes` package (and `tidyverse` by the way), then install `imsb` from Github.^[Yeah, the `imsb` acronym comes from the French name of the course I am teaching, hence the loose correspondence with this course's acronym.]
+The rest of the packages, along with the data used in the exercises and a few useful functions, can be installed together as a "companion" package to the workshop, the `imsb` package. To install it, you first need to install the `remotes` and `tidyverse` packages, then install `imsb` from Github.^[Yeah, the `imsb` acronym comes from the French name of the course I am teaching, hence the loose correspondence with this course's acronym.]
 
 ```{r, eval = FALSE, echo = TRUE}
 install.packages(pkgs = c("remotes", "tidyverse") )
@@ -25,16 +25,10 @@ options(timeout = 240) # allowing more time to download the package
 remotes::install_github(repo = "lnalborczyk/IMSB2022/_imsb", dependencies = TRUE)
 ```
 
-During the course, this package can be used to read the slides of the various courses (from course `01` to course `04`) online via the `open_slides()` function.
+The datasets used during the workshop are contained in this package. You can import them using the function `open_data()`.
 
 ```{r, eval = FALSE, echo = TRUE}
 library(imsb)
-open_slides(01)
-```
-
-The datasets used in the various exercises are also contained in this package. You can import them using the function `open_data()`.
-
-```{r, eval = FALSE, echo = TRUE}
 open_data(robot)
 ```
 

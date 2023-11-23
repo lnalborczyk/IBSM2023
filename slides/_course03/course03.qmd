@@ -584,7 +584,7 @@ The proposal can be modelled by a normal distribution: $\Delta \theta \sim \math
 
 ## Metropolis algorithm
 
-**Problem n°2 :** What probability should we use to accept or refuse the move? We use the product of the likelihood and the prior: $\color{orangered}{\theta^y(1 - \theta)^{(n - y)}}}\color{steelblue}{\theta^{(a - 1)}(1 - \theta)^{(b - 1)}}$
+**Problem n°2 :** What probability should we use to accept or refuse the move? We use the product of the likelihood and the prior: $\color{orangered}{\theta^y(1 - \theta)^{(n - y)}}\color{steelblue}{\theta^{(a - 1)}(1 - \theta)^{(b - 1)}}$
 
 . . .
 
@@ -1289,6 +1289,7 @@ knitr::include_graphics("figures/HMC alorithme.png")
 - After a certain time, the final position of the ball and its moment are recorded.
 
 - The proposed movement is accepted or rejected according to the following probability (where $\phi$ (phi) is the moment associated with the marble):
+
 . . .
 
 $$
@@ -1441,7 +1442,7 @@ When things go wrong, see these [recommendations](https://github.com/stan-dev/st
 ```{r diagnostics5, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
 post %>% # rank plots
   mcmc_rank_overlay(pars = vars(b_Intercept:sigma) ) +
-  labs(x = "Rang", y = "Fréquence") +
+  labs(x = "Rang", y = "Frequency") +
   coord_cartesian(ylim = c(25, NA) )
 ```
 
@@ -1575,7 +1576,7 @@ $$
 
 ## Introduction
 
-This modelling implies two constraints:
+This model implies two constraints:
 
 - The observed data are defined in a discrete space.
 - This space is bounded.
@@ -1813,15 +1814,13 @@ str(df1)
 
 We want to know whether the presence of a partner chimpanzee encourages the chimpanzee to press the prosocial lever, that is, the lever that gives food to both individuals. In other words, is there an interaction between the effect of laterality and the effect of the presence of another chimpanzee on the probability of pressing the left lever?
 
-. . .
-
 ### The variables
 
+::: nonincremental
 - Observations (`pulled_left`): These are Bernoulli variables. Their value is 0/1.
-
 - Predictor (`prosoc_left`): Are the two dishes on the left or the right?
-
 - Predictor (`condition`): Is a partner present?
+:::
 
 ## Logistic regression example
 
@@ -1863,7 +1862,7 @@ prior_draws(x = mod1.1) %>%
   mutate(p = brms::inv_logit_scaled(Intercept) ) %>%
   ggplot(aes(x = p) ) +
   geom_density(fill = "steelblue", adjust = 0.1) +
-  labs(x = "Probabilité a priori de tirer le levier gauche", y = "Densité de probabilité")
+  labs(x = "Prior probability of pulling the left lever", y = "Probability density")
 ```
 
 ## Prior predictive check
@@ -1890,8 +1889,6 @@ bind_rows(prior_draws(mod1.1), prior_draws(mod1.2) ) %>%
 
 ## Logistic regression
 
-L'intercept s'interprète dans l'espace des log-odds... pour l'interpréter comme une probabilité, il faut appliquer la fonction de lien inverse. On peut utiliser la fonction `brms::inv_logit_scaled()` ou la fonction `plogis()`.
-
 The intercept is interpreted in the log-odds space... to interpret it as a probability, we should apply the inverse link function. We can use the `brms::inv_logit_scaled()` function or the `plogis()` function.
 
 . . .
@@ -1901,7 +1898,7 @@ fixed_effects <- fixef(mod1.2) # fixed effects (i.e., the intercept)
 plogis(fixed_effects) # inverse link function
 ```
 
-On average (without considering the predictors), it seems that chimpanzees are slightly more likely to pull the left lever than the right...
+On average (without considering the predictors), it seems that chimpanzees are slightly more likely to pull the left lever than the right one...
 
 ## Logistic regression
 
@@ -2143,7 +2140,7 @@ $$
 
 Variables:
 
-- $text{admit}_{i}$: The number of applications accepted (`admit`).
+- $\text{admit}_{i}$: The number of applications accepted (`admit`).
 - $n_{i}$: The total number of applications (`applications`).
 - $m_{i}$: The gender of the applicant (`1 = Male`).
 
@@ -2271,7 +2268,7 @@ The problem is twofold:
 
 . . .
 
-This is Simpson's ["paradox"](https://en.wikipedia.org/wiki/Simpson%27s_paradox)... remarks :
+This is [Simpson's "paradox"](https://en.wikipedia.org/wiki/Simpson%27s_paradox)... remarks:
 
 - The posterior distribution alone would not have detected this problem.
 - We were able to pinpoint the problem by examining the detailed model's predictions...

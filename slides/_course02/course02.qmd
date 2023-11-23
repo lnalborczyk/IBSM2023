@@ -63,7 +63,7 @@ Course n°01: Introduction to Bayesian inference, Beta-Binomial model <br> **Cou
 
 $$\newcommand\given[1][]{\:#1\vert\:}$$
 
-## Setting up a common language
+## A common language
 
 $$
 \begin{align}
@@ -536,10 +536,10 @@ posterior_plot(samples = sample.mu, nbins = 30) + labs(x = expression(mu) )
 posterior_plot(samples = sample.sigma, nbins = 30) + labs(x = expression(sigma) )
 ```
 
-# Introduction to brms
+# Introducing brms
 
 
-## Introduction to brms
+## Introducing brms
 
 Under the hood: `Stan` is a probabilistic programming language written in `C++`, which implements several MCMC algorithms: HMC, NUTS, L-BFGS...
 
@@ -676,7 +676,7 @@ mod1 <- brm(height ~ 1, data = d2)
 posterior_summary(mod1, pars = c("^b_", "sigma"), probs = c(0.025, 0.975) )
 ```
 
-These data represent the marginal (posterior) distributions of each parameter. In other words, the posterior probability $\mu$, averaged over all possible values of $sigma$, is best described by a Gaussian distribution with a mean of $154.6$ and a standard deviation of $0.42$. The credibility interval ($\neq$ confidence interval) indicates the 95% most plausible values of $\mu$ or $\sigma$ (given the data and priors).
+These data represent the marginal (posterior) distributions of each parameter. In other words, the posterior probability $\mu$, averaged over all possible values of $\sigma$, is best described by a Gaussian distribution with a mean of $154.6$ and a standard deviation of $0.42$. The credibility interval ($\neq$ confidence interval) indicates the 95% most plausible values of $\mu$ or $\sigma$ (given the data and priors).
 
 ## Using our prior
 

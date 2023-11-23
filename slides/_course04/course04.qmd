@@ -1,0 +1,1725 @@
+---
+title: Introduction to Bayesian statistical modelling
+subtitle: A course with R, Stan, and brms
+author: Ladislas Nalborczyk (UNICOG, NeuroSpin, CEA, Gif/Yvette, France)
+from: markdown+emoji
+format:
+  revealjs:
+    incremental: true
+    theme: [default, ../custom.scss]
+    transition: none # fade
+    background-transition: none # fade
+    transition-speed: default # default, fast, or slow
+    slide-number: c/t
+    show-slide-number: all
+    preview-links: true
+    self-contained: true # when sharing slides
+    # chalkboard: true
+    csl: ../../files/bib/apa7.csl
+    logo: ../../files/cover.png
+    footer: "Ladislas Nalborczyk - IBSM2023"
+    # width: 1200 # defaults to 1050
+    # height: 900 # default to 700
+    margin: 0.15 # defaults to 0.1
+    scrollable: true
+    hide-inactive-cursor: true
+    pdf-separate-fragments: false
+    highlight-style: zenburn
+    code-copy: true
+    code-link: false
+    code-fold: false
+    code-summary: "See the code"
+    numbers: true
+    progress: false
+title-slide-attributes:
+    data-background-color: "#1c5253"
+bibliography: ../../files/bib/references.bib
+editor_options: 
+  chunk_output_type: console
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, eval = TRUE, include = FALSE, cache = FALSE}
+library(tidyverse)
+library(BEST)
+library(brms)
+
+# setting up knitr options
+knitr::opts_chunk$set(
+  cache = TRUE, echo = TRUE,
+  warning = FALSE, message = FALSE,
+  fig.align = "center", dev = "svg"
+  )
+
+# setting up ggplot theme
+theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
+```
+
+## Planning
+
+Course n°01: Introduction to Bayesian inference, Beta-Binomial model
+<br> Course n°02: Introduction to brms, linear regression <br> Course
+n°03: Markov Chain Monte Carlo, generalised linear model <br> **Course
+n°04: Multilevel models, cognitive models** <br>
+
+$$\newcommand\given[1][]{\:#1\vert\:}$$
+
+## Multilevel models
+
+The aim is to build a model that can **learn at several levels**, a
+model that can produce estimates that will be informed by the different
+groups present in the data. We will follow the following example
+throughout this course.
+
+. . .
+
+Let's assume that we've built a robot that visits cafés and measures the
+waiting time after ordering a coffee. This robot visits 20 different
+cafés, 5 times in the morning and 5 times in the afternoon, and measures
+the time (in minutes) it takes to get a coffee.
+
+```{r echo = FALSE, out.width = "300px"}
+knitr::include_graphics("figures/robot.png")
+```
+
+## Coffee robot
+
+```{r eval = TRUE, echo = TRUE}
+library(tidyverse)
+library(imsb)
+
+df <- open_data(robot)
+head(x = df, n = 15)
+```
+
+## Coffee robot
+
+```{r eval = TRUE, echo = TRUE, fig.width = 15, fig.height = 5}
+df %>%
+  ggplot(aes(x = factor(cafe), y = wait, fill = factor(afternoon) ) ) +
+  geom_dotplot(
+    stackdir = "center", binaxis = "y",
+    dotsize = 1, show.legend = FALSE
+    ) +
+  geom_hline(yintercept = mean(df$wait), linetype = 3) +
+  facet_wrap(~afternoon, ncol = 2) +
+  labs(x = "Café", y = "Waiting time (min)")
+```
+
+## Coffee robot, a first model
+
+An initial model can be built, estimating the average time (across all
+cafés combined) to be served.
+
+$$
+\begin{align}
+\color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(5, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
+\end{align}
+$$
+
+## Half-Cauchy
+
+$$
+p(x \given x_{0}, \gamma) = \left(\pi \gamma \left[1 + \left(\frac{x-x_{0}}{\gamma}\right)^{2}\right] \right)^{-1}
+$$
+
+```{r eval = TRUE, echo = TRUE, ig.width = 7.5, fig.height = 5}
+ggplot(data = data.frame(x = c(0, 10) ), aes(x = x) ) +
+    stat_function(
+        fun = dcauchy,
+        args = list(location = 0, scale = 2), size = 1.5
+        )
+```
+
+## Coffee robot, a first model
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+library(brms)
+
+mod1 <- brm(
+  formula = wait ~ 1,
+  prior = c(
+    prior(normal(5, 10), class = Intercept),
+    prior(cauchy(0, 2), class = sigma)
+    ),
+  data = df,
+  cores = parallel::detectCores()
+  )
+```
+
+. . .
+
+```{r eval = TRUE, echo = TRUE, warning = FALSE}
+posterior_summary(x = mod1, probs = c(0.025, 0.975), pars = c("^b_", "sigma") )
+```
+
+## Diagnostic plot
+
+```{r eval = TRUE, echo = TRUE, fig.width = 14, fig.height = 7}
+plot(x = mod1, combo = c("dens_overlay", "trace") )
+```
+
+## One intercept per café
+
+Second model which estimates one intercept per café. Equivalent to
+constructing 20 dummy variables.
+
+$$
+\begin{align}
+\color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{café}[i]}} \\
+\color{steelblue}{\alpha_{\text{café}[i]}} \ &\color{steelblue}{\sim \mathrm{Normal}(5, 10)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
+\end{align}
+$$
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod2 <- brm(
+  formula = wait ~ 0 + factor(cafe),
+  prior = c(
+    prior(normal(5, 10), class = b),
+    prior(cauchy(0, 2), class = sigma)
+    ),
+  data = df,
+  cores = parallel::detectCores()
+  )
+```
+
+## One intercept per café
+
+```{r eval = TRUE, echo = TRUE, warning = FALSE}
+posterior_summary(x = mod2, pars = "^b_")
+```
+
+## Multilevel model
+
+Couldn't we ensure that the time measured at café 1 **informs** the
+measurement taken at café 2 and café 3? As well as the average time
+taken to be served? We're going to learn the priors from the data...
+
+$$
+\begin{align}
+\text{Level 1}: \color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{café}[i]}} \\
+\text{Level 2}: \color{steelblue}{\alpha_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{Normal}(\alpha,\sigma_{\text{café}})} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal}(5, 10)} \\
+\color{steelblue}{\sigma_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{HalfCauchy}(0, 2)} \\
+\end{align}
+$$
+
+The prior for the intercept of each coffee ($\alpha_{\text{café}}$) is
+now a function of two parameters ($\alpha$ and $\sigma_{\text{café}}$).
+$\alpha$ and $\sigma_{\text{café}}$ are called **hyper-parameters**,
+they are parameters for parameters, and their priors are called
+**hyperpriors**. There are two levels in the model...
+
+## Equivalences
+
+$$
+\begin{align}
+\color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{café}[i]}} \\
+\color{steelblue}{\alpha_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{Normal}(\alpha,\sigma_{\text{café}})} \\
+\end{align}
+$$
+
+NB: $\alpha$ is defined here in the prior for $\alpha_{\text{café}}$ but
+it could also be defined in the linear model:
+
+$$
+\begin{align}
+\color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha + \alpha_{\text{café}[i]}} \\
+\color{steelblue}{\alpha_{\text{café}}} \ &\color{steelblue}{\sim \mathrm{Normal}(0,\sigma_{\text{café}})} \\
+\end{align}
+$$
+
+We can always "remove" the mean from a Gaussian distribution and
+consider it as a constant plus a Gaussian centred on zero.
+
+. . .
+
+NB: when $\alpha$ is defined in the linear model, the
+$\alpha_{\text{café}}$ represent deviations from the mean intercept. It
+is therefore necessary to add $\alpha$ and $\alpha_{\text{café}}$ to
+obtain the average waiting time per café...
+
+## Equivalences
+
+```{r eval = TRUE, echo = TRUE, out.width = "33%"}
+y1 <- rnorm(n = 1e4, mean = 5, sd = 1)
+y2 <- rnorm(n = 1e4, mean = 0, sd = 1) + 5
+
+data.frame(y1 = y1, y2 = y2) %>%
+    pivot_longer(cols = 1:2, names_to = "x", values_to = "y") %>%
+    ggplot(aes(x = y, colour = x) ) +
+    geom_density(show.legend = FALSE)
+```
+
+##  {background-iframe="http://mfviz.com/hierarchical-models/"}
+
+## Multilevel model
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod3 <- brm(
+  formula = wait ~ 1 + (1 | cafe),
+  prior = c(
+    prior(normal(5, 10), class = Intercept),
+    prior(cauchy(0, 2), class = sigma),
+    prior(cauchy(0, 2), class = sd)
+    ),
+  data = df,
+  warmup = 1000, iter = 5000,
+  cores = parallel::detectCores()
+  )
+```
+
+This model has 23 parameters, the general intercept $\alpha$, the
+residual variability $\sigma$, the variability between cafés and one
+intercept per café.
+
+## Shrinkage
+
+```{r echo = FALSE, fig.width = 14, fig.height = 8}
+library(wesanderson) # for plotting
+post <- as_draws_df(mod3) # retrieving posterior samples
+
+df %>%
+    group_by(cafe) %>%
+    summarise(Observed = mean(wait) ) %>%
+    mutate(Estimated = coef(mod3)$cafe[, , ] %>% data.frame %>% pull(Estimate) ) %>%
+    gather(type, Observed, Observed:Estimated) %>%
+    ggplot(aes(x = cafe, y = Observed, fill = type) ) +
+    geom_hline(yintercept = mean(post$b_Intercept), linetype = 2) +
+    geom_point(pch = 21, size = 5, alpha = 0.8, colour = "white", show.legend = TRUE) +
+    scale_color_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
+    scale_fill_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
+    scale_x_continuous(name = "Café", breaks = 1:20) +
+    ylab("Waiting time (min)") +
+    theme(legend.title = element_blank() )
+```
+
+## Shrinkage magic [@efron1977]
+
+```{r echo = FALSE, fig.align = "center", out.width = "66%"}
+knitr::include_graphics("figures/stein1.png")
+```
+
+The James-Stein estimator is defined as $z = \bar{y} + c(y - \bar{y})$,
+where $\bar{y}$ is the sample mean, $y$ is an individual observation,
+and $c$ is a constant, the **shrinking factor** [@efron1977].
+
+## Shrinkage magic [@efron1977]
+
+The shrinking factor is determined both by the variability (imprecision)
+of the measurement (e.g., its standard deviation) and by the distance to
+the mean estimate (i.e., $y - \bar{y}$). In other words, this estimator
+is less "confident" about (i.e., gives less weight to) imprecise and/or
+extreme observations. In practice, shrinkage acts as a safeguard against
+overlearning (overfitting).
+
+```{r echo = FALSE, fig.align = "center", out.width = "75%"}
+knitr::include_graphics("figures/stein2.png")
+```
+
+## Pooling
+
+The **shrinkage** observed on the previous slide is due to information
+pooling between cafés. The estimate of the intercept for each café
+informs the intercept estimates of the other cafés, as well as the
+estimate of the general intercept (i.e., the overall average waiting
+time).
+
+. . .
+
+There are generally three perspectives (or strategies):
+
+-   **Complete pooling**: the waiting time is assumed to be invariant, a
+    common intercept (`mod1`) is estimated.
+
+-   **No pooling**: it is assumed that each café's waiting time is
+    unique and independent: an intercept is estimated for each café, but
+    without informing the higher level (`mod2`).
+
+-   **Partial pooling**: an adaptive prior is used, as in the previous
+    example (`mod3`).
+
+. . .
+
+The **complete pooling** strategy generally underfits the data (low
+predictive capacity) whereas the **no pooling** strategy amounts to
+overfitting the data (low predictive capacity here too). The **partial
+pooling** strategy (i.e., that of multilevel models) balances
+underfitting and overfitting.
+
+## Model comparison
+
+We can compare these models using indices derived from information
+theory (extensions of AIC), such as the WAIC (the lower the better).
+
+```{r eval = TRUE, echo = TRUE}
+# computing the WAIC for each model and storing it
+mod1 <- add_criterion(mod1, "waic")
+mod2 <- add_criterion(mod2, "waic")
+mod3 <- add_criterion(mod3, "waic")
+
+# comparing these WAICs
+w <- loo_compare(mod1, mod2, mod3, criterion = "waic")
+print(w, simplify = FALSE)
+```
+
+We note that model 3 has only 18 effective parameters (pWAIC) and fewer
+parameters than model 2, whereas it actually has 2 more...
+`posterior_summary(mod3)[3, 1]` gives us the sigma of the adaptive
+priority of $\alpha_{\text{café}}$ ($\sigma_{\text{café}} = 0.82$). Note
+that this sigma is very low is very low and corresponds to assigning a
+very restrictive or **regularising** prior.
+
+## Model comparaison
+
+The estimates of the first model (complete pooling model) and the third
+model (partial pooling model) are compared.
+
+```{r eval = TRUE, echo = TRUE}
+posterior_summary(mod1, pars = c("^b", "sigma") )
+posterior_summary(mod3, pars = c("^b", "sigma") )
+```
+
+Both models make the same prediction (on average) for $\alpha$, but
+model 3 is more uncertain of its prediction than model 1 (see the
+standard error for $\alpha$)...
+
+. . .
+
+The $\sigma$ estimate of model 3 is smaller than that of model 1 because
+model 3 **decomposes** the unexplained variability into two sources:
+variability in waiting time between cafés and the residual variability
+$\sigma$.
+
+## Coffee robot
+
+Let's assume that our robot doesn't visit all the cafés the same number
+of times (as in the previous case) but that it visits more often the
+cafés close to home...
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+df2 <- open_data(robot_unequal) # new dataset
+
+mod4 <- brm(
+  formula = wait ~ 1 + (1 | cafe),
+  prior = c(
+    prior(normal(5, 10), class = Intercept),
+    prior(cauchy(0, 2), class = sigma),
+    prior(cauchy(0, 2), class = sd)
+    ),
+  data = df2,
+  warmup = 1000, iter = 5000,
+  cores = parallel::detectCores()
+  )
+```
+
+## Shrinkage
+
+We can see that cafés that are visited frequently (right) are less
+affected by the effect of **shrinkage**. Their estimates are less
+"pulled" towards the average than the estimates of the least frequently
+visited cafés (left).
+
+```{r echo = FALSE, fig.width = 12, fig.height = 6}
+post <- as_draws_df(mod4)
+
+df2 %>%
+    group_by(cafe) %>%
+    summarise(Observed = mean(wait) ) %>%
+    mutate(Estimated = coef(mod4)$cafe[, , ] %>% data.frame %>% pull(Estimate) ) %>%
+    gather(type, Observed, Observed:Estimated) %>%
+    ggplot(aes(x = cafe, y = Observed, fill = type) ) +
+    geom_hline(yintercept = mean(post$b_Intercept), linetype = 2) +
+    geom_point(pch = 21, size = 5, alpha = 0.8, colour = "white", show.legend = TRUE) +
+    scale_color_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
+    scale_fill_manual(values = rev(wes_palette(n = 2, name = "Chevalier1") ) )  +
+    scale_x_continuous(name = "Café (from the least to the most visited)", breaks = 1:20) +
+    ylab("Waiting time (min)") +
+    theme(legend.title = element_blank() )
+```
+
+## Aparté: fixed and random effects
+
+Five (contradictory) definitions identified by @gelman2005.
+
+-   Fixed effects are constant across individuals, and random effects
+    vary.
+-   Effects are fixed if they are interesting in themselves or random if
+    there is interest in the underlying population.
+-   When a sample exhausts the population, the corresponding variable is
+    fixed; when the sample is a small (i.e., negligible) part of the
+    population the corresponding variable is random.
+-   If an effect is assumed to be a realized value of a random variable,
+    it is called a random effect.
+-   Fixed effects are estimated using least squares (or, more generally,
+    maximum likelihood) and random effects are estimated with shrinkage.
+
+. . .
+
+@gelman2006a suggest instead the use of the terms **constant effcts**
+and **varying effects**, and to always use multilevel modelling,
+considering that the so-called **fixed effect** can simply be considered
+as a **random effect** whose variance would be equal to $0$ [see also
+@nalborczyk2019].
+
+## Regularisation and terminology
+
+Varying the intercepts for each café is simply another way of
+(adaptively) regularising, that is, reducing the weight given to the
+data in the estimation. The model becomes able to estimate the extent to
+which the groups (in this case the cafés) are different, while
+estimating the characteristics of each café...
+
+. . .
+
+Difference between **cross-classified** (or "crossed") multilevel models
+and **nested or hierarchical** multilevel models. Cross-classified
+models refer to data structured according to two (or more) non-nested
+random factors. Hierarchical models usually refers to hierarchically
+structured data (e.g., a student in a class in a school in a city...).
+See [this
+discussion](https://stats.stackexchange.com/questions/228800/crossed-vs-nested-random-effects-how-do-they-differ-and-how-are-they-specified)
+for more details.
+
+. . .
+
+However, the two types of models are written in a similar way, on
+several "levels". The term "multilevel" (in our terminology) therefore
+refers to the structure of the model, to its specification. It is
+distinct from the structure of the data.
+
+## Coffee robot: varying intercept + varying slope
+
+We are now interested in the effect of the time of day on the waiting
+time. Do we wait more in the morning, or in the afternoon?
+
+$$
+\begin{align}
+\color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{café}[i]} + \beta_{\text{café}[i]} \times A_{i}} \\
+\end{align}
+$$
+
+Where $A_{i}$ is a dummy variable coded 0/1 for morning/afternoon and
+where $\beta_{\text{café}}$ is therefore a difference parameter (i.e., a
+slope) between morning and afternoon.
+
+. . .
+
+Note: we know that cafés have intercepts and slopes which co-vary...
+Popular cafés will be overcrowded in the morning and much less in the
+afternoon, resulting in a significant slope. These cafés will also have
+a longer average waiting time (i.e., a larger intercept). In these
+cafés, $\alpha$ is large and $\beta$ is far from zero. Conversely, in an
+unpopular café, the waiting time will be short, as well as the
+difference between the morning and afternoon's waiting the.
+
+. . .
+
+We could therefore use the co-variation between the intercept and slope
+to make better inferences. In other words, ensure that the estimate of
+the intercept informs the estimate of the slope, and reciprocally.
+
+## Coffee robot: varying intercept + varying slope
+
+We are now interested in the effect of the time of day on the waiting
+time. Do we wait more in the morning, or in the afternoon?
+
+$$
+\begin{align}
+\color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{café}[i]} + \beta_{\text{café}[i]} \times A_{i}} \\
+\color{steelblue}{\begin{bmatrix}
+\alpha_{\text{café}} \\
+\beta_{\text{café}} \\
+\end{bmatrix}} \ &\color{steelblue}{\sim \mathrm{MVNormal}\bigg(\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \textbf{S}\bigg)} \\
+\end{align}
+$$
+
+The third line posits that every café has an intercept
+$\alpha_{\text{café}}$ and a slope $\beta_{\text{café}}$, defined by a
+bivariate (i.e., two-dimensional) Gaussian prior having as means
+$\alpha$ and $\beta$ and as covariance matrix $\textbf{S}$.
+
+## Aparté: multivariate Normal distribution
+
+$$\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$$
+
+Where $\boldsymbol{\mu}$ is a ($k$-dimensional) vector of means, for
+instance: `mu <- c(a, b)`.
+
+. . .
+
+$\boldsymbol{\Sigma}$ is a covariance matrix of $k \times k$ dimensions,
+and which corresponds to the matrix given by the function `vcov()`.
+
+$$
+\begin{align}
+\boldsymbol{\Sigma} &=
+\begin{pmatrix}
+\sigma_{\alpha}^{2} & \sigma_{\alpha} \sigma_{\beta} \rho \\
+\sigma_{\alpha} \sigma_{\beta} \rho & \sigma_{\beta}^{2} \\
+\end{pmatrix} \\
+\end{align}
+$$
+
+## Aparté: multivariate Normal distribution
+
+```{r echo = FALSE, out.width = "800px"}
+knitr::include_graphics("figures/bivariate.png")
+```
+
+## Aparté: multivariate Normal distribution
+
+$$
+\begin{align}
+\boldsymbol{\Sigma} &=
+\begin{pmatrix}
+\sigma_{\alpha}^{2} & \sigma_{\alpha} \sigma_{\beta} \rho \\
+\sigma_{\alpha} \sigma_{\beta} \rho & \sigma_{\beta}^{2} \\
+\end{pmatrix} \\
+\end{align}
+$$
+
+This matrix can be constructed in two different ways, strictly
+equivalent.
+
+```{r eval = TRUE, echo = TRUE}
+sigma_a <- 1
+sigma_b <- 0.75
+rho <- 0.7
+cov_ab <- sigma_a * sigma_b * rho
+(Sigma1 <- matrix(c(sigma_a^2, cov_ab, cov_ab, sigma_b^2), ncol = 2) )
+```
+
+## Aparté: multivariate Normal distribution
+
+$$
+\begin{align}
+\boldsymbol{\Sigma} &=
+\begin{pmatrix}
+\sigma_{\alpha}^{2} & \sigma_{\alpha} \sigma_{\beta} \rho \\
+\sigma_{\alpha} \sigma_{\beta} \rho & \sigma_{\beta}^{2} \\
+\end{pmatrix} \\
+\end{align}
+$$
+
+The second method is convenient because it considers separately the
+standard deviations and correlations.
+
+```{r eval = TRUE, echo = TRUE}
+(sigmas <- c(sigma_a, sigma_b) ) # standard deviations
+(Rho <- matrix(c(1, rho, rho, 1), nrow = 2) ) # correlation matrix
+(Sigma2 <- diag(sigmas) %*% Rho %*% diag(sigmas) )
+```
+
+## Coffee robot: varying intercept + varying slope
+
+$$
+\begin{align}
+\color{orangered}{w_{i}} \ &\color{orangered}{\sim \mathrm{Normal}(\mu_{i}, \sigma)} \\
+\color{black}{\mu_{i}} \ &\color{black}{= \alpha_{\text{café}[i]} + \beta_{\text{café}[i]} \times A_{i}} \\
+\color{steelblue}{\begin{bmatrix}
+\alpha_{\text{café}} \\
+\beta_{\text{café}} \\
+\end{bmatrix}} \ &\color{steelblue}{\sim \mathrm{MVNormal}\bigg(\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \textbf{S}\bigg)} \\
+\color{black}{\textbf{S}} \ &\color{black}{=
+\begin{pmatrix}
+\sigma_{\alpha} & 0 \\
+0 & \sigma_{\beta} \\
+\end{pmatrix} \
+\textbf{R} \begin{pmatrix}
+\sigma_{\alpha} & 0 \\
+0 & \sigma_{\beta} \\
+\end{pmatrix}} \\
+\color{steelblue}{\alpha} \ &\color{steelblue}{\sim \mathrm{Normal} (0, 10)} \\
+\color{steelblue}{\beta} \ &\color{steelblue}{\sim \mathrm{Normal} (0, 10)} \\
+\color{steelblue}{\sigma_{\alpha}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy} (0, 2)} \\
+\color{steelblue}{\sigma_{\beta}} \ &\color{steelblue}{\sim \mathrm{HalfCauchy} (0, 2)} \\
+\color{steelblue}{\sigma} \ &\color{steelblue}{\sim \mathrm{HalfCauchy} (0, 2)} \\
+\color{steelblue}{\textbf{R}} \ &\color{steelblue}{\sim \mathrm{LKJ}(2)} \\
+\end{align}
+$$
+
+$\textbf{S}$ is defined by factoring $\sigma_{\alpha}$,
+$\sigma_{\beta}$, and the correlation matrix $\textbf{R}$. The next
+lines of the model simply define priors for constant effects. The last
+line specifies the prior for $\textbf{R}$.
+
+## LKJ prior
+
+Prior proposed by @lewandowski2009. A single parameter $\zeta$ (zeta)
+specifies the concentration of the distribution of the correlation
+coefficient. The $\mathrm{LKJ}(2)$ prior defines an uninformative prior
+for $\rho$ (rho) which is sceptical of extreme correlations (i.e.,
+values close to $-1$ or $1$).
+
+```{r, echo = FALSE, fig.width = 14, fig.height = 7, cache = TRUE}
+library(ggdist)
+
+expand.grid(eta = c(0.5, 2, 5, 10), K = c(2, 3, 4, 5) ) %>%
+  ggplot(
+      aes(
+          y = ordered(eta), dist = "lkjcorr_marginal",
+          arg1 = K, arg2 = eta, fill = as.factor(eta)
+          )
+      ) +
+  stat_dist_slab(p_limits = c(0, 1), alpha = 0.8) +
+  facet_grid(~paste0(K, "x", K) ) +
+  labs(x = expression(rho), y = "Probability density (per prior)") +
+  scale_fill_manual(
+      values = c("steelblue", "orangered", "purple", "darkgreen"),
+      labels = c(
+        expression(paste(zeta, " = ", "0.5") ),
+        expression(paste(zeta, " = ", "2") ),
+        expression(paste(zeta, " = ", "10") ),
+        expression(paste(zeta, " = ", "50") )
+        )
+      ) +
+    theme(
+        legend.title = element_blank(),
+        legend.text.align = 0,
+        legend.background = element_rect(size = 0.5, colour = "black")
+        )
+```
+
+## Syntax reminders
+
+The `brms` package uses the same syntax as R base functions (like `lm`)
+or the `lme4` package.
+
+```{r eval = FALSE, echo = TRUE}
+Reaction ~ Days + (1 + Days | Subject)
+```
+
+The left-hand side defines the dependent variable (or "outcome", i.e.,
+what we are trying to predict).
+
+. . .
+
+The right-hand side defines the predictors. The intercept is usually
+implied, so the two formulations below are equivalent.
+
+```{r eval = FALSE, echo = TRUE}
+Reaction ~ Days + (1 + Days | Subject)
+Reaction ~ 1 + Days + (1 + Days | Subject)
+```
+
+## Syntax reminders
+
+The first part of the right-hand side of the formula represents the
+constant effects (fixed effects), whereas the second part (between
+parentheses) represents varying effects (random effects).
+
+```{r eval = FALSE, echo = TRUE}
+Reaction ~ 1 + Days + (1 | Subject)
+Reaction ~ 1 + Days + (1 + Days | Subject)
+```
+
+The first model above contains only an intercept variable, which varies
+by `Subject`. The second model also contains a variable intercept, but
+also a variable slope for the effect of `Days`.
+
+## Syntax reminders
+
+When including several varying effects (e.g., an intercept and a slope),
+`brms` assumes that we also want to estimate the correlation between
+these two effects. Otherwise, we can remove this correlation (i.e., set
+it to 0) using `||`.
+
+```{r eval = FALSE, echo = TRUE}
+Reaction ~ Days + (1 + Days || Subject)
+```
+
+. . .
+
+Previous models assumed a Gaussian generative model. This assumption can
+be changed easily by specifying the desired function via the `family`
+argument.
+
+```{r eval = FALSE, echo = TRUE}
+brm(formula = Reaction ~ 1 + Days + (1 + Days | Subject), family = lognormal() )
+```
+
+## Implementation of our model via brms
+
+We specify an intercept and a slope (for the `afternoon` effect) which
+vary by `cafe`.
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod5 <- brm(
+  formula = wait ~ 1 + afternoon + (1 + afternoon | cafe),
+  prior = c(
+    prior(normal(0, 10), class = Intercept),
+    prior(normal(0, 10), class = b),
+    prior(cauchy(0, 2), class = sigma),
+    prior(cauchy(0, 2), class = sd)
+    ),
+  data = df,
+  warmup = 1000, iter = 5000,
+  cores = parallel::detectCores()
+  )
+```
+
+## Posterior distribution
+
+```{r eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6}
+post <- as_draws_df(x = mod5) # extracting posterior samples
+R <- rethinking::rlkjcorr(n = 16000, K = 2, eta = 2) # samples from prior
+
+data.frame(prior = R[, 1, 2], posterior = post$cor_cafe__Intercept__afternoon) %>%
+    gather(type, value, prior:posterior) %>%
+    ggplot(aes(x = value, color = type, fill = type) ) +
+    geom_histogram(position = "identity", alpha = 0.2) +
+    labs(x = expression(rho), y = "Number of samples")
+```
+
+## Two-dimensional shrinkage
+
+```{r eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 8}
+a1 <- sapply(1:20, function(i) mean(df$wait[df$cafe == i & df$afternoon == 0]) )
+b1 <- sapply(1:20, function(i) mean(df$wait[df$cafe == i & df$afternoon == 1]) ) - a1
+
+no_pooling <-
+  data.frame(Intercept = a1, afternoon = b1) %>%
+  mutate(model = "no pooling")
+
+partial_pooling <-
+  data.frame(coef(mod5)$cafe[, 1, 1:2]) %>%
+  mutate(model = "partial pooling")
+
+shrinkage <- bind_rows(no_pooling, partial_pooling)
+
+mu <- c(mean(post$b_Intercept), mean(post$b_afternoon) )
+rho <- mean(post$cor_cafe__Intercept__afternoon)
+sda <- mean(post$sd_cafe__Intercept)
+sdb <- mean(post$sd_cafe__afternoon)
+cov_ab <- sda * sdb * rho
+sigma <- matrix(c(sda^2, cov_ab, cov_ab, sdb^2), ncol = 2)
+
+##############################################################################
+# Helper function to make ellipse, credits to Tristan Mahr                   #
+# https://tjmahr.github.io/plotting-partial-pooling-in-mixed-effects-models/ #
+##############################################################################
+
+library(ellipse)
+
+make_ellipse <- function(cov_mat, center, level) {
+    
+    ellipse(cov_mat, centre = center, level = level) %>%
+        as.data.frame() %>%
+        add_column(level = level)
+    
+}
+
+levels <- c(.1, .3, .5, .7)
+
+df_ellipse <-
+    levels %>%
+    purrr::map_df(~ make_ellipse(sigma, mu, level = .x) ) %>% 
+    rename(Intercept = x, afternoon = y)
+
+shrinkage %>%
+    mutate(id = rep(1:20, 2) ) %>%
+    ggplot(aes(x = Intercept, y = afternoon, color = model) ) +
+    scale_color_manual(values = wesanderson::wes_palette(n = 2, name = "Chevalier1") ) +
+    geom_point(size = 5, show.legend = FALSE) +
+    # connecting lines
+    geom_path(
+        aes(group = id, color = NULL),
+        arrow = arrow(length = unit(.015, "npc"), type = "closed"), 
+        show.legend = FALSE
+        ) +
+    # ellipses
+    geom_path(
+        aes(group = level, color = NULL),
+        data = df_ellipse,
+        linetype = "dashed", color = "grey40", alpha = 0.8
+        ) +
+    labs(x = "Intercept", y = "Slope")
+```
+
+## Model comparaison
+
+We compare the first model (complete pooling model), the third model
+(partial pooling model), and the last model (with varying intercept and
+slope).
+
+```{r eval = TRUE, echo = TRUE}
+mod5 <- add_criterion(mod5, "waic")
+w <- loo_compare(mod1, mod2, mod3, mod5, criterion = "waic")
+print(w, simplify = FALSE)
+model_weights(mod1, mod2, mod3, mod5, weights = "waic")
+```
+
+## Model comparaison
+
+The estimate of the average waiting time is more uncertain when we takes
+into account new sources of error. However, the overall error of the
+model (i.e., what is not explained), the residual variation $\sigma$,
+decreases...
+
+```{r eval = TRUE, echo = TRUE, warning = FALSE}
+posterior_summary(mod1, pars = c("^b", "sigma") )
+posterior_summary(mod3, pars = c("^b", "sigma") )
+posterior_summary(mod5, pars = c("^b", "sigma") )
+```
+
+## Conclusions
+
+Multilevel models (or "mixed-effects models") are natural extensions of
+classical (single-level) regression models, where classical parameters
+are themselves assigned "models", governed by hyper-parameters.
+
+. . .
+
+This extension makes it possible to make more precise predictions by
+taking into account the variability related to groups or structures
+(clusters) present in the data. In other words, by modelling the
+populations from which the varying effects are drawn (e.g., the
+population of participants or stimuli).
+
+A single-level regression model is equivalent to a multilevel model
+where the variability of varying effects would be fixed at $0$.
+
+. . .
+
+The Bayesian framework allows a natural interpretation of distributions
+from which the varying effects come. Indeed, these distributions can be
+interpreted as prior distributions, whose parameters are estimated from
+the data.
+
+## Practical work - sleepstudy
+
+```{r eval = TRUE, echo = TRUE}
+library(lme4)
+data(sleepstudy)
+head(sleepstudy, 20)
+```
+
+## Practical work - sleepstudy
+
+```{r eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+sleepstudy %>%
+    ggplot(aes(x = Days, y = Reaction) ) +
+    geom_smooth(method = "lm", colour = "black") +
+    geom_point() +
+    facet_wrap(~Subject, nrow = 2) +
+    scale_x_continuous(breaks = c(0, 2, 4, 6, 8) )
+```
+
+## Practical work - sleepstudy
+
+::: nonincremental
+It's up to you to build the mathematical models and `brms` models
+corresponding to the following models:
+
+-   A model with only the fixed effect of `Days`.
+-   A model with the fixed effect of `Days` + a random effect of
+    `Subject` (varying intercept).
+-   A model with the fixed effect of `Days` + a random effect of
+    `Subject` (varying intercept + varying slope for `Days`).
+
+Then, compare these models using model comparison tools and conclude.
+:::
+
+## Proposed solution
+
+```{r eval = TRUE, echo = TRUE}
+fmod0 <- lm(Reaction ~ Days, sleepstudy)
+fmod1 <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy)
+fmod2 <- lmer(Reaction ~ Days + (1 + Days | Subject), sleepstudy)
+
+anova(fmod1, fmod2)
+```
+
+## Proposed solution
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod6 <- brm(
+  Reaction ~ 1 + Days,
+  prior = c(
+    prior(normal(200, 100), class = Intercept),
+    prior(normal(0, 10), class = b),
+    prior(cauchy(0, 10), class = sigma)
+    ),
+  data = sleepstudy,
+  warmup = 1000, iter = 5000,
+  cores = parallel::detectCores()
+  )
+```
+
+```{r eval = TRUE, echo = TRUE}
+posterior_summary(mod6)
+```
+
+## Proposed solution
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod7 <- brm(
+  Reaction ~ 1 + Days + (1 | Subject),
+  prior = c(
+    prior(normal(200, 100), class = Intercept),
+    prior(normal(0, 10), class = b),
+    prior(cauchy(0, 10), class = sigma),
+    prior(cauchy(0, 10), class = sd)
+    ),
+  data = sleepstudy,
+  warmup = 1000, iter = 5000,
+  cores = parallel::detectCores()
+  )
+```
+
+```{r eval = TRUE, echo = TRUE}
+posterior_summary(mod7, pars = c("^b", "sigma") )
+```
+
+## Proposed solution
+
+```{r eval = TRUE, echo = TRUE, results = "hide"}
+mod8 <- brm(
+  Reaction ~ 1 + Days + (1 + Days | Subject),
+  prior = c(
+    prior(normal(200, 100), class = Intercept),
+    prior(normal(0, 10), class = b),
+    prior(cauchy(0, 10), class = sigma),
+    prior(cauchy(0, 10), class = sd)
+    ),
+  data = sleepstudy,
+  warmup = 1000, iter = 5000,
+  cores = parallel::detectCores()
+  )
+```
+
+```{r eval = TRUE, echo = TRUE}
+posterior_summary(mod8, pars = c("^b", "sigma") )
+```
+
+## Proposed solution
+
+```{r eval = TRUE, echo = TRUE}
+# computing and storing the WAIC of each model
+mod6 <- add_criterion(mod6, "waic")
+mod7 <- add_criterion(mod7, "waic")
+mod8 <- add_criterion(mod8, "waic")
+
+# comparing the WAICs of these models
+w <- loo_compare(mod6, mod7, mod8, criterion = "waic")
+print(w, simplify = FALSE)
+
+# computing the relative weight of each model
+model_weights(mod6, mod7, mod8, weights = "waic")
+```
+
+# Scientific and cognitive modelling
+
+## What is a model good for?
+
+> One of the most basic problem in scientific inference is the so-called
+> inverse problem: How to figure out causes from observations. It is a
+> problem, because many different causes can produce the same evidence.
+> So while it can be easy to go forward from a known cause to predicted
+> observations, it can very hard to go backwards from observation to
+> cause [@mcelreath2020b].
+
+. . .
+
+So far, we have only considered **statistical models**. These models are
+useful devices to describe associations, but they tell us nothing about
+*how* these associations arise. In the last part of the course, we will
+focus on **process models**, aiming at describing the mechanisms
+generating the data (generative models).
+
+## Two-alternative forced choice (2AFC)
+
+Two-alternative forced choice (2AFC) is a method for measuring the
+sensitivity of a person or animal to some particular sensory input,
+stimulus, through that observer's pattern of choices and response times
+to two versions of the sensory input. At each trial, the participant is
+forced to choose between two alternatives. For instance, in the random
+dot motion coherence task (below), the participant must make a choice
+response between two directions of motion (e.g., up or down or left or
+right), usually indicated by a motor response such as a saccade or
+pressing a button.
+
+```{r rdk, echo = FALSE}
+knitr::include_graphics("figures/rdk.gif")
+```
+
+## Reaction times
+
+Reaction times (RTs) distributions are generally positively skewed, with
+the skewness increasing with task difficulty. We also know that the mean
+of the RTs is proportional to the standard deviation of the RTs.
+Increases in the difficulty usually lead to increased RTs and decreased
+accuracy. Moreover, changes in difficulty also produces regular changes
+in the distribution of RTs, most notably in its spread but not much in
+its shape [for a review, see @forstmann_sequential_2016]. Moreover, we
+often find a speed-accuracy trade-off in these tasks.
+
+. . .
+
+The use of simple statistical model (e.g., only analysing differences in
+group-level average RTs across conditions) is severely limited in such
+tasks. Therefore, several models have been proposed to account for the
+peculiarities of the data coming from these tasks as well as to relate
+it to the underlying cognitive processes.
+
+## Assumptions
+
+There are typically three assumptions made by **evidence accumulation
+models**:
+
+::: nonincremental
+-   Evidence favouring each alternative is integrated over time
+-   The process is subject to random fluctuations
+-   The decision is made when sufficient evidence has accumulated
+    favouring one alternative
+:::
+
+```{r EAMs, eval = TRUE, echo = FALSE}
+knitr::include_graphics("figures/eam.png")
+```
+
+## Drift-diffusion model
+
+The drift-diffusion model (DDM) is a continuous-time evidence
+accumulation model for binary choice tasks [@ratcliff_theory_1978]. It
+assumes that in each trial evidence is accumulated in a noisy
+(diffusion) process by a single accumulator. As shown below, evidence
+accumulation starts at some point (the starting point or "bias") and
+continues until the accumulator hits one of the two decision bounds in
+which case the corresponding response is given. The total response time
+is the sum of the decision time from the accumulation process plus
+non-decisional components [@vandekerckhove_crossed_2010;
+@wabersich_rwiener_2014; @wagenmakers_methodological_2009-1]. This kind
+of model provides a *decomposition* of RT data that isolates components
+(of processing) from stimulus encoding to decision so that they can be
+studied individually [@ratcliff_diffusion_2008;
+@wagenmakers_ez-diffusion_2007].
+
+```{r wiener-figure, echo = FALSE}
+knitr::include_graphics("figures/wiener_figure.png")
+```
+
+## Drift-diffusion model
+
+In sum, the original DDM allows decomposing responses to a binary choice
+tasks and corresponding response times into four latent processes [from
+@singmann_diffusion/wiener_2017]:[^1]
+
+[^1]: For those interested in the mathematical details, see for instance
+    the appendix of @voss_interpreting_2004.
+
+-   The **drift rate** $\delta$ (delta) is the average slope of the
+    accumulation process towards the boundaries (i.e., it represents the
+    average amount of evidence accumulated per unit time). The larger
+    the (absolute value of the) drift rate, the stronger the evidence
+    for the corresponding response option (thus quantifying the "ease of
+    processing").
+
+-   The **boundary separation** $\alpha$ (alpha) is the distance between
+    the two decision bounds and can be interpreted as a measure of
+    response caution, with high $\alpha$ meaning high caution.
+
+-   The **starting point** (or bias) $\beta$ (beta) of the accumulation
+    process is a measure of response bias towards one of the two
+    response boundaries.
+
+-   The **non-decision time** $\tau$ (tau) captures all non-decisional
+    processes such as stimulus encoding and (motor) response processes.
+
+##  {background-iframe="https://barelysignificant.shinyapps.io/shiny_DDM/"}
+
+## Application example: lexical decision task
+
+The lexical decision task is a procedure used in many psychology and
+psycholinguistics experiments. The basic procedure involves measuring
+how quickly and accurately people classify stimuli as words or nonwords.
+
+```{r lexical-decision-figure, echo = FALSE}
+knitr::include_graphics("figures/lexical_decision_task.png")
+```
+
+## Application example: lexical decision task
+
+We will adapt the example from @singmann_diffusion/wiener_2017. We will
+analyse part of the data from Experiment 1 of @wagenmakers2008. The data
+comes from 17 participants performing a lexical decision task in which
+they have to decide if a presented string is a word or non-word.
+Participants made decisions either under speed or accuracy emphasis
+instructions in different experimental blocks. After removing some
+extreme RTs, we restrict the analysis to high-frequency words (frequency
+= high) and the corresponding high-frequency non-words (frequency =
+nw_high) to reduce estimation time. To setup the model we also need a
+numeric response variable in which 0 corresponds to responses at the
+lower response boundary and 1 corresponds to responses at the upper
+boundary.
+
+```{r ddm-data}
+# loading the "speed_acc" data from the "rtdists" package
+data(speed_acc, package = "rtdists")
+
+# reshaping the data
+df <- speed_acc %>%
+    # removing extreme RTs
+    filter(censor == FALSE) %>%
+    # removing ppt with id=2 (less observations than others)
+    filter(id != 2) %>%
+    # focusing on high-frequency words and non-words
+    filter(frequency %in% c("high", "nw_high") ) %>%
+    # converting the response variable to a numeric 0/1 variable
+    mutate(response2 = as.numeric(response == "word") ) %>%
+    # keeping only some proportion of the data (for computational ease)
+    filter(as.numeric(block) < 9) %>%
+    mutate(id = factor(id), block = factor(block) )
+```
+
+## Drift-diffusion model in brms
+
+An important decision that has to be made before setting up a model is
+which parameters are allowed to differ between which conditions. One
+common constraint of the DDM is that the parameters that are set before
+the evidence accumulation process starts (i.e., boundary separation,
+starting point, and non-decision time) cannot change based on stimulus
+characteristics that are not known to the participant before the start
+of the trial. Thus, the item-type, in the present case word versus
+non-word, is usually only allowed to affect the drift rate. We follow
+this constraint. Furthermore, all relevant variables are manipulated
+within-subject. Thus, the maximal random-effects structure
+[@barr_random_2013-1] entails corresponding random-effects parameters
+for each fixed-effect.
+
+```{r ddm-formula, eval = TRUE, echo = TRUE}
+# defining the model formula (one "linear model" per parameter)
+formula <- brmsformula(
+  # drift rate (delta)
+  rt | dec(response2) ~ 1 + condition * stim_cat + (1 + condition * stim_cat | id),
+  # boundary separation parameter (alpha)
+  bs ~ 1 + condition + (1 + condition | id),
+  # non-decision time (tau)
+  ndt ~ 1 + condition + (1 + condition | id),
+  # starting point or bias (beta)
+  bias ~ 1 + condition + (1 + condition | id)
+  )
+```
+
+## Drift-diffusion model in brms
+
+```{r ddm-priors, eval = TRUE, echo = TRUE}
+# defining the contrasts
+contrasts(df$condition) <- c(+0.5, -0.5)
+contrasts(df$stim_cat) <- c(+0.5, -0.5)
+
+# defining the priors
+priors <- c(
+  # priors for the intercepts
+  prior(normal(0, 5), class = "Intercept"),
+  prior(normal(0, 1), class = "Intercept", dpar = "bs"),
+  prior(normal(0, 1), class = "Intercept", dpar = "ndt"),
+  prior(normal(0, 1), class = "Intercept", dpar = "bias"),
+  # priors for the slopes
+  prior(normal(0, 1), class = "b"),
+  # priors on the SD of the varying effects
+  prior(exponential(1), class = "sd")
+  )
+```
+
+## Drift-diffusion model in brms
+
+We then fit this model using the `brms::brm()` function. We run 8
+chains, each for 5000 iterations and using the first 1000 iterations
+used as warmup, resulting in a total of $8 \times (5000 - 1000) = 32000$
+posterior samples.
+
+```{r ddm-fitting, eval = TRUE, results = "hide"}
+# specify initial values to help the model start sampling
+# (with small variation between chains)
+chains <- 8 # number of chains
+epsilon <- 0.1 # variability in starting value for the NDT intercept
+get_init_value <- function (x) list(Intercept_ndt = rnorm(n = 1, mean = x, sd = epsilon) )
+inits_drift <- replicate(chains, get_init_value(-3), simplify = FALSE)
+
+# fitting the model
+fit_wiener <- brm(
+  formula = formula,
+  data = df,
+  # specifying the family and link functions for each parameter
+  family = wiener(
+    link = "identity", link_bs = "log",
+    link_ndt = "log", link_bias = "logit"
+    ),
+  # comment this line to use default priors
+  prior = priors,
+  # list of initialisation values
+  init = inits_drift,
+  init_r = 0.05,
+  warmup = 1000, iter = 5000,
+  chains = chains, cores = chains,
+  # control = list(adapt_delta = 0.99, max_treedepth = 15),
+  # saves the model (as .rds) or loads it if it already exists
+  file = "models/ddm.rds",
+  # needed for hypothesis testing
+  sample_prior = TRUE
+  )
+```
+
+## Aparté: Writing our model
+
+Our model can be written (in a simplified form, omitting the varying
+effects) as:
+
+$$
+\begin{aligned}
+\text{RT}_{i} &\sim \mathrm{DDM}(\alpha_{i}, \tau_{i}, \beta_{i}, \delta_{i}) && \mbox{Observation model for the RTs.} \\
+\delta_{i} &= \beta_{0[\delta]} + \beta_{1[\delta]} \cdot \text{Condition}_{i} + \beta_{2[\delta]} \cdot \text{Stim_cat}_{i} + \ && \mbox{Linear model for the drift rate.} \\
+& \ \ \ \ \ \beta_{3[\delta]} \cdot \text{Condition}_{i} \cdot \text{Stim_cat}_{i} \\
+\log(\alpha_{i}) &= \beta_{0[\alpha]} + \beta_{1[\alpha]} \cdot \text{Condition}_{i} && \mbox{Linear model for the (log) boundary separation.} \\
+\log(\tau_{i}) &= \beta_{0[\tau]} + \beta_{1[\tau]} \cdot \text{Condition}_{i} && \mbox{Linear model for the (log) non-decision time.}  \\
+\mathrm{logit}(\beta_{i}) &= \beta_{0[\beta]} + \beta_{1[\beta]} \cdot \text{Condition}_{i} && \mbox{Linear model for the (logit) bias.} \\
+\beta_{0[\delta]} &\sim \mathrm{Normal}(0, 5) && \mbox {Prior on the intercept for the drift rate.} \\
+\beta_{1[\delta]}, \beta_{2[\delta]}, \beta_{3[\delta]} &\sim \mathrm{Normal}(0, 1) && \mbox {Prior on the slopes for the drift rate.} \\
+\beta_{0[\alpha]}, \beta_{0[\tau]}, \beta_{0[\beta]} &\sim \mathrm{Normal}(0, 1) && \mbox {Prior on the intercept for the other parameters.} \\
+\beta_{1[\alpha]}, \beta_{1[\tau]}, \beta_{1[\beta]} &\sim \mathrm{Normal}(0, 1) && \mbox {Prior on the slopes for the other parameters.} \\
+\end{aligned}
+$$
+
+where $i$ denotes observations (i.e., lines in the dataframe).
+
+## Assessing model convergence
+
+```{r diagnostics, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+# combo can be hist, dens, dens_overlay, trace, trace_highlight...
+# cf. https://mc-stan.org/bayesplot/reference/MCMC-overview.html
+plot(
+    x = fit_wiener, combo = c("dens_overlay", "trace"),
+    variable = variables(fit_wiener)[1:4],
+    ask = FALSE
+    )
+```
+
+## Assessing model fit 1/4
+
+```{r ppc, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6}
+pp_check(object = fit_wiener, ndraws = 10) +
+  labs(x = "Reaction time", y = "Density")
+```
+
+## Assessing model fit 2/4
+
+A powerful way to convey the relationship between response times and
+accuracy is using **quantile probability plots**
+[@ratcliff_estimating_2002] which show quantiles of the response times
+distribution (typically 0.1, 0.3, 0.5, 0.7, and 0.9) for correct and
+incorrect responses on the y-axis against probabilities of correct and
+incorrect responses for experimental conditions on the x-axis. The plot
+is built by first aggregating the data (cf. the detailed code online).
+
+```{r qqplot1, eval = TRUE, echo = FALSE}
+# aggregating the data using the qpf() function from
+# https://vasishth.github.io/bayescogsci/book/ch-lognormalrace.html#sec-acccoding
+qpf <- function (df_grouped, preds = FALSE, quantiles = c(0.1, 0.3, 0.5, 0.7, 0.9) ) {
+    
+    if (preds == FALSE) {
+        
+        df_grouped %>%
+            summarise(
+                rt_q = list(c(quantile(rt[acc == 0], quantiles), quantile(rt[acc == 1], quantiles) ) ),
+                p = list(c(rep(mean(acc == 0), length(quantiles) ), rep(mean(acc == 1), length(quantiles) ) ) ),
+                q = list(rep(quantiles, 2) ),
+                response = list(c(rep("incorrect", length(quantiles) ), rep("correct", length(quantiles) ) ) )
+                ) %>%
+            # Since the summary contains a list in each column,
+            # we unnest it to have the following number of rows:
+            # number of quantiles x groups x 2 (incorrect, correct)
+            unnest(cols = c(rt_q, p, q, response) )
+        
+    } else{
+        
+        df_grouped %>%
+            summarise(
+                rt_q = list(c(quantile(rt[acc == 0], quantiles), quantile(rt[acc == 1], quantiles) ) ),
+                preds_rt_q = list(c(quantile(model_predictions[acc == 0], quantiles), quantile(model_predictions[acc == 1], quantiles) ) ),
+                p = list(c(rep(mean(acc == 0), length(quantiles) ), rep(mean(acc == 1), length(quantiles) ) ) ),
+                q = list(rep(quantiles, 2) ),
+                response = list(c(rep("incorrect", length(quantiles) ), rep("correct", length(quantiles) ) ) )
+                ) %>%
+            # Since the summary contains a list in each column,
+            # we unnest it to have the following number of rows:
+            # number of quantiles x groups x 2 (incorrect, correct)
+            unnest(cols = c(rt_q, preds_rt_q, p, q, response) )
+        
+    }
+    
+}
+```
+
+```{r qqplot1bis, eval = TRUE, echo = TRUE}
+# aggregating the data using the qpf() function from
+# https://vasishth.github.io/bayescogsci/book/ch-lognormalrace.html#sec-acccoding
+df_qpf <- df %>%
+    mutate(acc = ifelse(as.character(stim_cat) == as.character(response), 1, 0) ) %>%
+    group_by(stim_cat, condition) %>%
+    qpf() %>%
+    ungroup()
+
+head(df_qpf)
+```
+
+## Assessing model fit 3/4
+
+This plot shows that words are recognised faster than non-words, that
+incorrect responses are faster than correct responses, and the responses
+are generally faster in the "speed" than in the "accuracy" condition.
+
+```{r qqplot2, eval = TRUE, echo = FALSE, fig.asp = 0.75}
+df_qpf %>%
+    ggplot(aes(x = p, y = rt_q) ) +
+    geom_vline(xintercept = 0.5, linetype = "dashed") +
+    geom_point(aes(shape = stim_cat) ) +
+    geom_line(aes(group = interaction(q, response) ) ) +
+    facet_wrap(~condition, ncol = 1, scales = "free_y") +
+    labs(
+        x = "Proportion of incorrect (left) or correct responses (right)",
+        y = "RT quantiles (s)"
+        ) +
+    annotate("text", x = 0.4, y = 0.4, label = "incorrect") +
+    annotate("text", x = 0.6, y = 0.4, label = "correct")
+```
+
+## Assessing model fit 4/4
+
+The model fit is not so bad, but the model is unable to capture fast
+errors (bottom left)...
+
+```{r qqplot3, eval = TRUE, echo = FALSE, fig.asp = 0.75}
+# preds_wiener <- predict(
+#     fit_wiener, summary = FALSE,
+#     negative_rt = TRUE,
+#     ndraws = 200,
+#     cores = 8
+#     )
+# 
+# df_with_preds <- as_tibble(cbind(df, as_tibble(t(preds_wiener) ) ) )
+
+df_qpf_preds <- df %>%
+    mutate(acc = ifelse(as.character(stim_cat) == as.character(response), 1, 0) ) %>%
+    mutate(
+        model_predictions = predict(
+            object = fit_wiener,
+            ndraws = 500,
+            negative_rt = FALSE,
+            cores = 8
+            )[, "Estimate"]
+        )
+
+df_qpf_preds %>%
+    group_by(stim_cat, condition) %>%
+    qpf(preds = TRUE) %>%
+    ungroup() %>%
+    # head()
+    ggplot(aes(x = p, y = rt_q) ) +
+    geom_vline(xintercept = 0.5, linetype = "dashed") +
+    geom_point(aes(shape = stim_cat, y = preds_rt_q), colour = "purple", alpha = 0.8) +
+    geom_line(aes(group = interaction(q, response), y = preds_rt_q), colour = "purple", alpha = 0.8) +
+    geom_point(aes(shape = stim_cat) ) +
+    geom_line(aes(group = interaction(q, response) ) ) +
+    facet_wrap(~condition, ncol = 1, scales = "free_y") +
+    labs(
+        x = "Proportion of incorrect (left) or correct responses (right)",
+        y = "RT quantiles (s)"
+        ) +
+    annotate("text", x = 0.4, y = 0.4, label = "incorrect") +
+    annotate("text", x = 0.6, y = 0.4, label = "correct")
+```
+
+## Parameter estimates: differences in drift rate
+
+We first check whether there is a difference in drift rate between
+conditions for words and non-words. This shows that a non negligible
+part of the posterior mass is above zero, meaning there is some (weak)
+evidence that the drift rate is greater in the accuracy than in the
+speed condition.
+
+```{r posterior-drift, eval = TRUE, echo = TRUE}
+library(tidybayes)
+library(emmeans)
+
+drift_rate_samples_per_condition <- fit_wiener %>%
+    # retrieving drift rate values per condition
+    emmeans(~condition * stim_cat) %>%
+    # retrieving posterior sample for each cell
+    gather_emmeans_draws()
+```
+
+```{r posterior-drift-plot, eval = TRUE, echo = FALSE, fig.asp = 0.5}
+# plotting it
+drift_rate_samples_per_condition %>%
+    mutate(.value = if_else(stim_cat == "nonword", (-1) * .value, .value) ) %>% 
+    pivot_wider(names_from = condition, values_from = .value) %>%
+    mutate(accuracy_speed_diff = accuracy - speed) %>%
+    ggplot(aes(x = accuracy_speed_diff) ) +
+    geom_vline(xintercept = 0) +
+    geom_histogram(color = "white", bins = 60, alpha = 1) +
+    facet_wrap(~stim_cat) +
+    labs(x = "Difference in drift rate (accuracy - speed)", y = "Number of posterior samples")
+```
+
+## Parameter estimates: differences in drift rate
+
+```{r postplot-drift-rate, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6, dev = "png", dpi = 200}
+samps <- drift_rate_samples_per_condition %>%
+    mutate(.value = if_else(stim_cat == "nonword", (-1) * .value, .value) ) %>% 
+    pivot_wider(names_from = condition, values_from = .value) %>%
+    mutate(accuracy_speed_diff = accuracy - speed)
+
+posterior_plot(
+    samples = sample(x = samps$accuracy_speed_diff, size = 1e3),
+    compval = 0, nbins = 30
+    ) + labs(x = "Difference in drift rate (accuracy - speed)")
+```
+
+## Parameter estimates: boundary separation
+
+Recall that the boundary separation parameter can be interpreted as a
+measure of response caution (with high $\alpha$ corresponding to high
+response caution), and that the linear model for this parameter is on
+the log scale (i.e., we used a log link function):
+$\log(\alpha_{i}) = \beta_{0} + \beta_{1} \cdot \text{Condition}_{i}$.
+Therefore, we have to apply the inverse link function (i.e.,
+$\exp(\cdot)$) to the parameter to be able to interpret it. Taking
+$\exp(\beta_{1})$ gives the proportional change in the value of the
+boundary-separation parameter when we go from the speed to the accuracy
+condition (see upper right panel). In our case,
+$\exp(\beta_{1}) \approx 0.4$, which means that going from the speed to
+the accuracy condition leads to an increase of approximately 40% in the
+value of the boundary-separation parameter. In other words, response
+caution is higher in the accuracy (lower right panel) than in the speed
+(lower left panel) condition.
+
+```{r posterior-bs1, eval = TRUE, echo = TRUE}
+# retrieving posterior samples
+post <- as_draws_df(x = fit_wiener)
+# retrieving the posterior samples for the boundary-separation
+posterior_intercept_bs <- post$b_bs_Intercept
+posterior_slope_bs <- post$b_bs_condition1
+# computing the posterior distribution in the speed condition
+posterior_bs_speed <- exp(posterior_intercept_bs - 0.5 * posterior_slope_bs)
+# computing the posterior distribution in the accuracy condition
+posterior_bs_accuracy <- exp(posterior_intercept_bs + 0.5 * posterior_slope_bs)
+```
+
+## Parameter estimates: boundary separation
+
+```{r posterior-bs2, eval = TRUE, echo = FALSE, fig.asp = 1}
+# plotting it
+par(mfrow = c(2, 2) )
+plotPost(
+  exp(posterior_intercept_bs), showMode = TRUE,
+  xlab = expression(paste(exp(beta[0][paste("[", alpha, "]")] ) ) )
+  )
+plotPost(
+  exp(posterior_slope_bs), showMode = TRUE, compVal = 1,
+  xlab = expression(paste(exp(beta["condition"][paste("[", alpha, "]")] ) ) )
+  )
+plotPost(
+  posterior_bs_speed, showMode = TRUE,
+  xlab = expression(paste(alpha["speed"]) )
+  )
+plotPost(
+  posterior_bs_accuracy, showMode = TRUE,
+  xlab = expression(paste(alpha["accuracy"]) )
+  )
+```
+
+## Parameter estimates: non-decision time
+
+Recall that the non-decision time parameter can be interpreted as a
+measure of the time used by non-decisional processes such as stimulus
+encoding or motor response, and that the linear model for this parameter
+is on the log scale (i.e., we used a log link function):
+$\log(\tau_{i}) = \beta_{0} + \beta_{1} \cdot \text{Condition}_{i}$.
+Therefore, we have to apply the inverse link function (i.e.,
+$\exp(\cdot)$) to the parameter to be able to interpret it. Taking
+$\exp(\beta_{1})$ gives the proportional change in the value of the
+non-decision time parameter when we go from the speed to the accuracy
+condition. In our case, $\exp(\beta_{1}) \approx 1.12$ which means that
+going from the speed to the accuracy condition leads to an increase of
+approximately 12% of the non-decision time. In other words,
+non-decisional processes seem to take longer in the accuracy than in the
+speed condition.
+
+```{r posterior-ndt1, eval = TRUE, echo = TRUE}
+# retrieves the posterior samples for the non-decision time
+posterior_intercept_ndt <- post$b_ndt_Intercept
+posterior_slope_ndt <- post$b_ndt_condition1
+# computes the posterior distribution in the speed condition
+posterior_ndt_speed <- exp(posterior_intercept_ndt - 0.5 * posterior_slope_ndt)
+# computes the posterior distribution in the accuracy condition
+posterior_ndt_accuracy <- exp(posterior_intercept_ndt + 0.5 * posterior_slope_ndt)
+```
+
+## Parameter estimates: non-decision time
+
+```{r posterior-ndt2, eval = TRUE, echo = FALSE, fig.asp = 1}
+# plotting it
+par(mfrow = c(2, 2) )
+plotPost(
+  exp(posterior_intercept_ndt), showMode = TRUE,
+  xlab = expression(paste(exp(beta[0][paste("[", alpha, "]")] ) ) )
+  )
+plotPost(
+  exp(posterior_slope_ndt), showMode = TRUE, compVal = 1,
+  xlab = expression(paste(exp(beta["condition"][paste("[", alpha, "]")] ) ) )
+  )
+plotPost(
+  posterior_ndt_speed, showMode = TRUE,
+  xlab = expression(paste(alpha["speed"]) )
+  )
+plotPost(
+  posterior_ndt_accuracy, showMode = TRUE,
+  xlab = expression(paste(alpha["accuracy"]) )
+  )
+```
+
+## Parameter estimates: starting point (bias)
+
+The starting point is a measure of response bias towards one of the two
+response boundaries and is bounded between 0 and 1. The linear model for
+this parameter is on the logit (log-odds) scale:
+$\log(\frac{\beta_{i}}{1 - \beta_{i}}) = \beta_{0} + \beta_{1} \cdot \text{Condition}_{i}$.
+Therefore, we have to apply the inverse link function (i.e.,
+$\mathrm{logit}^{-1}(\beta_{i}) = \mathrm{logistic}(\beta_{i}) = \frac{1}{1 + \exp(- \beta_{i})} = \frac{\exp(\beta_{i})}{\exp(\beta_{i}) + 1}$)
+to the parameter to be able to interpret it on its natural scale (i.e.,
+between 0 and 1). There seems to be a bias toward the "word" responses
+in the accuracy condition, but not (or less) in the speed condition.
+
+```{r posterior-bias1, eval = TRUE, echo = TRUE}
+# retrieves the posterior samples for the bias
+posterior_intercept_bias <- post$b_bias_Intercept
+posterior_slope_bias <- post$b_bias_condition1
+# computes the posterior distribution in the speed condition
+posterior_bias_speed <- plogis(posterior_intercept_bias - 0.5 * posterior_slope_bias)
+# computes the posterior distribution in the accuracy condition
+posterior_bias_accuracy <- plogis(posterior_intercept_bias + 0.5 * posterior_slope_bias)
+```
+
+## Parameter estimates: starting point (bias)
+
+```{r posterior-bias2, eval = TRUE, echo = FALSE, fig.asp = 1}
+# plotting it
+par(mfrow = c(2, 2) )
+plotPost(
+  plogis(posterior_intercept_bias), showMode = TRUE, compVal = 0.5,
+  xlab = expression(paste(logit(beta[0][paste("[", alpha, "]")] ) ) )
+  )
+plotPost(
+  exp(posterior_slope_bias), showMode = TRUE, compVal = 1,
+  xlab = expression(paste(exp(beta["condition"][paste("[", alpha, "]")] ) ) )
+  )
+plotPost(
+  posterior_bias_speed, showMode = TRUE, compVal = 0.5,
+  xlab = expression(paste(alpha["speed"]) )
+  )
+plotPost(
+  posterior_bias_accuracy, showMode = TRUE, compVal = 0.5,
+  xlab = expression(paste(alpha["accuracy"]) )
+  )
+```
+
+## Summary
+
+Somehow unsurprisingly, we find that response caution is much higher in
+the accuracy than in the speed condition, but the same goes for the
+drift rate and the non-decision time (to a lesser extent).
+
+. . .
+
+How do we know that these parameters actually refer to the processes we
+think they refer to? We check that experimental manipulations that are
+supposed to only affect some component (rate of information uptake,
+setting of response criteria, duration of the motor response and bias)
+effectively do [e.g., @ratcliff2002; @ratcliff1998;
+@voss_interpreting_2004]
+
+. . .
+
+We can also check parameter values in different groups with known
+specificities [e.g., age-related slowing in @ratcliff2000;
+@ratcliff2001] or we can try validating the interpretation of these
+parameters by using additional measures such as electrophysiogical
+(e.g., EMG, EEG) measures [e.g., @servant2021; @weindel2021].
+
+## Bayesian workflow [@gelman2020]
+
+```{r echo = FALSE, out.width = "66%"}
+knitr::include_graphics("figures/bayes_workflow_1.png")
+```
+
+## Bayesian workflow [@gelman2020]
+
+```{r echo = FALSE, out.width = "50%"}
+knitr::include_graphics("figures/bayes_workflow_2.png")
+```
+
+## Conclusions
+
+Bayesian inference is a general approach to parameter estimation. This
+approach uses probability theory to quantify the uncertainty with
+respect to the value of parameters from statistical models.
+
+. . .
+
+These models are composed of different blocks (e.g., likelihood
+function, priors, linear or non-linear model), which are modifiable as
+desired. What we usually refer to as "model assumptions" are simply the
+consequences of modelling choices. In other words, the user defines (and
+does not suffer) the model's assumptions.
+
+. . .
+
+We have seen that the linear regression model provides a very flexible
+architecture which makes possible to describe, via the modification of
+the likelihood function and via the introduction of link functions,
+complex (e.g., non-linear) relationships between outcomes and
+predictors. These models can gain in precision by taking into account
+the variability and structures present in the data (cf. multilevel
+models).
+
+## Conclusions
+
+The `brms` package is a real Swiss army knife of Bayesian statistics in
+`R`. It allows you to fit almost any type of regression model. This
+includes all models that we have seen, but also many others. Among
+others, multivariate models (i.e., models with several outcomes),
+"distributional" models (e.g., to predict variance differences),
+[generalized additive
+models](https://fromthebottomoftheheap.net/2018/04/21/fitting-gams-with-brms/),
+[Gaussian processes](https://rdrr.io/cran/brms/man/gp.html) (Gaussian
+processes), models from [signal detection
+theory](https://mvuorre.github.io/posts/2017-10-09-bayesian-estimation-of-signal-detection-theory-models/),
+[mixture
+models](https://www.martinmodrak.cz/2021/04/01/using-brms-to-model-reaction-times-contaminated-with-errors/),
+[drift-diffusion
+models](http://singmann.org/wiener-model-analysis-with-brms-part-i/),
+[non-linear
+models](https://paul-buerkner.github.io/brms/articles/brms_nonlinear.html)...
+
+Do not hesitate to contact me for more information on these models or if
+you have questions about your own data. You can also contact the creator
+of the `brms` package, who is very active online (see [his
+site](https://paul-buerkner.github.io/about/)). See also the [Stan
+forum](https://discourse.mc-stan.org).
+
+## References {.refs}
