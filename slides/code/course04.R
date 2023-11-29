@@ -1,4 +1,4 @@
-## ----setup, eval = TRUE, include = FALSE, cache = FALSE---------------------------------------------------------------------
+## ----setup, eval = TRUE, include = FALSE, cache = FALSE-------------------------------------------------------------------------------
 library(tidyverse)
 library(BEST)
 library(brms)
@@ -14,11 +14,11 @@ knitr::opts_chunk$set(
 theme_set(theme_bw(base_size = 16, base_family = "Open Sans") )
 
 
-## ----echo = FALSE, out.width = "300px"--------------------------------------------------------------------------------------
+## ----echo = FALSE, out.width = "300px"------------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/robot.png")
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(imsb)
 
@@ -26,7 +26,7 @@ df <- open_data(robot)
 head(x = df, n = 15)
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 15, fig.height = 5---------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 15, fig.height = 5-------------------------------------------------------------------------
 df %>%
   ggplot(aes(x = factor(cafe), y = wait, fill = factor(afternoon) ) ) +
   geom_dotplot(
@@ -38,7 +38,7 @@ df %>%
   labs(x = "Café", y = "Waiting time (min)")
 
 
-## ----eval = TRUE, echo = TRUE, ig.width = 7.5, fig.height = 5---------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, ig.width = 7.5, fig.height = 5-------------------------------------------------------------------------
 ggplot(data = data.frame(x = c(0, 10) ), aes(x = x) ) +
     stat_function(
         fun = dcauchy,
@@ -46,7 +46,7 @@ ggplot(data = data.frame(x = c(0, 10) ), aes(x = x) ) +
         )
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 library(brms)
 
 mod1 <- brm(
@@ -60,15 +60,15 @@ mod1 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE, warning = FALSE------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, warning = FALSE----------------------------------------------------------------------------------------
 posterior_summary(x = mod1, probs = c(0.025, 0.975), pars = c("^b_", "sigma") )
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 14, fig.height = 7---------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 14, fig.height = 7-------------------------------------------------------------------------
 plot(x = mod1, combo = c("dens_overlay", "trace") )
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 mod2 <- brm(
   formula = wait ~ 0 + factor(cafe),
   prior = c(
@@ -80,11 +80,11 @@ mod2 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE, warning = FALSE------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, warning = FALSE----------------------------------------------------------------------------------------
 posterior_summary(x = mod2, pars = "^b_")
 
 
-## ----eval = TRUE, echo = TRUE, out.width = "33%"----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, out.width = "33%"--------------------------------------------------------------------------------------
 y1 <- rnorm(n = 1e4, mean = 5, sd = 1)
 y2 <- rnorm(n = 1e4, mean = 0, sd = 1) + 5
 
@@ -94,7 +94,7 @@ data.frame(y1 = y1, y2 = y2) %>%
     geom_density(show.legend = FALSE)
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 mod3 <- brm(
   formula = wait ~ 1 + (1 | cafe),
   prior = c(
@@ -108,7 +108,7 @@ mod3 <- brm(
   )
 
 
-## ----echo = FALSE, fig.width = 14, fig.height = 8---------------------------------------------------------------------------
+## ----echo = FALSE, fig.width = 14, fig.height = 8-------------------------------------------------------------------------------------
 library(wesanderson) # for plotting
 post <- as_draws_df(mod3) # retrieving posterior samples
 
@@ -127,15 +127,15 @@ df %>%
     theme(legend.title = element_blank() )
 
 
-## ----echo = FALSE, fig.align = "center", out.width = "66%"------------------------------------------------------------------
+## ----echo = FALSE, fig.align = "center", out.width = "66%"----------------------------------------------------------------------------
 knitr::include_graphics("figures/stein1.png")
 
 
-## ----echo = FALSE, fig.align = "center", out.width = "75%"------------------------------------------------------------------
+## ----echo = FALSE, fig.align = "center", out.width = "75%"----------------------------------------------------------------------------
 knitr::include_graphics("figures/stein2.png")
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 # computing the WAIC for each model and storing it
 mod1 <- add_criterion(mod1, "waic")
 mod2 <- add_criterion(mod2, "waic")
@@ -146,12 +146,12 @@ w <- loo_compare(mod1, mod2, mod3, criterion = "waic")
 print(w, simplify = FALSE)
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 posterior_summary(mod1, pars = c("^b", "sigma") )
 posterior_summary(mod3, pars = c("^b", "sigma") )
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 df2 <- open_data(robot_unequal) # new dataset
 
 mod4 <- brm(
@@ -167,7 +167,7 @@ mod4 <- brm(
   )
 
 
-## ----echo = FALSE, fig.width = 12, fig.height = 6---------------------------------------------------------------------------
+## ----echo = FALSE, fig.width = 12, fig.height = 6-------------------------------------------------------------------------------------
 post <- as_draws_df(mod4)
 
 df2 %>%
@@ -185,11 +185,11 @@ df2 %>%
     theme(legend.title = element_blank() )
 
 
-## ----echo = FALSE, out.width = "800px"--------------------------------------------------------------------------------------
+## ----echo = FALSE, out.width = "800px"------------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/bivariate.png")
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 sigma_a <- 1
 sigma_b <- 0.75
 rho <- 0.7
@@ -197,13 +197,13 @@ cov_ab <- sigma_a * sigma_b * rho
 (Sigma1 <- matrix(c(sigma_a^2, cov_ab, cov_ab, sigma_b^2), ncol = 2) )
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 (sigmas <- c(sigma_a, sigma_b) ) # standard deviations
 (Rho <- matrix(c(1, rho, rho, 1), nrow = 2) ) # correlation matrix
 (Sigma2 <- diag(sigmas) %*% Rho %*% diag(sigmas) )
 
 
-## ----echo = FALSE, fig.width = 14, fig.height = 7, cache = TRUE-------------------------------------------------------------
+## ----echo = FALSE, fig.width = 14, fig.height = 7, cache = TRUE-----------------------------------------------------------------------
 library(ggdist)
 
 expand.grid(eta = c(0.5, 2, 5, 10), K = c(2, 3, 4, 5) ) %>%
@@ -232,29 +232,29 @@ expand.grid(eta = c(0.5, 2, 5, 10), K = c(2, 3, 4, 5) ) %>%
         )
 
 
-## ----eval = FALSE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------
 ## Reaction ~ Days + (1 + Days | Subject)
 
 
-## ----eval = FALSE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------
 ## Reaction ~ Days + (1 + Days | Subject)
 ## Reaction ~ 1 + Days + (1 + Days | Subject)
 
 
-## ----eval = FALSE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------
 ## Reaction ~ 1 + Days + (1 | Subject)
 ## Reaction ~ 1 + Days + (1 + Days | Subject)
 
 
-## ----eval = FALSE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------
 ## Reaction ~ Days + (1 + Days || Subject)
 
 
-## ----eval = FALSE, echo = TRUE----------------------------------------------------------------------------------------------
+## ----eval = FALSE, echo = TRUE--------------------------------------------------------------------------------------------------------
 ## brm(formula = Reaction ~ 1 + Days + (1 + Days | Subject), family = lognormal() )
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 mod5 <- brm(
   formula = wait ~ 1 + afternoon + (1 + afternoon | cafe),
   prior = c(
@@ -269,7 +269,7 @@ mod5 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6----------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6--------------------------------------------------------------------------
 post <- as_draws_df(x = mod5) # extracting posterior samples
 R <- rethinking::rlkjcorr(n = 16000, K = 2, eta = 2) # samples from prior
 
@@ -280,7 +280,7 @@ data.frame(prior = R[, 1, 2], posterior = post$cor_cafe__Intercept__afternoon) %
     labs(x = expression(rho), y = "Number of samples")
 
 
-## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 8--------------------------------------------------------------
+## ----eval = TRUE, echo = FALSE, fig.width = 12, fig.height = 8------------------------------------------------------------------------
 a1 <- sapply(1:20, function(i) mean(df$wait[df$cafe == i & df$afternoon == 0]) )
 b1 <- sapply(1:20, function(i) mean(df$wait[df$cafe == i & df$afternoon == 1]) ) - a1
 
@@ -343,26 +343,26 @@ shrinkage %>%
     labs(x = "Intercept", y = "Slope")
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 mod5 <- add_criterion(mod5, "waic")
 w <- loo_compare(mod1, mod2, mod3, mod5, criterion = "waic")
 print(w, simplify = FALSE)
 model_weights(mod1, mod2, mod3, mod5, weights = "waic")
 
 
-## ----eval = TRUE, echo = TRUE, warning = FALSE------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, warning = FALSE----------------------------------------------------------------------------------------
 posterior_summary(mod1, pars = c("^b", "sigma") )
 posterior_summary(mod3, pars = c("^b", "sigma") )
 posterior_summary(mod5, pars = c("^b", "sigma") )
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 library(lme4)
 data(sleepstudy)
 head(sleepstudy, 20)
 
 
-## ----eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6---------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6-------------------------------------------------------------------------
 sleepstudy %>%
     ggplot(aes(x = Days, y = Reaction) ) +
     geom_smooth(method = "lm", colour = "black") +
@@ -371,15 +371,17 @@ sleepstudy %>%
     scale_x_continuous(breaks = c(0, 2, 4, 6, 8) )
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
+# frequentist (flat-priors) models
 fmod0 <- lm(Reaction ~ Days, sleepstudy)
 fmod1 <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy)
 fmod2 <- lmer(Reaction ~ Days + (1 + Days | Subject), sleepstudy)
 
+# comparing fmod1 and fmod2
 anova(fmod1, fmod2)
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 mod6 <- brm(
   Reaction ~ 1 + Days,
   prior = c(
@@ -393,11 +395,11 @@ mod6 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 posterior_summary(mod6)
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 mod7 <- brm(
   Reaction ~ 1 + Days + (1 | Subject),
   prior = c(
@@ -412,11 +414,11 @@ mod7 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 posterior_summary(mod7, pars = c("^b", "sigma") )
 
 
-## ----eval = TRUE, echo = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE, results = "hide"---------------------------------------------------------------------------------------
 mod8 <- brm(
   Reaction ~ 1 + Days + (1 + Days | Subject),
   prior = c(
@@ -431,11 +433,11 @@ mod8 <- brm(
   )
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 posterior_summary(mod8, pars = c("^b", "sigma") )
 
 
-## ----eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------------
+## ----eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------------------
 # computing and storing the WAIC of each model
 mod6 <- add_criterion(mod6, "waic")
 mod7 <- add_criterion(mod7, "waic")
@@ -449,23 +451,23 @@ print(w, simplify = FALSE)
 model_weights(mod6, mod7, mod8, weights = "waic")
 
 
-## ----rdk, echo = FALSE------------------------------------------------------------------------------------------------------
+## ----rdk, echo = FALSE----------------------------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/rdk.gif")
 
 
-## ----EAMs, eval = TRUE, echo = FALSE----------------------------------------------------------------------------------------
+## ----EAMs, eval = TRUE, echo = FALSE--------------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/eam.png")
 
 
-## ----wiener-figure, echo = FALSE--------------------------------------------------------------------------------------------
+## ----wiener-figure, echo = FALSE------------------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/wiener_figure.png")
 
 
-## ----lexical-decision-figure, echo = FALSE----------------------------------------------------------------------------------
+## ----lexical-decision-figure, echo = FALSE--------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/lexical_decision_task.png")
 
 
-## ----ddm-data---------------------------------------------------------------------------------------------------------------
+## ----ddm-data-------------------------------------------------------------------------------------------------------------------------
 # loading the "speed_acc" data from the "rtdists" package
 data(speed_acc, package = "rtdists")
 
@@ -484,7 +486,7 @@ df <- speed_acc %>%
     mutate(id = factor(id), block = factor(block) )
 
 
-## ----ddm-formula, eval = TRUE, echo = TRUE----------------------------------------------------------------------------------
+## ----ddm-formula, eval = TRUE, echo = TRUE--------------------------------------------------------------------------------------------
 # defining the model formula (one "linear model" per parameter)
 formula <- brmsformula(
   # drift rate (delta)
@@ -498,7 +500,7 @@ formula <- brmsformula(
   )
 
 
-## ----ddm-priors, eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------
+## ----ddm-priors, eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------
 # defining the contrasts
 contrasts(df$condition) <- c(+0.5, -0.5)
 contrasts(df$stim_cat) <- c(+0.5, -0.5)
@@ -517,7 +519,7 @@ priors <- c(
   )
 
 
-## ----ddm-fitting, eval = TRUE, results = "hide"-----------------------------------------------------------------------------
+## ----ddm-fitting, eval = TRUE, results = "hide"---------------------------------------------------------------------------------------
 # specify initial values to help the model start sampling
 # (with small variation between chains)
 chains <- 8 # number of chains
@@ -549,7 +551,7 @@ fit_wiener <- brm(
   )
 
 
-## ----diagnostics, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6--------------------------------------------------
+## ----diagnostics, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6------------------------------------------------------------
 # combo can be hist, dens, dens_overlay, trace, trace_highlight...
 # cf. https://mc-stan.org/bayesplot/reference/MCMC-overview.html
 plot(
@@ -559,12 +561,12 @@ plot(
     )
 
 
-## ----ppc, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6----------------------------------------------------------
+## ----ppc, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6--------------------------------------------------------------------
 pp_check(object = fit_wiener, ndraws = 10) +
   labs(x = "Reaction time", y = "Density")
 
 
-## ----qqplot1, eval = TRUE, echo = FALSE-------------------------------------------------------------------------------------
+## ----qqplot1, eval = TRUE, echo = FALSE-----------------------------------------------------------------------------------------------
 # aggregating the data using the qpf() function from
 # https://vasishth.github.io/bayescogsci/book/ch-lognormalrace.html#sec-acccoding
 qpf <- function (df_grouped, preds = FALSE, quantiles = c(0.1, 0.3, 0.5, 0.7, 0.9) ) {
@@ -603,7 +605,7 @@ qpf <- function (df_grouped, preds = FALSE, quantiles = c(0.1, 0.3, 0.5, 0.7, 0.
 }
 
 
-## ----qqplot1bis, eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------
+## ----qqplot1bis, eval = TRUE, echo = TRUE---------------------------------------------------------------------------------------------
 # aggregating the data using the qpf() function from
 # https://vasishth.github.io/bayescogsci/book/ch-lognormalrace.html#sec-acccoding
 df_qpf <- df %>%
@@ -615,7 +617,7 @@ df_qpf <- df %>%
 head(df_qpf)
 
 
-## ----qqplot2, eval = TRUE, echo = FALSE, fig.asp = 0.75---------------------------------------------------------------------
+## ----qqplot2, eval = TRUE, echo = FALSE, fig.asp = 0.75-------------------------------------------------------------------------------
 df_qpf %>%
     ggplot(aes(x = p, y = rt_q) ) +
     geom_vline(xintercept = 0.5, linetype = "dashed") +
@@ -623,14 +625,14 @@ df_qpf %>%
     geom_line(aes(group = interaction(q, response) ) ) +
     facet_wrap(~condition, ncol = 1, scales = "free_y") +
     labs(
-        x = "Proportion of incorrect (left) or correct responses (right)",
+        x = "Response proportion",
         y = "RT quantiles (s)"
         ) +
     annotate("text", x = 0.4, y = 0.4, label = "incorrect") +
     annotate("text", x = 0.6, y = 0.4, label = "correct")
 
 
-## ----qqplot3, eval = TRUE, echo = FALSE, fig.asp = 0.75---------------------------------------------------------------------
+## ----qqplot3, eval = TRUE, echo = FALSE, fig.asp = 0.75-------------------------------------------------------------------------------
 # preds_wiener <- predict(
 #     fit_wiener, summary = FALSE,
 #     negative_rt = TRUE,
@@ -664,14 +666,14 @@ df_qpf_preds %>%
     geom_line(aes(group = interaction(q, response) ) ) +
     facet_wrap(~condition, ncol = 1, scales = "free_y") +
     labs(
-        x = "Proportion of incorrect (left) or correct responses (right)",
+        x = "Response proportion",
         y = "RT quantiles (s)"
         ) +
     annotate("text", x = 0.4, y = 0.4, label = "incorrect") +
     annotate("text", x = 0.6, y = 0.4, label = "correct")
 
 
-## ----posterior-drift, eval = TRUE, echo = TRUE------------------------------------------------------------------------------
+## ----posterior-drift, eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------
 library(tidybayes)
 library(emmeans)
 
@@ -682,7 +684,7 @@ drift_rate_samples_per_condition <- fit_wiener %>%
     gather_emmeans_draws()
 
 
-## ----posterior-drift-plot, eval = TRUE, echo = FALSE, fig.asp = 0.5---------------------------------------------------------
+## ----posterior-drift-plot, eval = TRUE, echo = FALSE, fig.asp = 0.5-------------------------------------------------------------------
 # plotting it
 drift_rate_samples_per_condition %>%
     mutate(.value = if_else(stim_cat == "nonword", (-1) * .value, .value) ) %>% 
@@ -695,7 +697,7 @@ drift_rate_samples_per_condition %>%
     labs(x = "Difference in drift rate (accuracy - speed)", y = "Number of posterior samples")
 
 
-## ----postplot-drift-rate, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6, dev = "png", dpi = 200-------------------
+## ----postplot-drift-rate, eval = TRUE, echo = TRUE, fig.width = 9, fig.height = 6, dev = "png", dpi = 200-----------------------------
 samps <- drift_rate_samples_per_condition %>%
     mutate(.value = if_else(stim_cat == "nonword", (-1) * .value, .value) ) %>% 
     pivot_wider(names_from = condition, values_from = .value) %>%
@@ -707,7 +709,7 @@ posterior_plot(
     ) + labs(x = "Difference in drift rate (accuracy - speed)")
 
 
-## ----posterior-bs1, eval = TRUE, echo = TRUE--------------------------------------------------------------------------------
+## ----posterior-bs1, eval = TRUE, echo = TRUE------------------------------------------------------------------------------------------
 # retrieving posterior samples
 post <- as_draws_df(x = fit_wiener)
 # retrieving the posterior samples for the boundary-separation
@@ -719,7 +721,7 @@ posterior_bs_speed <- exp(posterior_intercept_bs - 0.5 * posterior_slope_bs)
 posterior_bs_accuracy <- exp(posterior_intercept_bs + 0.5 * posterior_slope_bs)
 
 
-## ----posterior-bs2, eval = TRUE, echo = FALSE, fig.asp = 1------------------------------------------------------------------
+## ----posterior-bs2, eval = TRUE, echo = FALSE, fig.asp = 1----------------------------------------------------------------------------
 # plotting it
 par(mfrow = c(2, 2) )
 plotPost(
@@ -740,7 +742,7 @@ plotPost(
   )
 
 
-## ----posterior-ndt1, eval = TRUE, echo = TRUE-------------------------------------------------------------------------------
+## ----posterior-ndt1, eval = TRUE, echo = TRUE-----------------------------------------------------------------------------------------
 # retrieves the posterior samples for the non-decision time
 posterior_intercept_ndt <- post$b_ndt_Intercept
 posterior_slope_ndt <- post$b_ndt_condition1
@@ -750,7 +752,7 @@ posterior_ndt_speed <- exp(posterior_intercept_ndt - 0.5 * posterior_slope_ndt)
 posterior_ndt_accuracy <- exp(posterior_intercept_ndt + 0.5 * posterior_slope_ndt)
 
 
-## ----posterior-ndt2, eval = TRUE, echo = FALSE, fig.asp = 1-----------------------------------------------------------------
+## ----posterior-ndt2, eval = TRUE, echo = FALSE, fig.asp = 1---------------------------------------------------------------------------
 # plotting it
 par(mfrow = c(2, 2) )
 plotPost(
@@ -771,7 +773,7 @@ plotPost(
   )
 
 
-## ----posterior-bias1, eval = TRUE, echo = TRUE------------------------------------------------------------------------------
+## ----posterior-bias1, eval = TRUE, echo = TRUE----------------------------------------------------------------------------------------
 # retrieves the posterior samples for the bias
 posterior_intercept_bias <- post$b_bias_Intercept
 posterior_slope_bias <- post$b_bias_condition1
@@ -781,12 +783,12 @@ posterior_bias_speed <- plogis(posterior_intercept_bias - 0.5 * posterior_slope_
 posterior_bias_accuracy <- plogis(posterior_intercept_bias + 0.5 * posterior_slope_bias)
 
 
-## ----posterior-bias2, eval = TRUE, echo = FALSE, fig.asp = 1----------------------------------------------------------------
+## ----posterior-bias2, eval = TRUE, echo = FALSE, fig.asp = 1--------------------------------------------------------------------------
 # plotting it
 par(mfrow = c(2, 2) )
 plotPost(
   plogis(posterior_intercept_bias), showMode = TRUE, compVal = 0.5,
-  xlab = expression(paste(logit(beta[0][paste("[", alpha, "]")] ) ) )
+  xlab = expression(paste(invlogit(beta[0][paste("[", alpha, "]")] ) ) )
   )
 plotPost(
   exp(posterior_slope_bias), showMode = TRUE, compVal = 1,
@@ -802,10 +804,10 @@ plotPost(
   )
 
 
-## ----echo = FALSE, out.width = "66%"----------------------------------------------------------------------------------------
+## ----echo = FALSE, out.width = "66%"--------------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/bayes_workflow_1.png")
 
 
-## ----echo = FALSE, out.width = "50%"----------------------------------------------------------------------------------------
+## ----echo = FALSE, out.width = "50%"--------------------------------------------------------------------------------------------------
 knitr::include_graphics("figures/bayes_workflow_2.png")
 

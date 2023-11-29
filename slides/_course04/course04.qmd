@@ -377,14 +377,13 @@ print(w, simplify = FALSE)
 We note that model 3 has only 18 effective parameters (pWAIC) and fewer
 parameters than model 2, whereas it actually has 2 more...
 `posterior_summary(mod3)[3, 1]` gives us the sigma of the adaptive
-priority of $\alpha_{\text{café}}$ ($\sigma_{\text{café}} = 0.82$). Note
-that this sigma is very low is very low and corresponds to assigning a
+prior on $\alpha_{\text{café}}$ ($\sigma_{\text{café}} = 0.82$). Note
+that this sigma is very low and corresponds to assigning a
 very restrictive or **regularising** prior.
 
 ## Model comparaison
 
-The estimates of the first model (complete pooling model) and the third
-model (partial pooling model) are compared.
+We compare the estimates from the first (complete pooling) and third (partial pooling) model.
 
 ```{r eval = TRUE, echo = TRUE}
 posterior_summary(mod1, pars = c("^b", "sigma") )
@@ -517,13 +516,13 @@ slope) between morning and afternoon.
 
 . . .
 
-Note: we know that cafés have intercepts and slopes which co-vary...
+Note: we know that cafés have intercepts and slopes that co-vary...
 Popular cafés will be overcrowded in the morning and much less in the
-afternoon, resulting in a significant slope. These cafés will also have
+afternoon, resulting in a negative slope. These cafés will also have
 a longer average waiting time (i.e., a larger intercept). In these
 cafés, $\alpha$ is large and $\beta$ is far from zero. Conversely, in an
 unpopular café, the waiting time will be short, as well as the
-difference between the morning and afternoon's waiting the.
+difference between the morning and afternoon's waiting time.
 
 . . .
 
@@ -661,7 +660,7 @@ line specifies the prior for $\textbf{R}$.
 
 Prior proposed by @lewandowski2009. A single parameter $\zeta$ (zeta)
 specifies the concentration of the distribution of the correlation
-coefficient. The $\mathrm{LKJ}(2)$ prior defines an uninformative prior
+coefficient. The $\mathrm{LKJ}(2)$ prior defines an weakly informative prior
 for $\rho$ (rho) which is sceptical of extreme correlations (i.e.,
 values close to $-1$ or $1$).
 
@@ -727,15 +726,15 @@ Reaction ~ 1 + Days + (1 | Subject)
 Reaction ~ 1 + Days + (1 + Days | Subject)
 ```
 
-The first model above contains only an intercept variable, which varies
-by `Subject`. The second model also contains a variable intercept, but
-also a variable slope for the effect of `Days`.
+The first model above contains only a varying intercept, which varies
+by `Subject`. The second model contains a varying intercept, but
+also a varying slope for the effect of `Days`.
 
 ## Syntax reminders
 
 When including several varying effects (e.g., an intercept and a slope),
 `brms` assumes that we also want to estimate the correlation between
-these two effects. Otherwise, we can remove this correlation (i.e., set
+these effects. Otherwise, we can remove this correlation (i.e., set
 it to 0) using `||`.
 
 ```{r eval = FALSE, echo = TRUE}
@@ -937,10 +936,12 @@ Then, compare these models using model comparison tools and conclude.
 ## Proposed solution
 
 ```{r eval = TRUE, echo = TRUE}
+# frequentist (flat-priors) models
 fmod0 <- lm(Reaction ~ Days, sleepstudy)
 fmod1 <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy)
 fmod2 <- lmer(Reaction ~ Days + (1 + Days | Subject), sleepstudy)
 
+# comparing fmod1 and fmod2
 anova(fmod1, fmod2)
 ```
 
@@ -1041,7 +1042,7 @@ useful devices to describe associations, but they tell us nothing about
 focus on **process models**, aiming at describing the mechanisms
 generating the data (generative models).
 
-## Two-alternative forced choice (2AFC)
+## Two-alternative forced choice
 
 Two-alternative forced choice (2AFC) is a method for measuring the
 sensitivity of a person or animal to some particular sensory input,
@@ -1131,7 +1132,7 @@ tasks and corresponding response times into four latent processes [from
 
 -   The **boundary separation** $\alpha$ (alpha) is the distance between
     the two decision bounds and can be interpreted as a measure of
-    response caution, with high $\alpha$ meaning high caution.
+    response caution, with a high $\alpha$ corresponding to high caution.
 
 -   The **starting point** (or bias) $\beta$ (beta) of the accumulation
     process is a measure of response bias towards one of the two
@@ -1154,15 +1155,14 @@ knitr::include_graphics("figures/lexical_decision_task.png")
 
 ## Application example: lexical decision task
 
-We will adapt the example from @singmann_diffusion/wiener_2017. We will
+We will adapt the example from @singmann_diffusion/wiener_2017 and
 analyse part of the data from Experiment 1 of @wagenmakers2008. The data
-comes from 17 participants performing a lexical decision task in which
-they have to decide if a presented string is a word or non-word.
-Participants made decisions either under speed or accuracy emphasis
+comes from 17 participants performing a lexical decision task.
+Participants made decisions under speed or accuracy emphasis
 instructions in different experimental blocks. After removing some
 extreme RTs, we restrict the analysis to high-frequency words (frequency
 = high) and the corresponding high-frequency non-words (frequency =
-nw_high) to reduce estimation time. To setup the model we also need a
+nw_high) to reduce estimation time. To setup the model, we also need a
 numeric response variable in which 0 corresponds to responses at the
 lower response boundary and 1 corresponds to responses at the upper
 boundary.
@@ -1190,16 +1190,15 @@ df <- speed_acc %>%
 
 An important decision that has to be made before setting up a model is
 which parameters are allowed to differ between which conditions. One
-common constraint of the DDM is that the parameters that are set before
+common constraint of the DDM is that parameters that are set before
 the evidence accumulation process starts (i.e., boundary separation,
 starting point, and non-decision time) cannot change based on stimulus
 characteristics that are not known to the participant before the start
-of the trial. Thus, the item-type, in the present case word versus
+of the trial. Thus, the stimulus category, in the present case word versus
 non-word, is usually only allowed to affect the drift rate. We follow
 this constraint. Furthermore, all relevant variables are manipulated
-within-subject. Thus, the maximal random-effects structure
-[@barr_random_2013-1] entails corresponding random-effects parameters
-for each fixed-effect.
+within-subject. Thus, the maximal varying-effects structure
+[@barr_random_2013-1] can (and should) be implemented.
 
 ```{r ddm-formula, eval = TRUE, echo = TRUE}
 # defining the model formula (one "linear model" per parameter)
@@ -1238,10 +1237,7 @@ priors <- c(
 
 ## Drift-diffusion model in brms
 
-We then fit this model using the `brms::brm()` function. We run 8
-chains, each for 5000 iterations and using the first 1000 iterations
-used as warmup, resulting in a total of $8 \times (5000 - 1000) = 32000$
-posterior samples.
+We then fit this model using the `brms::brm()` function. We run 8 chains for 5000 iterations and use the first 1000 iterations as warmup, resulting in a total of $8 \times (5000 - 1000) = 32000$ posterior samples.
 
 ```{r ddm-fitting, eval = TRUE, results = "hide"}
 # specify initial values to help the model start sampling
@@ -1379,9 +1375,9 @@ head(df_qpf)
 
 ## Assessing model fit 3/4
 
-This plot shows that words are recognised faster than non-words, that
-incorrect responses are faster than correct responses, and the responses
-are generally faster in the "speed" than in the "accuracy" condition.
+This plot shows that words are recognised faster than non-words, that responses
+are generally faster in the "speed" than in the "accuracy" condition, and that
+incorrect responses seem more variable than correct responses.
 
 ```{r qqplot2, eval = TRUE, echo = FALSE, fig.asp = 0.75}
 df_qpf %>%
@@ -1391,7 +1387,7 @@ df_qpf %>%
     geom_line(aes(group = interaction(q, response) ) ) +
     facet_wrap(~condition, ncol = 1, scales = "free_y") +
     labs(
-        x = "Proportion of incorrect (left) or correct responses (right)",
+        x = "Response proportion",
         y = "RT quantiles (s)"
         ) +
     annotate("text", x = 0.4, y = 0.4, label = "incorrect") +
@@ -1401,7 +1397,7 @@ df_qpf %>%
 ## Assessing model fit 4/4
 
 The model fit is not so bad, but the model is unable to capture fast
-errors (bottom left)...
+errors (bottom left), and more generally, extreme quantiles...
 
 ```{r qqplot3, eval = TRUE, echo = FALSE, fig.asp = 0.75}
 # preds_wiener <- predict(
@@ -1437,7 +1433,7 @@ df_qpf_preds %>%
     geom_line(aes(group = interaction(q, response) ) ) +
     facet_wrap(~condition, ncol = 1, scales = "free_y") +
     labs(
-        x = "Proportion of incorrect (left) or correct responses (right)",
+        x = "Response proportion",
         y = "RT quantiles (s)"
         ) +
     annotate("text", x = 0.4, y = 0.4, label = "incorrect") +
@@ -1622,7 +1618,7 @@ posterior_bias_accuracy <- plogis(posterior_intercept_bias + 0.5 * posterior_slo
 par(mfrow = c(2, 2) )
 plotPost(
   plogis(posterior_intercept_bias), showMode = TRUE, compVal = 0.5,
-  xlab = expression(paste(logit(beta[0][paste("[", alpha, "]")] ) ) )
+  xlab = expression(paste(invlogit(beta[0][paste("[", alpha, "]")] ) ) )
   )
 plotPost(
   exp(posterior_slope_bias), showMode = TRUE, compVal = 1,

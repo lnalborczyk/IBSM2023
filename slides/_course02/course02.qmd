@@ -330,7 +330,7 @@ data.frame(x = c(-10, 60) ) %>%
   labs(x = expression(sigma), y = "Probability density")
 ```
 
-## Visualiser le prior
+## Visualising the prior
 
 ```{r eval = FALSE, echo = TRUE}
 library(ks)
@@ -527,7 +527,7 @@ ggplot(
 ## Posterior distribution - Marginal distributions
 
 ```{r eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
-posterior_plot(samples = sample.mu, nbins = 30) + labs(x = expression(mu) )
+posterior_plot(samples = sample.mu, nbins = 35) + labs(x = expression(mu) )
 ```
 
 ## Posterior distribution - Marginal distributions
@@ -925,7 +925,7 @@ d2 %>%
 Let's consider a linear regression model with a single predictor, a slope, an intercept, and residuals distributed according to a normal distribution. The notation:
 
 $$
-h_{i} = \alpha + \beta x_{i} + \epsilon_{i} \quad \text{avec} \quad \epsilon_{i} \sim \mathrm{Normal}(0, \sigma)
+h_{i} = \alpha + \beta x_{i} + \epsilon_{i} \quad \text{with} \quad \epsilon_{i} \sim \mathrm{Normal}(0, \sigma)
 $$
 
 is equivalent to:
@@ -1092,7 +1092,7 @@ Two sources of uncertainty in the model: uncertainty concerning the estimation o
 
 . . .
 
-**Aleatory uncertainty** : The distribution of simulated data is a distribution that contains uncertainty related to a sampling process (i.e., generating data from a Gaussian distribution).
+**Aleatory uncertainty**: The distribution of simulated data is a distribution that contains uncertainty related to a sampling process (i.e., generating data from a Gaussian distribution).
 
 . . .
 
@@ -1219,8 +1219,6 @@ $$
 \end{aligned}
 $$
 
-. . .
-
 ```{r effsize, eval = TRUE, echo = TRUE}
 post <- as_draws_df(x = mod4)
 beta <- post$b_weight
@@ -1235,8 +1233,6 @@ Caution: if there are several predictors, it depends on the covariance structure
 ```{r effsize-plot1, eval = TRUE, echo = TRUE, dev = "png", dpi = 200}
 posterior_plot(samples = rho, usemode = TRUE) + labs(x = expression(rho) )
 ```
-
-. . .
 
 ```{r summary-lm-effsize, eval = TRUE, echo = TRUE}
 summary(lm(height ~ weight, data = d2) )$r.squared
@@ -1258,7 +1254,7 @@ bayes_R2(mod4, summary = FALSE)[, 1] %>%
 
 ## Summary
 
-A new model with two and then three parameters was presented: the Gaussian model, then Gaussian linear regression model, making it possible to relate two continuous variables.
+A new model with two and then three parameters was presented: a Gaussian model, then a Gaussian linear regression model, used to relate two continuous variables.
 
 . . .
 

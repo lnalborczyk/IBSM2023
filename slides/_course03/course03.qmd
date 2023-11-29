@@ -214,7 +214,7 @@ There are three ways of getting around this problem:
 
 -   Alternatively, for simple models, we can use the **grid method**. The exact value of the posterior probability is calculated at a finite number of points in the parameter space.
 
--   For more complex models, exploring the entire parameter space space is not tractable. Instead, we will sample a large number of points in the parameter space and use these samples as an approximation of the posterior distribution, but we will sample the posterior space in a smart way.
+-   For more complex models, exploring the entire parameter space space is usually not tractable. Instead, we will sample a large number of points in the parameter space and use these samples as an approximation of the posterior distribution, but we will sample the posterior space in a smart way.
 
 # Markov Chain Monte Carlo
 
@@ -236,7 +236,7 @@ knitr::include_graphics("figures/Nicholas_Metropolis_cropped.png")
 
 ## Monte Carlo methods: estimating $\pi$
 
-Let $M$ be a point with coordinates $(x, y)$, where $0 < x < 1$ and $0 < y < 1$. We randomly draw the values of $x$ and $y$ between $0$ and $1$ according to a uniform distribution. The point $M$ belongs to the disc of centre $(0, 0)$ of radius $r = 1$ if and only if $\sqrt{x^{2} + y^{2}} \leqslant 1$. We know that the area of the quarter disc is $\sigma = \pi r^{2} / 4 = \pi / 4$ and that the square which contains has a surface $s = r^{2} = 1$. If the probability distribution of which the point is drawn is uniform, then the probability that point $M$ belongs to disc is $\sigma / s = \pi / 4$. By dividing the number of points in the disc by the number of draws $\frac{N_{\text{inner}}}{N_{\text{total}}}$, we obtain an approximation of $\pi / 4$.
+Let $M$ be a point with coordinates $(x, y)$, where $0 < x < 1$ and $0 < y < 1$. We randomly draw the values of $x$ and $y$ between $0$ and $1$ according to a uniform distribution. The point $M$ belongs to the disc of centre $(0, 0)$ and radius $r = 1$ if and only if $\sqrt{x^{2} + y^{2}} \leqslant 1$. We know that the area of the quarter disc is $\sigma = \pi r^{2} / 4 = \pi / 4$ and that the square which contains it has a surface $s = r^{2} = 1$. If the probability distribution of which the point is drawn is uniform, then the probability that point $M$ belongs to disc is $\sigma / s = \pi / 4$. By dividing the number of points in the disc by the number of draws $\frac{N_{\text{inner}}}{N_{\text{total}}}$, we obtain an approximation of $\pi / 4$.
 
 ```{r pi_gif, echo = FALSE, out.width = "25%"}
 knitr::include_graphics("figures/Pi_30K.gif")
@@ -398,7 +398,7 @@ Principle:
 
 Two central ideas:
 
-- The proposal should favour the most probable parameter values: These parameter values are used more often.
+- The proposal should favour the most probable parameter values: These parameter values should be proposed more often.
 - The proposal should be limited to values adjacent to the current parameter: The speed of convergence is increased by staying where the information is (i.e., by traversing the parameter space **locally** rather than **globally**).
 
 ## Metropolis algorithm in details
@@ -574,7 +574,7 @@ barplot(
 
 **Application to coin tosses (continuous case)**
 
-$~\bullet~$ The likelihood function: $\color{orangered}{p(y \given \theta, n) \propto \theta^y(1 - \theta)^{(n - y)}}$ <br> $~\bullet~$ Prior: $\color{steelblue}{p(\theta \given a, b) \propto \theta^{(a - 1)}(1 - \theta)^{(b - 1)}}$ <br> $~\bullet~$ The parameter we want to estimates lies in the $\left[0, 1 \right]$ interval.
+$~\bullet~$ The likelihood function: $\color{orangered}{p(y \given \theta, n) \propto \theta^y(1 - \theta)^{(n - y)}}$ <br> $~\bullet~$ Prior: $\color{steelblue}{p(\theta \given a, b) \propto \theta^{(a - 1)}(1 - \theta)^{(b - 1)}}$ <br> $~\bullet~$ The parameter we want to estimate lies in the $\left[0, 1 \right]$ interval.
 
 . . .
 
@@ -1258,7 +1258,7 @@ The Metropolis and Metropolis-Hastings (or Gibbs) algorithms perform poorly when
 
 . . .
 
-We use Hamiltonians which represent the total energy of a system. This energy is broken down into its **potential energy** (which depends on its position in $\Theta$ parameter space) and its **kinetic energy**, which depends on its **momentum** $m$:
+We use Hamiltonians which represent the total energy of a system. This energy is broken down into its **potential energy** (which depends on its position in parameter space) and its **kinetic energy**, which depends on its **momentum** $m$:
 
 $$
 H(\theta, m) = \underbrace{U(\theta)}_{\text{potential energy}} + \underbrace{KE(m)}_{\text{kinetic energy}}
@@ -1282,18 +1282,18 @@ knitr::include_graphics("figures/HMC alorithme.png")
 
 - Select a starting point $\theta_{0}$: Any value of $\theta$ in posterior space can be selected.
 
-- The force with which the ball is thrown (moment) is randomly generated, for example from a multivariate normal distribution: $m \sim \mathrm{MVNormal}(\mu, \Sigma)$.
+- The force with which the ball is thrown (momentum $m$) is randomly generated, for example from a multivariate normal distribution: $m \sim \mathrm{MVNormal}(\mu, \Sigma)$.
 
 - A trajectory approximation algorithm (e.g., leapfrog) is used to estimate the trajectory and final position of the ball in posterior space for a given trajectory duration.
 
 - After a certain time, the final position of the ball and its moment are recorded.
 
-- The proposed movement is accepted or rejected according to the following probability (where $\phi$ (phi) is the moment associated with the marble):
+- The proposed movement is accepted or rejected according to the following probability (where $\phi$ (phi) is the momentum associated with the marble):
 
 . . .
 
 $$
-\Pr_{\text{move}} = \min \left(\frac{p(\theta_{\text{proposed}} \given \text{data})\ p(\phi_{\text{proposed}})}{p(\theta_{\text{current}} \given \text{data})\ p(\phi_{\text{current}})}, 1 \right)
+\Pr_{\text{move}} = \min \left(\frac{p(\text{data} \given \theta_{\text{proposed}})\ p(\phi_{\text{proposed}})}{p(\text{data} \given  \theta_{\text{current}})\ p(\phi_{\text{current}})}, 1 \right)
 $$
 
 - We save the new position and start again...
@@ -1786,7 +1786,7 @@ $$
 \frac{\partial p}{\partial x} = \frac{\beta}{2(1 + \cosh(\alpha + \beta \times x))}
 $$
 
-We can see that the variation on $p$ due to the predictor $x$ is a function of the predictor $x$, and also depends on the value of $alpha$... !
+We can see that the variation on $p$ due to the predictor $x$ is a function of the predictor $x$, and also depends on the value of $\alpha$... !
 
 ## Logistic regression example: Prosociality in chimpanzees
 
@@ -1804,21 +1804,21 @@ df1 <- open_data(chimpanzees)
 str(df1)
 ```
 
-- **pulled_left**: 1 when the chimpanzee pushes the left lever, 0 otherwise.
-- **prosoc_left**: 1 when the left lever is associated with the prosocial option, 0 otherwise.
-- **condition**: 1 when a partner is present, 0 otherwise.
+- **pulled_left**: 1 when the chimpanzee pulled the left lever, 0 otherwise.
+- **prosoc_left**: 1 when the left lever was associated with the prosocial option, 0 otherwise.
+- **condition**: 1 when a partner was present, 0 otherwise.
 
 ## Logistic regression example
 
 ### The question
 
-We want to know whether the presence of a partner chimpanzee encourages the chimpanzee to press the prosocial lever, that is, the lever that gives food to both individuals. In other words, is there an interaction between the effect of laterality and the effect of the presence of another chimpanzee on the probability of pressing the left lever?
+We want to know whether the presence of a partner chimpanzee encourages the chimpanzee to press the prosocial lever, that is, the lever that gives food to both individuals. In other words, is there an interaction between the effect of laterality and the effect of the presence of another chimpanzee on the probability of pulling the left lever?
 
 ### The variables
 
 ::: nonincremental
-- Observations (`pulled_left`): These are Bernoulli variables. Their value is 0/1.
-- Predictor (`prosoc_left`): Are the two dishes on the left or the right?
+- Observations (`pulled_left`): These are Bernoulli variables (0 or 1).
+- Predictor (`prosoc_left`): Are the two meals on the left or the right?
 - Predictor (`condition`): Is a partner present?
 :::
 
@@ -1856,7 +1856,7 @@ mod1.1 <- brm(
 ## Prior predictive check
 
 ```{r ppc-mod1.1, eval = TRUE, echo = TRUE, fig.width = 12, fig.height = 6, out.width = "60%"}
-# retrieving sample from the prior predictive distribution
+# retrieving samples from the prior predictive distribution
 prior_draws(x = mod1.1) %>%
   # applying the inverse link function
   mutate(p = brms::inv_logit_scaled(Intercept) ) %>%
@@ -1889,7 +1889,7 @@ bind_rows(prior_draws(mod1.1), prior_draws(mod1.2) ) %>%
 
 ## Logistic regression
 
-The intercept is interpreted in the log-odds space... to interpret it as a probability, we should apply the inverse link function. We can use the `brms::inv_logit_scaled()` function or the `plogis()` function.
+The intercept is interpreted in the log-odds space... to interpret it as a probability, we should apply the inverse link function. We can use the `brms::inv_logit_scaled()` or the `plogis()` function.
 
 . . .
 
@@ -1903,7 +1903,7 @@ On average (without considering the predictors), it seems that chimpanzees are s
 ## Logistic regression
 
 ```{r, eval = TRUE, echo = TRUE, results = "hide", fig.width = 9, fig.height = 6, out.width = "50%", dev = "png", dpi = 200}
-post <- as_draws_df(x = mod1.2) # retrieving the posterior sample
+post <- as_draws_df(x = mod1.2) # retrieving the posterior samples
 intercept_samples <- plogis(post$b_Intercept) # posterior samples for the intercept
 
 posterior_plot(samples = intercept_samples, compval = 0.5) + labs(x = "Probability of pulling left")
@@ -1923,7 +1923,7 @@ $$
 $$
 
 - $L_{i}$ indicates whether the monkey pulled the left lever (`pulled_left`).
-- $P_{i}$ indicates whether the left side corresponds to the prosocial side.
+- $P_{i}$ indicates whether the left side corresponded to the prosocial side.
 - $C_{i}$ indicates the presence of a partner.
 
 ## Logistic regression
@@ -2140,9 +2140,9 @@ $$
 
 Variables:
 
-- $\text{admit}_{i}$: The number of applications accepted (`admit`).
+- $\text{admit}_{i}$: The number of successful applications (`admit`).
 - $n_{i}$: The total number of applications (`applications`).
-- $m_{i}$: The gender of the applicant (`1 = Male`).
+- $m_{i}$: The aplicant's gender (`1 = Male`).
 
 ## Aggregated binomial regression
 
@@ -2567,7 +2567,7 @@ p.doodle <- plogis(post$b_Intercept + post$b_inscription) # average probability 
 posterior_plot(samples = p.panel - p.doodle, compval = 0, usemode = TRUE)
 ```
 
-The probability of presence is increased by around $0.16$ when registering on a panel compared with registering on a Doodle (slightly smaller effect than for the reminder).
+The probability of presence is increased by around $0.17$ when registering on a panel compared with registering on a Doodle (slightly smaller effect than for the reminder).
 
 ## Practical work
 
