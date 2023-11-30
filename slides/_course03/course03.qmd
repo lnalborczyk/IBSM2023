@@ -13,7 +13,8 @@ format:
     slide-number: c/t
     show-slide-number: all
     preview-links: true
-    self-contained: true # when sharing slides
+    embed-resources: true # for sharing slides
+    self-contained: true # for sharing slides
     # chalkboard: true
     csl: ../../files/bib/apa7.csl
     logo: ../../files/cover.png

@@ -898,7 +898,7 @@ In this framework, for each problem, we will follow 3 steps:
 ::: incremental
 - A woman gets a mammogram, the result is positive...
     - $\Pr(\text{Mam=+} \given \text{Cancer=+}) = 0.90$
-    - $\Pr(\text{Mum=+} \given \text{Cancer=-}) = 0.07$
+    - $\Pr(\text{Mam=+} \given \text{Cancer=-}) = 0.07$
 - Maximum likelihood: what is the value of $\text{Cancer}$ that **maximises** $\text{Mam=+}$?
 :::
 
@@ -910,7 +910,7 @@ This approach leads to the conclusion that cancer is present (because it maximis
 
 ![](figures/bayes.png){fig-align="center" width="50%"}
 
-## Medical diagnosis, working with frequencies
+## Medical diagnosis, working with natural frequencies
 
 ::: incremental
 - Consider 1000 women aged between 40 and 50, with no family history of cancer and no symptoms.
@@ -922,9 +922,13 @@ This approach leads to the conclusion that cancer is present (because it maximis
 - What should we infer?
 :::
 
-## Medical diagnosis, working with frequencies
+## Medical diagnosis, working with natural frequencies
 
 ![](figures/diagram.png){fig-align="center" width="50%"}
+
+```{r diagram, eval = FALSE, echo = FALSE}
+# check https://cran.r-project.org/web/packages/ggparty/vignettes/ggparty-graphic-partying.html
+```
 
 $$\Pr(\text{Cancer=+} \given \text{Mam=+}) = \frac{7}{7 + 69} = \frac{7}{76} \approx 0.09$$
 
